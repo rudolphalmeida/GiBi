@@ -11,7 +11,10 @@ set(HEADER_FILES
         include/mmu/memory.h
         include/mmu/cartridge.h
         include/mmu/bus.h)
-set(SRC_FILES src/cpu/cpu.cpp)
+set(SRC_FILES
+        src/cpu/cpu.cpp
+        src/mmu/bus.cpp
+        src/mmu/cartridge.cpp)
 
 find_package(spdlog CONFIG REQUIRED)
 

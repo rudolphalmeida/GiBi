@@ -54,9 +54,9 @@ inline bool willHalfCarry16BitAdd(word left, word right) {
     return (right & 0xFFFu) + (right & 0xFFFu) > 0xFFFu;
 }
 
-// Check if an address is in a particular range: [start, end)
+// Check if an address is in a particular range: [start, end]
 inline bool inRange(word address, word start, word end) {
-    return (address >= start) && (address < end);
+    return (address >= start) && (address <= end);
 }
 
 #endif  // GIBI_INCLUDE_GIBI_H_

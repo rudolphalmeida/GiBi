@@ -13,11 +13,13 @@
 #include "cpu.h"
 #include "gibi.h"
 #include "instr_timings.h"
+#include "mmu/bus.h"
 
 class Opcode {
    private:
     // TODO: Add the MMU to the template when implementing it
-    std::function<uint(CPU&)> proc;  // The code to be executed for each opcode
+    std::function<uint(CPU&, std::shared_ptr<Bus>)>
+        proc;  // The code to be executed for each opcode
 
    public:
     byte value;
@@ -31,7 +33,7 @@ class Opcode {
            byte length,
            byte tCycles,
            bool extended,
-           std::function<uint(CPU&)> proc)
+           std::function<uint(CPU&, std::shared_ptr<Bus>)> proc)
         : value{value},
           repr{std::move(repr)},
           length{length},
@@ -41,8 +43,8 @@ class Opcode {
 
     // Execute the opcode
     // TODO: Should pass in the MMU as well
-    uint operator()(CPU& cpu) const {
-        uint branch_taken_cycles = proc(cpu);
+    uint operator()(CPU& cpu, std::shared_ptr<Bus> bus) const {
+        uint branch_taken_cycles = proc(cpu, std::move(bus));
 
         if (extended) {
             return CB_CLOCK_CYCLES[value];

@@ -6,10 +6,14 @@
 #ifndef GIBI_INCLUDE_CPU_CPU_H_
 #define GIBI_INCLUDE_CPU_CPU_H_
 
+#include <memory>
+#include <utility>
+
 #include <spdlog/spdlog.h>
 
 #include "gibi.h"
 #include "instr_timings.h"
+#include "mmu/bus.h"
 
 // The GameBoy CPU had a 8-bit flag register of which only the upper nibble was
 // used. The lower nibble was always 0. The four flags included were:
@@ -72,6 +76,8 @@ class CPU {
     // the DI opcode, and enabled using the EI or RETI opcodes.
     bool interrupt_master;
 
+    std::shared_ptr<Bus> bus;
+
     // Run the ISR. Checks if there are any pending interrupts, changes CPU state to
     // executing, and jumps to the interrupt vector with the highest priority
     uint handle_interrupts();
@@ -81,7 +87,7 @@ class CPU {
 
    public:
     // Initialize the CPU with init values for the DMG-01 model
-    CPU()
+    explicit CPU(std::shared_ptr<Bus> bus)
         : a{0x01},
           f{0xB0},
           b{0x00},
@@ -93,7 +99,8 @@ class CPU {
           sp{0xFFFE},
           pc{0x00},  // This should start at 0x100 for emulation tests
           state{CPUState::EXECUTING},
-          interrupt_master{true} {}
+          interrupt_master{true},
+          bus{std::move(bus)} {}
 
     // Accessors for individual registers
     byte& A() { return a; }

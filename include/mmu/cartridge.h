@@ -33,23 +33,8 @@ class NoMBC : public Memory {
     // If only ROM is needed
     explicit NoMBC(std::vector<byte> rom) : rom{std::move(rom)}, ram{std::nullopt} {}
 
-    [[nodiscard]] byte read(word address) const override {
-        if (inRange(address, 0x0000, 0x8000)) {
-            return rom[address];
-        } else if (inRange(address, 0xA000, 0xC000) && ram) {
-            return ram.value()[address];
-        }
-
-        return 0xFF;  // This really shouldn't be needed
-    }
-
-    void write(word address, byte data) override {
-        if (inRange(address, 0x0000, 0x8000)) {
-            rom[address] = data;
-        } else if (inRange(address, 0xA000, 0xC000) && ram) {
-            ram.value()[address] = data;
-        }
-    }
+    [[nodiscard]] byte read(word address) const override;
+    void write(word address, byte data) override;
 };
 
 #endif  // GIBI_INCLUDE_MMU_CARTRIDGE_H_
