@@ -7,7 +7,10 @@
 #define GIBI_INCLUDE_GIBI_H_
 
 #include <cstdint>
+#include <fstream>
+#include <ios>
 #include <utility>
+#include <vector>
 
 using byte = uint8_t;
 using word = uint16_t;

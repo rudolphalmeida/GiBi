@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 set(HEADER_FILES
         include/gibi.h
+        include/GameBoy.h
         include/cpu/cpu.h
         include/cpu/instr_timings.h
         include/cpu/opcode.h
@@ -14,7 +15,8 @@ set(HEADER_FILES
 set(SRC_FILES
         src/cpu/cpu.cpp
         src/mmu/bus.cpp
-        src/mmu/cartridge.cpp)
+        src/mmu/cartridge.cpp
+        src/GameBoy.cpp)
 
 find_package(spdlog CONFIG REQUIRED)
 

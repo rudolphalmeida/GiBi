@@ -11,12 +11,51 @@
 #ifndef GIBI_INCLUDE_MMU_CARTRIDGE_H_
 #define GIBI_INCLUDE_MMU_CARTRIDGE_H_
 
+#include <memory>
 #include <optional>
+#include <string>
 #include <utility>
 #include <vector>
 
 #include "gibi.h"
 #include "memory.h"
+
+// Games could run on either the DMG, or the CGB, or both. Not implementing SGB
+enum class ModelMode { DMG, CGB, DMG_CGB };
+
+// What MBC the cart has if any
+enum class CartType { ROM, ROM_RAM, MBC1, MBC2 };
+
+std::pair<CartType, bool> determineMBCType(byte code);
+uint determineROMBanks(byte code);
+uint determineRAMSize(byte code);
+
+std::unique_ptr<Memory> initMBC(CartType type,
+                                bool savable,
+                                std::vector<byte>&& rom,
+                                std::optional<std::vector<byte>>&& ram);
+
+// Cartridges had a header located at 0x0100-0x014F which contained information
+// about the game, it's memory and MBC requirements, licence codes, etc.
+class Cartridge : public Memory {
+   private:
+    std::unique_ptr<Memory> mbc;
+    CartType mbcType;
+
+    bool savable;  // Does the cart have battery backup for game saves?
+
+    uint numRomBanks;  // Number of ROM banks of 16KB each
+    uint ramSizeInKB;  // Size in KBytes. If >8 then #RAM Banks = size / 8;
+
+    //    std::string title;
+    //    ModelMode mode;  // TODO: Let user choose this for games that support both
+
+   public:
+    explicit Cartridge(std::vector<byte> rom, std::optional<std::vector<byte>> ram = std::nullopt);
+
+    [[nodiscard]] byte read(word address) const override;
+    void write(word address, byte data) override;
+};
 
 // Smaller games of size less than 32KiB did not require a MBC chip for banking.
 // The whole game could simple fit in 0x0000-0x7FFF. Optionally, up to 8KiB of RAM
@@ -28,10 +67,10 @@ class NoMBC : public Memory {
     std::optional<std::vector<byte>> ram;
 
    public:
-    // If both RAM and ROM are needed
-    NoMBC(std::vector<byte> rom, std::vector<byte> ram) : rom{std::move(rom)}, ram{ram} {}
-    // If only ROM is needed
-    explicit NoMBC(std::vector<byte> rom) : rom{std::move(rom)}, ram{std::nullopt} {}
+    // The RAM is optional. Could be either user supplied if the game supports
+    // saving or allocated by the emulator if not supplied but required
+    explicit NoMBC(std::vector<byte> rom, std::optional<std::vector<byte>> ram = std::nullopt)
+        : rom{std::move(rom)}, ram{std::move(ram)} {}
 
     [[nodiscard]] byte read(word address) const override;
     void write(word address, byte data) override;

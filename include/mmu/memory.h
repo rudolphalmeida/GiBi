@@ -13,6 +13,8 @@ class Memory {
    public:
     [[nodiscard]] virtual byte read(word address) const = 0;
     virtual void write(word address, byte data) = 0;
+
+    virtual ~Memory() = default;
 };
 
 #endif  // GIBI_INCLUDE_MMU_MEMORY_H_
