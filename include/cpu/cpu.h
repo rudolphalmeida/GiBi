@@ -12,8 +12,8 @@
 #include <spdlog/spdlog.h>
 
 #include "gibi.h"
-#include "instr_timings.h"
 #include "mmu/bus.h"
+#include "timings.h"
 
 // The GameBoy CPU had a 8-bit flag register of which only the upper nibble was
 // used. The lower nibble was always 0. The four flags included were:
@@ -133,31 +133,31 @@ class CPU {
     [[nodiscard]] word DE() const { return composeWord(d, e); }
     [[nodiscard]] word HL() const { return composeWord(h, l); }
 
-    void setAF(word af) {
+    void AF(word af) {
         auto [a, f] = decomposeWord(af);
         this->a = a;
         this->f = StatusRegister(f);
     }
 
-    void setBC(word bc) {
+    void BC(word bc) {
         auto [b, c] = decomposeWord(bc);
         this->b = b;
         this->c = c;
     }
 
-    void setDE(word de) {
+    void DE(word de) {
         auto [d, e] = decomposeWord(de);
         this->d = d;
         this->e = e;
     }
 
-    void setHL(word hl) {
+    void HL(word hl) {
         auto [h, l] = decomposeWord(hl);
         this->h = h;
         this->l = l;
     }
 
-    // Run the next `atomic` action for the CPU. This could be the ISR, a NOP if
+    // Run the next "atomic" action for the CPU. This could be the ISR, a NOP if
     // the CPU is halted, or a single opcode
     uint tick();
 };

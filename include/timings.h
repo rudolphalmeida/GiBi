@@ -1,16 +1,16 @@
 /*
- * Opcode timings. All timings are clock cycles at 4.19MHz. Dividing by 4 gives us
- * the machine cycles at 1.05MHz
+ * Timings for many different operations in the GameBoy.
+ * All timings are clock cycles at 4.19MHz. Dividing by 4 gives us the machine
+ * cycles at 1.05MHz
  * Author: Rudolph Almeida <rudolf1.almeida@gmail.com>
  * */
 
-#ifndef GIBI_INCLUDE_CPU_INSTR_TIMINGS_H_
-#define GIBI_INCLUDE_CPU_INSTR_TIMINGS_H_
-
-/* clang-format off */
+#ifndef GIBI_INCLUDE_TIMINGS_H_
+#define GIBI_INCLUDE_TIMINGS_H_
 
 #include "gibi.h"
 
+/* clang-format off */
 const uint NON_CB_CLOCK_CYCLES[] = {
 //  0   1   2   3   4   5   6   7   8   9   a   b  c   d   e  f
     4,  12, 8,  8,  4,  4,  8,  4,  20, 8,  8,  8, 4,  4,  8, 4,  // 0
@@ -50,5 +50,6 @@ const uint CB_CLOCK_CYCLES[] = {
     8, 8, 8, 8, 8, 8, 16, 8, 8, 8, 8, 8, 8, 8, 16, 8, // e
     8, 8, 8, 8, 8, 8, 16, 8, 8, 8, 8, 8, 8, 8, 16, 8, // f
 };
+/* clang-format on */
 
-#endif  // GIBI_INCLUDE_CPU_INSTR_TIMINGS_H_
+#endif  // GIBI_INCLUDE_TIMINGS_H_

@@ -7,12 +7,12 @@
 
 byte Bus::read(word address) const {
     if (inRange(address, 0x0000, 0x7FFF)) {
-        return cart->read(address);
+        return cart.read(address);
     } else if (inRange(address, 0x8000, 0x9FFF)) {
         // PPU
         return 0xFF;
     } else if (inRange(address, 0xA000, 0xBFFF)) {
-        return cart->read(address);
+        return cart.read(address);
     } else if (inRange(address, 0xC000, 0xDFFF)) {
         return wram[address - 0xC000];
     } else if (inRange(address, 0xE000, 0xFDFF)) {
@@ -34,11 +34,11 @@ byte Bus::read(word address) const {
 
 void Bus::write(word address, byte data) {
     if (inRange(address, 0x0000, 0x7FFF)) {
-        cart->write(address, data);
+        cart.write(address, data);
     } else if (inRange(address, 0x8000, 0x9FFF)) {
         // PPU
     } else if (inRange(address, 0xA000, 0xBFFF)) {
-        cart->write(address, data);
+        cart.write(address, data);
     } else if (inRange(address, 0xC000, 0xDFFF)) {
         wram[address - 0xC000] = data;
     } else if (inRange(address, 0xE000, 0xFDFF)) {

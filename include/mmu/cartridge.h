@@ -31,7 +31,6 @@ uint determineROMBanks(byte code);
 uint determineRAMSize(byte code);
 
 std::unique_ptr<Memory> initMBC(CartType type,
-                                bool savable,
                                 std::vector<byte>&& rom,
                                 std::optional<std::vector<byte>>&& ram);
 

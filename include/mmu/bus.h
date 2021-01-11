@@ -20,12 +20,13 @@
 // component or region of memory
 class Bus : public Memory {
    private:
-    std::shared_ptr<Memory> cart;
+    Cartridge cart;
     std::vector<byte> wram;
     std::vector<byte> hram;
 
    public:
-    explicit Bus(std::shared_ptr<Memory> cart) : cart{std::move(cart)}, wram(0x2000), hram(0x7F) {}
+    // Bus needs to have ownership the Cartridge
+    explicit Bus(Cartridge&& cart) : cart{std::move(cart)}, wram(0x2000), hram(0x7F) {}
 
     [[nodiscard]] byte read(word address) const override;
 

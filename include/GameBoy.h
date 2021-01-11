@@ -14,6 +14,9 @@
 // Read a binary file from disk
 std::vector<byte> readBinaryToVec(const char* filename);
 
-class GameBoy {};
+class GameBoy {
+   public:
+    GameBoy(int argc, char** argv);
+};
 
 #endif  // GIBI_INCLUDE_GAMEBOY_H_

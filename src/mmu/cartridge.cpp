@@ -41,7 +41,7 @@ Cartridge::Cartridge(std::vector<byte> rom, std::optional<std::vector<byte>> ram
         ram = std::optional(data);
     }
 
-    this->mbc = std::move(initMBC(mbcType, savable, std::move(rom), std::move(ram)));
+    this->mbc = std::move(initMBC(mbcType, std::move(rom), std::move(ram)));
 }
 
 byte Cartridge::read(word address) const {
@@ -138,7 +138,6 @@ uint determineRAMSize(byte code) {
 }
 
 std::unique_ptr<Memory> initMBC(CartType type,
-                                bool savable,
                                 std::vector<byte>&& rom,
                                 std::optional<std::vector<byte>>&& ram) {
     switch (type) {

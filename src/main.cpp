@@ -5,7 +5,8 @@
 
 #include <iostream>
 
-int main(int argc, char ** argv) {
-    std::cout << "Hello, World!" << std::endl;
-    return 0;
+#include "GameBoy.h"
+
+int main(int argc, char** argv) {
+    GameBoy gameboy(argc, argv);
 }

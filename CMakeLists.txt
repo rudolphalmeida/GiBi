@@ -7,7 +7,7 @@ set(HEADER_FILES
         include/gibi.h
         include/GameBoy.h
         include/cpu/cpu.h
-        include/cpu/instr_timings.h
+        include/timings.h
         include/cpu/opcode.h
         include/mmu/memory.h
         include/mmu/cartridge.h
@@ -19,7 +19,8 @@ set(SRC_FILES
         src/GameBoy.cpp)
 
 find_package(spdlog CONFIG REQUIRED)
+find_package(args CONFIG REQUIRED)
 
 add_executable(GiBi src/main.cpp ${HEADER_FILES} ${SRC_FILES})
 target_include_directories(GiBi PRIVATE include)
-target_link_libraries(GiBi PRIVATE spdlog::spdlog spdlog::spdlog_header_only)
+target_link_libraries(GiBi PRIVATE spdlog::spdlog spdlog::spdlog_header_only taywee::args)

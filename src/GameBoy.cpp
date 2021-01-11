@@ -21,3 +21,5 @@ std::vector<byte> readBinaryToVec(const char* filename) {
 
     return data;
 }
+
+GameBoy::GameBoy(int argc, char** argv) {}

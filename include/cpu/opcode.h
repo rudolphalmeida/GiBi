@@ -12,8 +12,8 @@
 
 #include "cpu.h"
 #include "gibi.h"
-#include "instr_timings.h"
 #include "mmu/bus.h"
+#include "timings.h"
 
 class Opcode {
    private:
