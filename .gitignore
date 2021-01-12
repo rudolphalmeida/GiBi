@@ -3,5 +3,7 @@ cmake-build*
 .vscode
 build*
 
+roms
+
 .DS_Store
 

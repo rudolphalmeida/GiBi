@@ -86,6 +86,8 @@ class CPU {
     uint execute();
 
    public:
+    CPU(): CPU(nullptr) {}
+
     // Initialize the CPU with init values for the DMG-01 model
     explicit CPU(std::shared_ptr<Bus> bus)
         : a{0x01},
