@@ -29,7 +29,18 @@ class GameBoy {
 
    public:
     GameBoy(int argc, char** argv);
+
+    // Run the emulator till the user quits (or it crashes)
     int run();
+
+    // The main input-update-render loop. Should run at 60FPS
+    [[noreturn]] void gameLoop();
+
+    // Run one frame worth of clock cycles for each component
+    void update();
+
+    // Use the clock cycles used by the CPU to drive the other components
+    uint tick();
 };
 
 #endif  // GIBI_INCLUDE_GAMEBOY_H_

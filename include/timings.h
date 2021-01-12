@@ -10,6 +10,8 @@
 
 #include "gibi.h"
 
+const uint CYCLES_PER_FRAME = 69905;
+
 /* clang-format off */
 const uint NON_CB_CLOCK_CYCLES[] = {
 //  0   1   2   3   4   5   6   7   8   9   a   b  c   d   e  f
