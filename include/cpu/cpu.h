@@ -86,7 +86,7 @@ class CPU {
     uint execute();
 
    public:
-    CPU(): CPU(nullptr) {}
+    CPU() : CPU(nullptr) {}
 
     // Initialize the CPU with init values for the DMG-01 model
     explicit CPU(std::shared_ptr<Bus> bus)
@@ -135,33 +135,25 @@ class CPU {
     [[nodiscard]] word DE() const { return composeWord(d, e); }
     [[nodiscard]] word HL() const { return composeWord(h, l); }
 
-    void AF(word af) {
-        auto [a, f] = decomposeWord(af);
-        this->a = a;
-        this->f = StatusRegister(f);
-    }
-
-    void BC(word bc) {
-        auto [b, c] = decomposeWord(bc);
-        this->b = b;
-        this->c = c;
-    }
-
-    void DE(word de) {
-        auto [d, e] = decomposeWord(de);
-        this->d = d;
-        this->e = e;
-    }
-
-    void HL(word hl) {
-        auto [h, l] = decomposeWord(hl);
-        this->h = h;
-        this->l = l;
-    }
+    void AF(word af);
+    void BC(word bc);
+    void DE(word de);
+    void HL(word hl);
 
     // Run the next "atomic" action for the CPU. This could be the ISR, a NOP if
     // the CPU is halted, or a single opcode
     uint tick();
+
+    // Fetch the byte at PC and increment PC
+    byte fetchByte();
+
+    // Fetch a word with LSB at PC and increment PC twice
+    word fetchWord();
+
+    // Procedures required by opcodes
+    // Load instruction
+    template <typename T>
+    void load(T& dest, T src);
 };
 
 #endif  // GIBI_INCLUDE_CPU_CPU_H_

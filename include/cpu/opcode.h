@@ -17,7 +17,6 @@
 
 class Opcode {
    private:
-    // TODO: Add the MMU to the template when implementing it
     std::function<uint(CPU&, std::shared_ptr<Bus>)>
         proc;  // The code to be executed for each opcode
 
@@ -42,7 +41,6 @@ class Opcode {
           proc{std::move(proc)} {}
 
     // Execute the opcode
-    // TODO: Should pass in the MMU as well
     uint operator()(CPU& cpu, std::shared_ptr<Bus> bus) const {
         uint branch_taken_cycles = proc(cpu, std::move(bus));
 
