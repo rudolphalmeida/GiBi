@@ -95,7 +95,7 @@ int GameBoy::run() {
 }
 
 void GameBoy::update() {
-    int cyclesThisFrame = 0;
+    uint cyclesThisFrame = 0;
 
     while (cyclesThisFrame < CYCLES_PER_FRAME) {
         cyclesThisFrame += tick();

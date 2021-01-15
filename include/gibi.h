@@ -19,19 +19,19 @@ using uint = uint32_t;
 // Check if bit of value is set (i.e. 1)
 template <typename U>
 inline bool isSet(U value, byte bit) {
-    return (value & (0b1u << value)) != 0;
+    return (value & (0b1u << bit)) != 0;
 }
 
 // Set bit of value to 1
 template <typename U>
 inline byte set(U value, byte bit) {
-    return (value | (0b1u << value));
+    return (value | (0b1u << bit));
 }
 
 // Reset bit of value to 0
 template <typename U>
 inline byte reset(U value, byte bit) {
-    return (value & ~(0b1u << value));
+    return (value & ~(0b1u << bit));
 }
 
 // Compose a word from two bytes
@@ -54,7 +54,7 @@ inline bool willHalfCarry8BitAdd(byte left, byte right) {
 
 // Check if addition of two words results in a half-carry
 inline bool willHalfCarry16BitAdd(word left, word right) {
-    return (right & 0xFFFu) + (right & 0xFFFu) > 0xFFFu;
+    return (left & 0xFFFu) + (right & 0xFFFu) > 0xFFFu;
 }
 
 // Check if an address is in a particular range: [start, end]
