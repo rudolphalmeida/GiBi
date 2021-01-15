@@ -74,7 +74,7 @@ class CPU {
 
     // This register is used to enable/disable all interrupts. Can be reset using
     // the DI opcode, and enabled using the EI or RETI opcodes.
-    bool interrupt_master;
+//    bool interrupt_master;
 
     std::shared_ptr<Bus> bus;
 
@@ -91,18 +91,24 @@ class CPU {
     // Initialize the CPU with init values for the DMG-01 model
     explicit CPU(std::shared_ptr<Bus> bus)
         : a{0x01},
-          f{0xB0},
           b{0x00},
           c{0x13},
           d{0x00},
           e{0xD8},
           h{0x01},
           l{0x4D},
+          f{0xB0},
           sp{0xFFFE},
           pc{0x00},  // This should start at 0x100 for emulation tests
           state{CPUState::EXECUTING},
-          interrupt_master{true},
+//          interrupt_master{true},
           bus{std::move(bus)} {}
+
+    word& SP() { return sp; }
+    [[nodiscard]] const word& SP() const { return sp; }
+
+    word& PC() { return pc; }
+    [[nodiscard]] const word& PC() const { return pc; }
 
     // Accessors for individual registers
     byte& A() { return a; }
@@ -144,6 +150,9 @@ class CPU {
     // the CPU is halted, or a single opcode
     uint tick();
 
+    // These methods should all be private but friend class Opcode doesn't help.
+    // TODO: Make these methods private
+
     // Fetch the byte at PC and increment PC
     byte fetchByte();
 
@@ -154,6 +163,21 @@ class CPU {
     // Load instruction
     template <typename T>
     void load(T& dest, T src);
+
+    // RLCA - Rotate Register A Left
+    void rlca() {
+        f.cy = isSet(A(), 7);
+        A() = A() << 1u;  // Shift all to left and set bit 0 to old bit 7
+        if (f.cy) {
+            set(A(), 0);
+        } else {
+            reset(A(), 0);
+        }
+
+        f.zf = false;
+        f.n = false;
+        f.h = false;
+    }
 };
 
 #endif  // GIBI_INCLUDE_CPU_CPU_H_

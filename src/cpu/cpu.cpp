@@ -4,6 +4,7 @@
  * */
 
 #include "cpu/cpu.h"
+#include "cpu/instructions.h"
 #include "gibi.h"
 
 uint CPU::tick() {

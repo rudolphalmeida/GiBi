@@ -41,7 +41,7 @@ Cartridge::Cartridge(std::vector<byte> rom, std::optional<std::vector<byte>> ram
         ram = std::optional(data);
     }
 
-    this->mbc = std::move(initMBC(mbcType, std::move(rom), std::move(ram)));
+    this->mbc = initMBC(mbcType, std::move(rom), std::move(ram));
 }
 
 byte Cartridge::read(word address) const {

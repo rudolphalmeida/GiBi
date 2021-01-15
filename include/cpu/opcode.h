@@ -17,7 +17,7 @@
 
 class Opcode {
    private:
-    std::function<uint(CPU&, std::shared_ptr<Bus>)>
+    std::function<uint(CPU&, std::shared_ptr<Bus>&)>
         proc;  // The code to be executed for each opcode
 
    public:
@@ -32,17 +32,17 @@ class Opcode {
            byte length,
            byte tCycles,
            bool extended,
-           std::function<uint(CPU&, std::shared_ptr<Bus>)> proc)
-        : value{value},
+           std::function<uint(CPU&, std::shared_ptr<Bus>&)> proc)
+        : proc{std::move(proc)},
+          value{value},
           repr{std::move(repr)},
           length{length},
           tCycles{tCycles},
-          extended{extended},
-          proc{std::move(proc)} {}
+          extended{extended} {}
 
     // Execute the opcode
     uint operator()(CPU& cpu, std::shared_ptr<Bus> bus) const {
-        uint branch_taken_cycles = proc(cpu, std::move(bus));
+        uint branch_taken_cycles = proc(cpu, bus);
 
         if (extended) {
             return CB_CLOCK_CYCLES[value];
