@@ -24,5 +24,8 @@ find_package(args CONFIG REQUIRED)
 add_executable(GiBi src/main.cpp ${HEADER_FILES} ${SRC_FILES})
 target_include_directories(GiBi PRIVATE include)
 target_link_libraries(GiBi PRIVATE spdlog::spdlog spdlog::spdlog_header_only taywee::args)
-# TODO: Use this only when compiling with GCC or Clang. Use alternative for VS
-target_compile_options(GiBi PRIVATE -Werror -Wall -Wextra)
+target_compile_options(GiBi PRIVATE
+        $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
+        -Wall -Wextra -Werror>
+        $<$<CXX_COMPILER_ID:MSVC>:
+        /W4 /WX>)
