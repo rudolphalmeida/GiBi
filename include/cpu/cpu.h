@@ -74,7 +74,7 @@ class CPU {
 
     // This register is used to enable/disable all interrupts. Can be reset using
     // the DI opcode, and enabled using the EI or RETI opcodes.
-//    bool interrupt_master;
+    //    bool interrupt_master;
 
     std::shared_ptr<Bus> bus;
 
@@ -101,7 +101,7 @@ class CPU {
           sp{0xFFFE},
           pc{0x00},  // This should start at 0x100 for emulation tests
           state{CPUState::EXECUTING},
-//          interrupt_master{true},
+          //          interrupt_master{true},
           bus{std::move(bus)} {}
 
     word& SP() { return sp; }
@@ -165,19 +165,19 @@ class CPU {
     void load(T& dest, T src);
 
     // RLCA - Rotate Register A Left
-    void rlca() {
-        f.cy = isSet(A(), 7);
-        A() = A() << 1u;  // Shift all to left and set bit 0 to old bit 7
-        if (f.cy) {
-            set(A(), 0);
-        } else {
-            reset(A(), 0);
-        }
+    void rlca();
 
-        f.zf = false;
-        f.n = false;
-        f.h = false;
-    }
+    // RRCA - Rotate Register A Right
+    void rrca();
+
+    // Used for INC r8 opcodes
+    void incR8(byte& reg);
+
+    // Used for DEC r8 opcodes
+    void decR8(byte& reg);
+
+    // Used for ADD HL, ** opcodes
+    void addToHL(word value);
 };
 
 #endif  // GIBI_INCLUDE_CPU_CPU_H_

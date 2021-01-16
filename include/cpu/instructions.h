@@ -36,12 +36,12 @@ const std::vector<Opcode> nonExtendedOpcodes = {
            }},
     Opcode{0x04, "INC B", 1, 4, false,
            [](CPU& cpu, SPBus&) {
-               cpu.B() += 1;
+               cpu.incR8(cpu.B());
                return 0;
            }},
     Opcode{0x05, "DEC B", 1, 4, false,
            [](CPU& cpu, SPBus&) {
-               cpu.B() -= 1;
+               cpu.decR8(cpu.B());
                return 0;
            }},
     Opcode{0x06, "LD B, u8", 2, 8, false,
@@ -54,10 +54,46 @@ const std::vector<Opcode> nonExtendedOpcodes = {
                cpu.rlca();
                return 0;
            }},
-    Opcode{0x08, "LD (u16), SP", 3, 20, false, [](CPU& cpu, SPBus& bus) {
-               word address = cpu.fetchWord();
-               bus->write(address, cpu.SP());
+    Opcode{0x08, "LD (u16), SP", 3, 20, false,
+           [](CPU& cpu, SPBus& bus) {
+               bus->write(cpu.fetchWord(), cpu.SP());
                return 0;
-           }}};
+           }},
+    Opcode{0x09, "ADD HL, BC", 1, 8, false,
+           [](CPU& cpu, SPBus&) {
+               cpu.addToHL(cpu.BC());
+               return 0;
+           }},
+    Opcode{0x0A, "LD A, (BC)", 1, 8, false,
+           [](CPU& cpu, SPBus& bus) {
+               cpu.A() = bus->read(cpu.BC());
+               return 0;
+           }},
+    Opcode{0x0B, "DEC BC", 1, 8, false,
+           [](CPU& cpu, SPBus&) {
+               cpu.BC(cpu.BC() - 1);
+               return 0;
+           }},
+    Opcode{0x0C, "INC C", 1, 4, false,
+           [](CPU& cpu, SPBus&) {
+               cpu.incR8(cpu.C());
+               return 0;
+           }},
+    Opcode{0x0D, "DEC C", 1, 4, false,
+           [](CPU& cpu, SPBus&) {
+               cpu.decR8(cpu.C());
+               return 0;
+           }},
+    Opcode{0x0E, "LD C, u8", 2, 8, false,
+           [](CPU& cpu, SPBus&) {
+               cpu.C() = cpu.fetchByte();
+               return 0;
+           }},
+    Opcode{0x0F, "RRCA", 1, 4, false,
+           [](CPU& cpu, SPBus&) {
+               cpu.rrca();
+               return 0;
+           }},
+};
 
 #endif  // GIBI_INCLUDE_CPU_INSTRUCTIONS_H_

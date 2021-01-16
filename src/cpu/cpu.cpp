@@ -65,3 +65,59 @@ template <typename T>
 void CPU::load(T& dest, T src) {
     dest = src;
 }
+
+void CPU::addToHL(word value) {
+    uint result = HL() + value;
+
+    f.n = false;
+    f.h = willHalfCarry16BitAdd(HL(), value);
+    f.cy = (result & 0x10000u) != 0;
+
+    HL(static_cast<word>(result));
+}
+
+void CPU::decR8(byte& reg) {
+    f.h = (reg & 0x0Fu) == 0x0Fu;
+    f.n = true;
+
+    reg = reg - 1;
+
+    f.zf = reg == 0;
+}
+
+void CPU::incR8(byte& reg) {
+    f.h = willHalfCarry8BitAdd(reg, 1);
+    f.n = false;
+
+    reg = reg + 1;
+
+    f.zf = reg == 0;
+}
+
+void CPU::rrca() {
+    f.cy = isSet(A(), 0);
+    A() = A() >> 1u;  // Shift all to right and set bit 7 to old bit 0
+    if (f.cy) {
+        set(A(), 7);
+    } else {
+        reset(A(), 7);
+    }
+
+    f.zf = false;
+    f.n = false;
+    f.h = false;
+}
+
+void CPU::rlca() {
+    f.cy = isSet(A(), 7);
+    A() = A() << 1u;  // Shift all to left and set bit 0 to old bit 7
+    if (f.cy) {
+        set(A(), 0);
+    } else {
+        reset(A(), 0);
+    }
+
+    f.zf = false;
+    f.n = false;
+    f.h = false;
+}
