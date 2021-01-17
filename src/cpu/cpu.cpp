@@ -61,11 +61,6 @@ word CPU::fetchWord() {
     return composeWord(msb, lsb);
 }
 
-template <typename T>
-void CPU::load(T& dest, T src) {
-    dest = src;
-}
-
 void CPU::addToHL(word value) {
     uint result = HL() + value;
 
@@ -98,9 +93,9 @@ void CPU::rrca() {
     f.cy = isSet(A(), 0);
     A() = A() >> 1u;  // Shift all to right and set bit 7 to old bit 0
     if (f.cy) {
-        set(A(), 7);
+        setBit(A(), 7);
     } else {
-        reset(A(), 7);
+        resetBit(A(), 7);
     }
 
     f.zf = false;
@@ -112,12 +107,36 @@ void CPU::rlca() {
     f.cy = isSet(A(), 7);
     A() = A() << 1u;  // Shift all to left and set bit 0 to old bit 7
     if (f.cy) {
-        set(A(), 0);
+        setBit(A(), 0);
     } else {
-        reset(A(), 0);
+        resetBit(A(), 0);
     }
 
     f.zf = false;
     f.n = false;
     f.h = false;
+}
+
+void CPU::rla() {
+    bool oldCarry = f.cy;
+    rlca();  // This will set all flags
+
+    // Ignore the 0 bit from RLCA and set to oldCarry
+    if (oldCarry) {
+        setBit(A(), 0);
+    } else {
+        resetBit(A(), 0);
+    }
+}
+
+void CPU::rra() {
+    bool oldCarry = f.cy;
+    rrca();  // This will set all flags
+
+    // Ignore the 7 bit from RLCA and set to oldCarry
+    if (oldCarry) {
+        setBit(A(), 7);
+    } else {
+        resetBit(A(), 7);
+    }
 }

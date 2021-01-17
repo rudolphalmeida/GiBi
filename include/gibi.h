@@ -15,6 +15,7 @@
 using byte = uint8_t;
 using word = uint16_t;
 using uint = uint32_t;
+using sbyte = int8_t;  // Signed byte
 
 // Check if bit of value is set (i.e. 1)
 template <typename U>
@@ -24,13 +25,13 @@ inline bool isSet(U value, byte bit) {
 
 // Set bit of value to 1
 template <typename U>
-inline byte set(U value, byte bit) {
+inline byte setBit(U value, byte bit) {
     return (value | (0b1u << bit));
 }
 
 // Reset bit of value to 0
 template <typename U>
-inline byte reset(U value, byte bit) {
+inline byte resetBit(U value, byte bit) {
     return (value & ~(0b1u << bit));
 }
 

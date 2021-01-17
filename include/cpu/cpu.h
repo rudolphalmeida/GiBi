@@ -160,15 +160,18 @@ class CPU {
     word fetchWord();
 
     // Procedures required by opcodes
-    // Load instruction
-    template <typename T>
-    void load(T& dest, T src);
 
     // RLCA - Rotate Register A Left
     void rlca();
 
     // RRCA - Rotate Register A Right
     void rrca();
+
+    // RLA - Rotate Register A Left through Carry
+    void rla();
+
+    // RRA - Rotate Register A Right through Carry
+    void rra();
 
     // Used for INC r8 opcodes
     void incR8(byte& reg);

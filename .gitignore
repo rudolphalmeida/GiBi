@@ -4,6 +4,7 @@ cmake-build*
 build*
 
 roms
+srctrl
 
 .DS_Store
 
