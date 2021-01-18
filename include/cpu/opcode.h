@@ -24,7 +24,7 @@ class Opcode {
     byte value;
     std::string repr;  // String representation of the opcode
     byte length;       // In bytes
-    byte tCycles;      // Clock cycles taken by the opcode at 4.19MHz
+    byte tCycles;      // Base clock cycles taken by the opcode at 4.19MHz
     bool extended;     // Is the opcode 0xCB prefixed?
 
     Opcode(byte value,

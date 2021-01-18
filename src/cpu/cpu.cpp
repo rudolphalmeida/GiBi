@@ -140,3 +140,33 @@ void CPU::rra() {
         resetBit(A(), 7);
     }
 }
+
+void CPU::daa() {
+    word correction = 0u;
+
+    if (f.h || (!f.n && (a & 0xFu) > 9)) {
+        correction |= 0x6u;
+    }
+
+    if (f.cy || (!f.n && (a > 0x99))) {
+        correction |= 0x60u;
+        f.cy = true;
+    }
+
+    if (f.n) {
+        A() = A() - correction;
+    } else {
+        A() = A() + correction;
+    }
+
+    A() = A() & 0xFFu;
+
+    f.zf = A() == 0;
+    f.h = false;
+}
+
+void CPU::cpl() {
+    A() = ~A();
+    f.n = true;
+    f.h = true;
+}

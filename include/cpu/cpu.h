@@ -181,6 +181,13 @@ class CPU {
 
     // Used for ADD HL, ** opcodes
     void addToHL(word value);
+
+    // Decimal Adjust Akku
+    // Reference: https://ehaskins.com/2018-01-30%20Z80%20DAA/
+    void daa();
+
+    // CPL - Complement Accumalator
+    void cpl();
 };
 
 #endif  // GIBI_INCLUDE_CPU_CPU_H_
