@@ -249,6 +249,92 @@ const std::vector<Opcode> nonExtendedOpcodes = {
                cpu.cpl();
                return 0;
            }},
+    Opcode{0x30, "JR NC, i8", 2, 8, false, [](CPU&cpu, SPBus&) {
+               if (!cpu.F().cy) {
+                   cpu.PC() = cpu.PC() + static_cast<sbyte>(cpu.fetchByte());
+                   return 4;
+               } else {
+                   cpu.fetchByte();
+                   return 0;
+               }
+           }},
+    Opcode{0x31, "LD SP, u16", 3, 12, false, [](CPU& cpu, SPBus&) {
+               cpu.SP() = cpu.fetchWord();
+               return 0;
+           }},
+    Opcode{0x32, "LD (HL-), A", 1, 8, false, [](CPU&cpu, SPBus& bus) {
+               bus->write(cpu.HL(), cpu.A());
+               cpu.HL(cpu.HL() - 1);
+               return 0;
+           }},
+    Opcode{0x33, "INC SP", 1, 8, false, [](CPU&cpu, SPBus&) {
+               cpu.SP() = cpu.SP() + 1;
+               return 0;
+           }},
+    Opcode{0x34, "INC (HL)", 1, 12, false, [](CPU& cpu, SPBus& bus) {
+                byte value = bus->read(cpu.HL());
+                cpu.incR8(value);
+                bus->write(cpu.HL(), value);
+                return 0;
+           }},
+    Opcode{0x35, "DEC (HL)", 1, 12, false, [](CPU& cpu, SPBus& bus) {
+               byte value = bus->read(cpu.HL());
+               cpu.decR8(value);
+               bus->write(cpu.HL(), value);
+               return 0;
+           }},
+    Opcode{0x36, "LD (HL), u8", 2, 12, false, [](CPU&cpu, SPBus& bus) {
+               bus->write(cpu.HL(), cpu.fetchByte());
+               return 0;
+           }},
+    Opcode{0x37, "SCF", 1, 4, false, [](CPU& cpu, SPBus&) {
+               auto& F = cpu.F();
+               F.cy = true;
+               F.n = false;
+               F.h = false;
+               return 0;
+           }},
+    Opcode{0x38, "JR C, i8", 2, 8, false, [](CPU& cpu, SPBus&) {
+               if (cpu.F().cy) {
+                   cpu.PC() = cpu.PC() + static_cast<sbyte>(cpu.fetchByte());
+                   return 4;
+               } else {
+                   cpu.fetchByte();
+                   return 0;
+               }
+           }},
+    Opcode{0x39, "ADD HL, SP", 1, 8, false, [](CPU& cpu, SPBus&) {
+               cpu.addToHL(cpu.SP());
+               return 0;
+           }},
+    Opcode{0x3A, "LD A, (HL-)", 1, 8, false, [](CPU& cpu, SPBus& bus) {
+               cpu.A() = bus->read(cpu.HL());
+               cpu.HL(cpu.HL() - 1);
+               return 0;
+           }},
+    Opcode{0x3B, "DEC SP", 1, 8, false, [](CPU& cpu, SPBus&) {
+               cpu.SP() = cpu.SP() - 1;
+               return 0;
+           }},
+    Opcode{0x3C, "INC A", 1, 4, false, [](CPU& cpu, SPBus&) {
+               cpu.incR8(cpu.A());
+               return 0;
+           }},
+    Opcode{0x3D, "DEC A", 1, 4, false, [](CPU& cpu, SPBus&) {
+               cpu.decR8(cpu.A());
+               return 0;
+           }},
+    Opcode{0x3E, "LD A, u8", 1, 8, false, [](CPU& cpu, SPBus&) {
+               cpu.A() = cpu.fetchByte();
+               return 0;
+           }},
+    Opcode{0x3F, "CCF", 1, 4, false, [](CPU& cpu, SPBus&) {
+               auto& F = cpu.F();
+               F.cy = !F.cy;
+               F.n = false;
+               F.h = false;
+               return 0;
+           }},
 };
 
 #endif  // GIBI_INCLUDE_CPU_INSTRUCTIONS_H_
