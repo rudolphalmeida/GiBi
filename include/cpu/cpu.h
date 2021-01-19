@@ -70,8 +70,6 @@ class CPU {
 
     word sp, pc;
 
-    CPUState state;
-
     // This register is used to enable/disable all interrupts. Can be reset using
     // the DI opcode, and enabled using the EI or RETI opcodes.
     //    bool interrupt_master;
@@ -86,6 +84,9 @@ class CPU {
     uint execute();
 
    public:
+
+    CPUState state;
+
     CPU() : CPU(nullptr) {}
 
     // Initialize the CPU with init values for the DMG-01 model
@@ -100,9 +101,9 @@ class CPU {
           f{0xB0},
           sp{0xFFFE},
           pc{0x00},  // This should start at 0x100 for emulation tests
-          state{CPUState::EXECUTING},
           //          interrupt_master{true},
-          bus{std::move(bus)} {}
+          bus{std::move(bus)},
+          state{CPUState::EXECUTING} {}
 
     word& SP() { return sp; }
     [[nodiscard]] const word& SP() const { return sp; }

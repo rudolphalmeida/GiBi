@@ -96,6 +96,7 @@ const std::vector<Opcode> nonExtendedOpcodes = {
            }},
     Opcode{0x10, "STOP", 2, 4, false,
            [](CPU& cpu, SPBus&) {
+               cpu.state = CPUState::HALTED;
                cpu.fetchByte();  // Why is STOP 2 bytes?
                return 0;
            }},
@@ -397,6 +398,70 @@ const std::vector<Opcode> nonExtendedOpcodes = {
            }},
     Opcode{0x4F, "LD C, A", 1, 4, false, [](CPU& cpu, SPBus&) {
                cpu.C() = cpu.A();
+               return 0;
+           }},
+    Opcode{0x50, "LD D, B", 1, 4, false, [](CPU& cpu, SPBus&) {
+               cpu.D() = cpu.B();
+               return 0;
+           }},
+    Opcode{0x51, "LD D, C", 1, 4, false, [](CPU& cpu, SPBus&) {
+               cpu.D() = cpu.C();
+               return 0;
+           }},
+    Opcode{0x52, "LD D, D", 1, 4, false, [](CPU& cpu, SPBus&) {
+               cpu.D() = cpu.D();
+               return 0;
+           }},
+    Opcode{0x53, "LD D, E", 1, 4, false, [](CPU& cpu, SPBus&) {
+               cpu.D() = cpu.E();
+               return 0;
+           }},
+    Opcode{0x54, "LD D, H", 1, 4, false, [](CPU& cpu, SPBus&) {
+               cpu.D() = cpu.H();
+               return 0;
+           }},
+    Opcode{0x55, "LD D, L", 1, 4, false, [](CPU& cpu, SPBus&) {
+               cpu.D() = cpu.L();
+               return 0;
+           }},
+    Opcode{0x56, "LD D, (HL)", 1, 8, false, [](CPU& cpu, SPBus& bus) {
+               cpu.D() = bus->read(cpu.HL());
+               return 0;
+           }},
+    Opcode{0x57, "LD D, A", 1, 4, false, [](CPU& cpu, SPBus&) {
+               cpu.D() = cpu.A();
+               return 0;
+           }},
+    Opcode{0x58, "LD E, B", 1, 4, false, [](CPU& cpu, SPBus&) {
+               cpu.E() = cpu.B();
+               return 0;
+           }},
+    Opcode{0x59, "LD E, C", 1, 4, false, [](CPU& cpu, SPBus&) {
+               cpu.E() = cpu.C();
+               return 0;
+           }},
+    Opcode{0x5A, "LD E, D", 1, 4, false, [](CPU& cpu, SPBus&) {
+               cpu.E() = cpu.D();
+               return 0;
+           }},
+    Opcode{0x5B, "LD E, E", 1, 4, false, [](CPU& cpu, SPBus&) {
+               cpu.E() = cpu.E();
+               return 0;
+           }},
+    Opcode{0x5C, "LD E, H", 1, 4, false, [](CPU& cpu, SPBus&) {
+               cpu.E() = cpu.H();
+               return 0;
+           }},
+    Opcode{0x5D, "LD E, L", 1, 4, false, [](CPU& cpu, SPBus&) {
+               cpu.E() = cpu.L();
+               return 0;
+           }},
+    Opcode{0x5E, "LD E, (HL)", 1, 8, false, [](CPU& cpu, SPBus& bus) {
+               cpu.E() = bus->read(cpu.HL());
+               return 0;
+           }},
+    Opcode{0x5F, "LD E, A", 1, 4, false, [](CPU& cpu, SPBus&) {
+               cpu.E() = cpu.A();
                return 0;
            }},
 };
