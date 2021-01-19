@@ -335,6 +335,70 @@ const std::vector<Opcode> nonExtendedOpcodes = {
                F.h = false;
                return 0;
            }},
+    Opcode{0x40, "LD B, B", 1, 4, false, [](CPU& cpu, SPBus&) {
+               cpu.B() = cpu.B();
+               return 0;
+           }},
+    Opcode{0x41, "LD B, C", 1, 4, false, [](CPU& cpu, SPBus&) {
+               cpu.B() = cpu.C();
+               return 0;
+           }},
+    Opcode{0x42, "LD B, D", 1, 4, false, [](CPU& cpu, SPBus&) {
+               cpu.B() = cpu.D();
+               return 0;
+           }},
+    Opcode{0x43, "LD B, E", 1, 4, false, [](CPU& cpu, SPBus&) {
+               cpu.B() = cpu.E();
+               return 0;
+           }},
+    Opcode{0x44, "LD B, H", 1, 4, false, [](CPU& cpu, SPBus&) {
+               cpu.B() = cpu.H();
+               return 0;
+           }},
+    Opcode{0x45, "LD B, L", 1, 4, false, [](CPU& cpu, SPBus&) {
+               cpu.B() = cpu.L();
+               return 0;
+           }},
+    Opcode{0x46, "LD B, (HL)", 1, 8, false, [](CPU& cpu, SPBus&bus) {
+               cpu.B() = bus->read(cpu.HL());
+               return 0;
+           }},
+    Opcode{0x47, "LD B, A", 1, 4, false, [](CPU& cpu, SPBus&) {
+               cpu.B() = cpu.A();
+               return 0;
+           }},
+    Opcode{0x48, "LD C, B", 1, 4, false, [](CPU& cpu, SPBus&) {
+               cpu.C() = cpu.B();
+               return 0;
+           }},
+    Opcode{0x49, "LD C, C", 1, 4, false, [](CPU& cpu, SPBus&) {
+               cpu.C() = cpu.C();
+               return 0;
+           }},
+    Opcode{0x4A, "LD C, D", 1, 4, false, [](CPU& cpu, SPBus&) {
+               cpu.C() = cpu.D();
+               return 0;
+           }},
+    Opcode{0x4B, "LD C, E", 1, 4, false, [](CPU& cpu, SPBus&) {
+               cpu.C() = cpu.E();
+               return 0;
+           }},
+    Opcode{0x4C, "LD C, H", 1, 4, false, [](CPU& cpu, SPBus&) {
+               cpu.C() = cpu.H();
+               return 0;
+           }},
+    Opcode{0x4D, "LD C, L", 1, 4, false, [](CPU& cpu, SPBus&) {
+               cpu.C() = cpu.L();
+               return 0;
+           }},
+    Opcode{0x4E, "LD C, (HL)", 1, 8, false, [](CPU& cpu, SPBus& bus) {
+               cpu.C() = bus->read(cpu.HL());
+               return 0;
+           }},
+    Opcode{0x4F, "LD C, A", 1, 4, false, [](CPU& cpu, SPBus&) {
+               cpu.C() = cpu.A();
+               return 0;
+           }},
 };
 
 #endif  // GIBI_INCLUDE_CPU_INSTRUCTIONS_H_
