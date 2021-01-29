@@ -183,6 +183,12 @@ class CPU {
     // Used for ADD HL, ** opcodes
     void addToHL(word value);
 
+    // Used for ADD A, r8 opcodes
+    void addR8(byte value);
+
+    // Used for ADC A, r8 opcodes
+    void adcR8(byte value);
+
     // Decimal Adjust Akku
     // Reference: https://ehaskins.com/2018-01-30%20Z80%20DAA/
     void daa();

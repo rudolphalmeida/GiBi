@@ -170,3 +170,29 @@ void CPU::cpl() {
     f.n = true;
     f.h = true;
 }
+
+void CPU::addR8(byte value) {
+    uint result = A() + value;
+
+    auto& F = this->F();
+    F.zf = result == 0;
+    F.n = false;
+    F.h = willHalfCarry8BitAdd(A(), value);
+    F.cy = (result & 0x100u) != 0;
+
+    A() = static_cast<byte>(result);
+}
+
+void CPU::adcR8(byte value) {
+    auto& F = this->F();
+    auto carry = F.cy ? 1 : 0;
+
+    uint result = A() + value + carry;
+
+    F.zf = result == 0;
+    F.n = false;
+    F.h = ((value & 0xFu) + (A() & 0xFu) + carry) > 0xFu;
+    F.cy = result > 0xFFu;
+
+    A() = static_cast<byte>(result);
+}
