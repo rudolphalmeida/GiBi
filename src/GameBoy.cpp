@@ -80,7 +80,7 @@ int GameBoy::run() {
 
     gameLoop();
 
-    return 0;
+    //return 0;
 }
 
 [[noreturn]] void GameBoy::gameLoop() {

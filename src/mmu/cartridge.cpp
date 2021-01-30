@@ -27,9 +27,9 @@ void NoMBC::write(word address, byte data) {
 
 Cartridge::Cartridge(std::vector<byte> rom, std::optional<std::vector<byte>> ram) {
     // The byte at 0x0147 contains information about the MBC used
-    auto [mbcType, savable] = determineMBCType(rom[0x0147]);
-    this->mbcType = mbcType;
-    this->savable = savable;
+    auto [type, isSavable] = determineMBCType(rom[0x0147]);
+    this->mbcType = type;
+    this->savable = isSavable;
 
     numRomBanks = determineROMBanks(rom[0x0148]);
     ramSizeInKB = determineRAMSize(rom[0x0149]);

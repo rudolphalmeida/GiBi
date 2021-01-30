@@ -27,27 +27,27 @@ uint CPU::execute() {
 }
 
 void CPU::AF(word af) {
-    auto [a, f] = decomposeWord(af);
-    this->a = a;
-    this->f = StatusRegister(f);
+    auto [A, F] =decomposeWord(af);
+    this->a = A;
+    this->f = StatusRegister(F);
 }
 
 void CPU::BC(word bc) {
-    auto [b, c] = decomposeWord(bc);
-    this->b = b;
-    this->c = c;
+    auto [B, C] = decomposeWord(bc);
+    this->b = B;
+    this->c = C;
 }
 
 void CPU::DE(word de) {
-    auto [d, e] = decomposeWord(de);
-    this->d = d;
-    this->e = e;
+    auto [D, E] = decomposeWord(de);
+    this->d = D;
+    this->e = E;
 }
 
 void CPU::HL(word hl) {
-    auto [h, l] = decomposeWord(hl);
-    this->h = h;
-    this->l = l;
+    auto [H, L] = decomposeWord(hl);
+    this->h = H;
+    this->l = L;
 }
 
 byte CPU::fetchByte() {
@@ -142,7 +142,7 @@ void CPU::rra() {
 }
 
 void CPU::daa() {
-    word correction = 0u;
+    byte correction = 0u;
 
     if (f.h || (!f.n && (a & 0xFu) > 9)) {
         correction |= 0x6u;
