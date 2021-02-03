@@ -195,6 +195,12 @@ class CPU {
     // Used for SBC A, R8 opcodes
     void sbcR8(byte value);
 
+    // Used for AND A, R8 opcodes
+    void andR8(byte value);
+
+    // Used for XOR A, R8 opcodes
+    void xorR8(byte value);
+
     // Decimal Adjust Akku
     // Reference: https://ehaskins.com/2018-01-30%20Z80%20DAA/
     void daa();

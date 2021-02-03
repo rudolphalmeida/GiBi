@@ -223,3 +223,25 @@ void CPU::sbcR8(byte value) {
     F.h = ((reg & 0xF) - (value & 0xF) - carry) < 0;
     F.cy = overflowedResult < 0;
 }
+
+void CPU::andR8(byte value) {
+    byte result = A() & value;
+    A() = result;
+
+    auto& F = this->F();
+    F.zf = result == 0;
+    F.n = false;
+    F.cy = false;
+    F.h = true;
+}
+
+void CPU::xorR8(byte value) {
+    byte result = A() ^ value;
+    A() = result;
+
+    auto& F = this->F();
+    F.zf = result == 0;
+    F.n = false;
+    F.h = false;
+    F.cy = false;
+}
