@@ -58,6 +58,11 @@ inline bool willHalfCarry16BitAdd(word left, word right) {
     return (left & 0xFFFu) + (right & 0xFFFu) > 0xFFFu;
 }
 
+// Check if subtraction of two bytes results in a half-borrow
+inline bool willHalfCarry8BitSub(byte left, byte right) {
+    return ((left & 0xF) - (right & 0xF) < 0);
+}
+
 // Check if an address is in a particular range: [start, end]
 inline bool inRange(word address, word start, word end) {
     return (address >= start) && (address <= end);

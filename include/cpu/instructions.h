@@ -633,6 +633,70 @@ std::vector<Opcode> nonExtendedOpcodes() {
         cpu.adcR8(cpu.A());
         return 0;
     });
+    ops.emplace_back(0x90, "SUB A, B", 1, 4, false, [](CPU& cpu, SPBus&) {
+        cpu.subR8(cpu.B());
+        return 0;
+    });
+    ops.emplace_back(0x91, "SUB A, C", 1, 4, false, [](CPU& cpu, SPBus&) {
+        cpu.subR8(cpu.C());
+        return 0;
+    });
+    ops.emplace_back(0x92, "SUB A, D", 1, 4, false, [](CPU& cpu, SPBus&) {
+        cpu.subR8(cpu.D());
+        return 0;
+    });
+    ops.emplace_back(0x93, "SUB A, E", 1, 4, false, [](CPU& cpu, SPBus&) {
+        cpu.subR8(cpu.E());
+        return 0;
+    });
+    ops.emplace_back(0x94, "SUB A, H", 1, 4, false, [](CPU& cpu, SPBus&) {
+        cpu.subR8(cpu.H());
+        return 0;
+    });
+    ops.emplace_back(0x95, "SUB A, L", 1, 4, false, [](CPU& cpu, SPBus&) {
+        cpu.subR8(cpu.L());
+        return 0;
+    });
+    ops.emplace_back(0x96, "SUB A, [HL]", 1, 8, false, [](CPU& cpu, SPBus& bus) {
+        cpu.subR8(bus->read(cpu.HL()));
+        return 0;
+    });
+    ops.emplace_back(0x97, "SUB A, A", 1, 4, false, [](CPU& cpu, SPBus&) {
+        cpu.subR8(cpu.A());
+        return 0;
+    });
+    ops.emplace_back(0x98, "SBC A, B", 1, 4, false, [](CPU& cpu, SPBus&) {
+        cpu.sbcR8(cpu.B());
+        return 0;
+    });
+    ops.emplace_back(0x99, "SBC A, C", 1, 4, false, [](CPU& cpu, SPBus&) {
+        cpu.sbcR8(cpu.C());
+        return 0;
+    });
+    ops.emplace_back(0x9A, "SBC A, D", 1, 4, false, [](CPU& cpu, SPBus&) {
+        cpu.sbcR8(cpu.D());
+        return 0;
+    });
+    ops.emplace_back(0x9B, "SBC A, E", 1, 4, false, [](CPU& cpu, SPBus&) {
+        cpu.sbcR8(cpu.E());
+        return 0;
+    });
+    ops.emplace_back(0x9C, "SBC A, H", 1, 4, false, [](CPU& cpu, SPBus&) {
+        cpu.sbcR8(cpu.H());
+        return 0;
+    });
+    ops.emplace_back(0x9D, "SBC A, L", 1, 4, false, [](CPU& cpu, SPBus&) {
+        cpu.sbcR8(cpu.L());
+        return 0;
+    });
+    ops.emplace_back(0x9E, "SBC A, [HL]", 1, 8, false, [](CPU& cpu, SPBus& bus) {
+        cpu.sbcR8(bus->read(cpu.HL()));
+        return 0;
+    });
+    ops.emplace_back(0x9F, "SBC A, A", 1, 4, false, [](CPU& cpu, SPBus&) {
+        cpu.sbcR8(cpu.A());
+        return 0;
+    });
 
     return ops;
 }

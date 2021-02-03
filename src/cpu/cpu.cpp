@@ -4,7 +4,6 @@
  * */
 
 #include "cpu/cpu.h"
-#include "cpu/instructions.h"
 #include "gibi.h"
 
 uint CPU::tick() {
@@ -27,7 +26,7 @@ uint CPU::execute() {
 }
 
 void CPU::AF(word af) {
-    auto [A, F] =decomposeWord(af);
+    auto [A, F] = decomposeWord(af);
     this->a = A;
     this->f = StatusRegister(F);
 }
@@ -195,4 +194,32 @@ void CPU::adcR8(byte value) {
     F.cy = result > 0xFFu;
 
     A() = static_cast<byte>(result);
+}
+
+void CPU::subR8(byte value) {
+    byte reg = A();
+    byte result = reg - value;
+
+    A() = result;
+
+    auto& F = this->F();
+    F.zf = result == 0;
+    F.n = true;
+    F.h = willHalfCarry8BitSub(reg, value);
+    F.cy = reg < value;
+}
+
+void CPU::sbcR8(byte value) {
+    auto& F = this->F();
+    auto carry = F.cy ? 1 : 0;
+
+    byte reg = A();
+    uint overflowedResult = reg - value - carry;
+    byte result = static_cast<byte>(overflowedResult);
+    A() = result;
+
+    F.zf = result == 0;
+    F.n = true;
+    F.h = ((reg & 0xF) - (value & 0xF) - carry) < 0;
+    F.cy = overflowedResult < 0;
 }
