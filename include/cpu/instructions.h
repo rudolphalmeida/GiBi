@@ -761,6 +761,86 @@ std::vector<Opcode> nonExtendedOpcodes() {
         cpu.xorR8(cpu.A());
         return 0;
     });
+    ops.emplace_back(0xB0, "OR A, B", 1, 4, false, [](CPU& cpu, SPBus&) {
+        cpu.orR8(cpu.B());
+        return 0;
+    });
+    ops.emplace_back(0xB1, "OR A, C", 1, 4, false, [](CPU& cpu, SPBus&) {
+        cpu.orR8(cpu.C());
+        return 0;
+    });
+    ops.emplace_back(0xB2, "OR A, D", 1, 4, false, [](CPU& cpu, SPBus&) {
+        cpu.orR8(cpu.D());
+        return 0;
+    });
+    ops.emplace_back(0xB3, "OR A, E", 1, 4, false, [](CPU& cpu, SPBus&) {
+        cpu.orR8(cpu.E());
+        return 0;
+    });
+    ops.emplace_back(0xB4, "OR A, H", 1, 4, false, [](CPU& cpu, SPBus&) {
+        cpu.orR8(cpu.H());
+        return 0;
+    });
+    ops.emplace_back(0xB5, "OR A, L", 1, 4, false, [](CPU& cpu, SPBus&) {
+        cpu.orR8(cpu.L());
+        return 0;
+    });
+    ops.emplace_back(0xB6, "OR A, [HL]", 1, 8, false, [](CPU& cpu, SPBus& bus) {
+        cpu.orR8(bus->read(cpu.HL()));
+        return 0;
+    });
+    ops.emplace_back(0xB7, "OR A, A", 1, 4, false, [](CPU& cpu, SPBus&) {
+        cpu.orR8(cpu.A());
+        return 0;
+    });
+    ops.emplace_back(0xB8, "CP A, B", 1, 4, false, [](CPU& cpu, SPBus&) {
+        byte value = cpu.A();
+        cpu.subR8(cpu.B());
+        cpu.A() = value;
+        return 0;
+    });
+    ops.emplace_back(0xB9, "CP A, C", 1, 4, false, [](CPU& cpu, SPBus&) {
+        byte value = cpu.A();
+        cpu.subR8(cpu.C());
+        cpu.A() = value;
+        return 0;
+    });
+    ops.emplace_back(0xBA, "CP A, D", 1, 4, false, [](CPU& cpu, SPBus&) {
+        byte value = cpu.A();
+        cpu.subR8(cpu.D());
+        cpu.A() = value;
+        return 0;
+    });
+    ops.emplace_back(0xBB, "CP A, E", 1, 4, false, [](CPU& cpu, SPBus&) {
+        byte value = cpu.A();
+        cpu.subR8(cpu.E());
+        cpu.A() = value;
+        return 0;
+    });
+    ops.emplace_back(0xBC, "CP A, H", 1, 4, false, [](CPU& cpu, SPBus&) {
+        byte value = cpu.A();
+        cpu.subR8(cpu.H());
+        cpu.A() = value;
+        return 0;
+    });
+    ops.emplace_back(0xBD, "CP A, L", 1, 4, false, [](CPU& cpu, SPBus&) {
+        byte value = cpu.A();
+        cpu.subR8(cpu.L());
+        cpu.A() = value;
+        return 0;
+    });
+    ops.emplace_back(0xBE, "CP A, [HL]", 1, 8, false, [](CPU& cpu, SPBus& bus) {
+        byte value = cpu.A();
+        cpu.subR8(bus->read(cpu.HL()));
+        cpu.A() = value;
+        return 0;
+    });
+    ops.emplace_back(0xBF, "CP, A, A", 1, 4, false, [](CPU& cpu, SPBus&) {
+        byte value = cpu.A();
+        cpu.subR8(cpu.A());
+        cpu.A() = value;
+        return 0;
+    });
 
     return ops;
 }

@@ -245,3 +245,14 @@ void CPU::xorR8(byte value) {
     F.h = false;
     F.cy = false;
 }
+
+void CPU::orR8(byte value) {
+    byte result = A() | value;
+    A() = result;
+
+    auto& F = this->F();
+    F.zf = result == 0;
+    F.n = false;
+    F.h = false;
+    F.cy = false;
+}

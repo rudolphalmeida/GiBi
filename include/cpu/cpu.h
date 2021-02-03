@@ -84,7 +84,6 @@ class CPU {
     uint execute();
 
    public:
-
     CPUState state;
 
     CPU() : CPU(nullptr) {}
@@ -200,6 +199,9 @@ class CPU {
 
     // Used for XOR A, R8 opcodes
     void xorR8(byte value);
+
+    // USed for OR A, R8 opcodes
+    void orR8(byte value);
 
     // Decimal Adjust Akku
     // Reference: https://ehaskins.com/2018-01-30%20Z80%20DAA/
