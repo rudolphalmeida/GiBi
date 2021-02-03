@@ -161,8 +161,18 @@ class CPU {
 
     // Procedures required by opcodes
 
+    // The GameBoy stack always grows down from the SP
+    // Push a word "down" the stack
+    void push(word value);
+
+    // Pop a word from the stack
+    word pop();
+
     // RLCA - Rotate Register A Left
     void rlca();
+
+    // Execute an 0xCB-prefixed opcode
+    uint executeExtended();
 
     // RRCA - Rotate Register A Right
     void rrca();

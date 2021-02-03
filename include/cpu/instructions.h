@@ -841,6 +841,104 @@ std::vector<Opcode> nonExtendedOpcodes() {
         cpu.A() = value;
         return 0;
     });
+    ops.emplace_back(0xC0, "RET NZ", 1, 8, false, [](CPU& cpu, SPBus&) {
+        if (!cpu.F().zf) {
+            cpu.PC() = cpu.pop();
+            return 12;
+        } else {
+            return 0;
+        }
+    });
+    ops.emplace_back(0xC1, "POP BC", 1, 12, false, [](CPU& cpu, SPBus&) {
+        cpu.BC(cpu.pop());
+        return 0;
+    });
+    ops.emplace_back(0xC2, "JP NZ, u16", 3, 12, false, [](CPU& cpu, SPBus&) {
+        if (!cpu.F().zf) {
+            cpu.PC() = cpu.fetchWord();
+            return 4;
+        } else {
+            cpu.fetchWord();
+            return 0;
+        }
+    });
+    ops.emplace_back(0xC3, "JP u16", 3, 16, false, [](CPU& cpu, SPBus&) {
+        cpu.PC() = cpu.fetchWord();
+        return 0;
+    });
+    ops.emplace_back(0xC4, "CALL NZ, u16", 3, 12, false, [](CPU& cpu, SPBus&) {
+        if (!cpu.F().zf) {
+            word jumpAddress = cpu.fetchWord();
+            cpu.push(cpu.PC());
+            cpu.PC() = jumpAddress;
+            return 12;
+        } else {
+            cpu.fetchWord();
+            return 0;
+        }
+    });
+    ops.emplace_back(0xC5, "PUSH BC", 1, 16, false, [](CPU& cpu, SPBus&) {
+        cpu.push(cpu.BC());
+        return 0;
+    });
+    ops.emplace_back(0xC6, "ADD A, u8", 2, 8, false, [](CPU& cpu, SPBus&) {
+        cpu.addR8(cpu.fetchByte());
+        return 0;
+    });
+    ops.emplace_back(0xC7, "RST 00h", 1, 16, false, [](CPU& cpu, SPBus&) {
+        cpu.push(cpu.PC());
+        cpu.PC() = 0x00;
+        return 0;
+    });
+    ops.emplace_back(0xC8, "RET Z", 1, 8, false, [](CPU& cpu, SPBus&) {
+        if (cpu.F().zf) {
+            cpu.PC() = cpu.pop();
+            return 12;
+        } else {
+            return 0;
+        }
+    });
+    ops.emplace_back(0xC9, "RET", 1, 16, false, [](CPU& cpu, SPBus&) {
+        cpu.PC() = cpu.pop();
+        return 0;
+    });
+    ops.emplace_back(0xCA, "JP Z, u16", 3, 12, false, [](CPU& cpu, SPBus&) {
+        if (cpu.F().zf) {
+            cpu.PC() = cpu.fetchWord();
+            return 4;
+        } else {
+            cpu.fetchWord();
+            return 0;
+        }
+    });
+    ops.emplace_back(0xCB, "CB", 1, 4, false,
+                     [](CPU& cpu, SPBus&) { return cpu.executeExtended(); });
+    ops.emplace_back(0xCC, "CALL Z, u16", 3, 12, false, [](CPU& cpu, SPBus&) {
+        if (cpu.F().zf) {
+            word jumpAddress = cpu.fetchWord();
+            cpu.push(cpu.PC());
+            cpu.PC() = jumpAddress;
+            return 12;
+        } else {
+            cpu.fetchWord();
+            return 0;
+        }
+    });
+    ops.emplace_back(0xCD, "CALL u16", 3, 24, false, [](CPU& cpu, SPBus&) {
+        word jumpAddress = cpu.fetchWord();
+        cpu.push(cpu.PC());
+        cpu.PC() = jumpAddress;
+        return 0;
+    });
+    ops.emplace_back(0xCE, "ADC A, u8", 2, 8, false, [](CPU& cpu, SPBus&) {
+        cpu.adcR8(cpu.fetchByte());
+        return 0;
+    });
+    ops.emplace_back(0xCF, "RST 08h", 1, 16, false, [](CPU& cpu, SPBus&) {
+        cpu.push(cpu.PC());
+        cpu.PC() = 0x08;
+        return 0;
+    });
 
     return ops;
 }

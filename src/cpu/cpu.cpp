@@ -17,10 +17,12 @@ uint CPU::tick() {
     }
 }
 
+// TODO: Complete ISR
 uint CPU::handle_interrupts() {
     return 0;
 }
 
+// TODO: Complete execute opcode
 uint CPU::execute() {
     return 0;
 }
@@ -255,4 +257,23 @@ void CPU::orR8(byte value) {
     F.n = false;
     F.h = false;
     F.cy = false;
+}
+
+void CPU::push(word value) {
+    auto [upper, lower] = decomposeWord(value);
+
+    bus->write(--SP(), upper);
+    bus->write(--SP(), lower);
+}
+
+word CPU::pop() {
+    byte lower = bus->read(SP()++);
+    byte upper = bus->read(SP()++);
+
+    return composeWord(upper, lower);
+}
+
+// TODO: Complete extended opcode execute
+uint CPU::executeExtended() {
+    return 0;
 }
