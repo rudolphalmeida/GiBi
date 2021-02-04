@@ -262,6 +262,7 @@ void CPU::orR8(byte value) {
 void CPU::push(word value) {
     auto [upper, lower] = decomposeWord(value);
 
+    // The GameBoy stack always grows down from the SP
     bus->write(--SP(), upper);
     bus->write(--SP(), lower);
 }

@@ -72,7 +72,7 @@ class CPU {
 
     // This register is used to enable/disable all interrupts. Can be reset using
     // the DI opcode, and enabled using the EI or RETI opcodes.
-    //    bool interrupt_master;
+    bool interrupt_master;
 
     std::shared_ptr<Bus> bus;
 
@@ -109,6 +109,9 @@ class CPU {
 
     word& PC() { return pc; }
     [[nodiscard]] const word& PC() const { return pc; }
+
+    bool& IME() { return interrupt_master; }
+    [[nodiscard]] const bool& IME() const { return interrupt_master; }
 
     // Accessors for individual registers
     byte& A() { return a; }
@@ -161,7 +164,6 @@ class CPU {
 
     // Procedures required by opcodes
 
-    // The GameBoy stack always grows down from the SP
     // Push a word "down" the stack
     void push(word value);
 

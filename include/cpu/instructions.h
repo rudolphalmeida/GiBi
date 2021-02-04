@@ -835,7 +835,7 @@ std::vector<Opcode> nonExtendedOpcodes() {
         cpu.A() = value;
         return 0;
     });
-    ops.emplace_back(0xBF, "CP, A, A", 1, 4, false, [](CPU& cpu, SPBus&) {
+    ops.emplace_back(0xBF, "CP A, A", 1, 4, false, [](CPU& cpu, SPBus&) {
         byte value = cpu.A();
         cpu.subR8(cpu.A());
         cpu.A() = value;
@@ -937,6 +937,95 @@ std::vector<Opcode> nonExtendedOpcodes() {
     ops.emplace_back(0xCF, "RST 08h", 1, 16, false, [](CPU& cpu, SPBus&) {
         cpu.push(cpu.PC());
         cpu.PC() = 0x08;
+        return 0;
+    });
+    ops.emplace_back(0xD0, "RET NC", 1, 8, false, [](CPU& cpu, SPBus&) {
+        if (!cpu.F().cy) {
+            cpu.PC() = cpu.pop();
+            return 12;
+        } else {
+            return 0;
+        }
+    });
+    ops.emplace_back(0xD1, "POP DE", 1, 12, false, [](CPU& cpu, SPBus&) {
+        cpu.DE(cpu.pop());
+        return 0;
+    });
+    ops.emplace_back(0xD2, "JP NC, u16", 3, 12, false, [](CPU& cpu, SPBus&) {
+        if (!cpu.F().cy) {
+            cpu.PC() = cpu.fetchWord();
+            return 4;
+        } else {
+            cpu.fetchWord();
+            return 0;
+        }
+    });
+    ops.emplace_back(0xD3, "NOP", 1, 4, false, [](CPU&, SPBus&) { return 0; });
+    ops.emplace_back(0xD4, "CALL NC, u16", 3, 12, false, [](CPU& cpu, SPBus&) {
+        if (!cpu.F().cy) {
+            word jumpAddress = cpu.fetchWord();
+            cpu.push(cpu.PC());
+            cpu.PC() = jumpAddress;
+            return 12;
+        } else {
+            cpu.fetchWord();
+            return 0;
+        }
+    });
+    ops.emplace_back(0xD5, "PUSH DE", 1, 16, false, [](CPU& cpu, SPBus&) {
+        cpu.push(cpu.DE());
+        return 0;
+    });
+    ops.emplace_back(0xD6, "SUB A, u8", 2, 8, false, [](CPU& cpu, SPBus&) {
+        cpu.subR8(cpu.fetchByte());
+        return 0;
+    });
+    ops.emplace_back(0xD7, "RST 10h", 1, 16, false, [](CPU& cpu, SPBus&) {
+        cpu.push(cpu.PC());
+        cpu.PC() = 0x10;
+        return 0;
+    });
+    ops.emplace_back(0xD8, "RET C", 1, 8, false, [](CPU& cpu, SPBus&) {
+        if (cpu.F().cy) {
+            cpu.PC() = cpu.pop();
+            return 12;
+        } else {
+            return 0;
+        }
+    });
+    ops.emplace_back(0xD9, "RETI", 1, 16, false, [](CPU& cpu, SPBus&) {
+        cpu.IME() = true;
+        cpu.PC() = cpu.pop();
+        return 0;
+    });
+    ops.emplace_back(0xDA, "JP C, u16", 3, 12, false, [](CPU& cpu, SPBus&) {
+        if (cpu.F().cy) {
+            cpu.PC() = cpu.fetchWord();
+            return 12;
+        } else {
+            return 0;
+        }
+    });
+    ops.emplace_back(0xDB, "NOP", 1, 4, false, [](CPU&, SPBus&) { return 0; });
+    ops.emplace_back(0xDC, "CALL C, u16", 3, 12, false, [](CPU& cpu, SPBus&) {
+        if (cpu.F().cy) {
+            word jumpAddress = cpu.fetchWord();
+            cpu.push(cpu.PC());
+            cpu.PC() = jumpAddress;
+            return 12;
+        } else {
+            cpu.fetchWord();
+            return 0;
+        }
+    });
+    ops.emplace_back(0xDD, "NOP", 1, 4, false, [](CPU& cpu, SPBus&) { return 0; });
+    ops.emplace_back(0xDE, "SBC A, u8", 2, 8, false, [](CPU& cpu, SPBus&) {
+        cpu.sbcR8(cpu.fetchByte());
+        return 0;
+    });
+    ops.emplace_back(0xDF, "RST 18h", 1, 16, false, [](CPU& cpu, SPBus&) {
+        cpu.push(cpu.PC());
+        cpu.PC() = 0x18;
         return 0;
     });
 
