@@ -1028,6 +1028,70 @@ std::vector<Opcode> nonExtendedOpcodes() {
         cpu.PC() = 0x18;
         return 0;
     });
+    ops.emplace_back(0xE0, "LD (FF00+u8), A", 2, 12, false, [](CPU& cpu, SPBus& bus) {
+        bus->write(0xFF00 + cpu.fetchByte(), cpu.A());
+        return 0;
+    });
+    ops.emplace_back(0xE1, "POP HL", 1, 12, false, [](CPU& cpu, SPBus&) {
+        cpu.HL(cpu.pop());
+        return 0;
+    });
+    ops.emplace_back(0xE2, "LD (FF00+C), A", 1, 8, false, [](CPU& cpu, SPBus& bus) {
+        bus->write(0xFF00 + cpu.C(), cpu.A());
+        return 0;
+    });
+    ops.emplace_back(0xE3, "NOP", 1, 4, false, [](CPU&, SPBus&) { return 0; });
+    ops.emplace_back(0xE4, "NOP", 1, 4, false, [](CPU&, SPBus&) { return 0; });
+    ops.emplace_back(0xE5, "PUSH HL", 1, 16, false, [](CPU& cpu, SPBus&) {
+        cpu.push(cpu.HL());
+        return 0;
+    });
+    ops.emplace_back(0xE6, "AND A, u8", 2, 8, false, [](CPU& cpu, SPBus&) {
+        cpu.andR8(cpu.fetchByte());
+        return 0;
+    });
+    ops.emplace_back(0xE7, "RST 20h", 1, 16, false, [](CPU& cpu, SPBus&) {
+        cpu.push(cpu.PC());
+        cpu.PC() = 0x20;
+        return 0;
+    });
+    ops.emplace_back(0xE8, "ADD SP, i8", 2, 16, false, [](CPU& cpu, SPBus&) {
+        auto value = static_cast<sbyte>(cpu.fetchByte());
+        word sp = cpu.SP();
+
+        uint result = static_cast<uint>(reg + value);
+
+        auto& F = cpu.F();
+        F.zf = false;
+        F.n = false;
+        // Reference: https://github.com/jgilchrist/gbemu/blob/master/src/cpu/opcodes.cc
+        F.h = ((sp ^ value ^ (result & 0xFFFF)) & 0x100) == 0x100;
+        F.cy = ((sp ^ value ^ (result & 0xFFFF)) & 0x100) == 0x100;
+
+        cpu.SP() = static_cast<word>(result);
+
+        return 0;
+    });
+    ops.emplace_back(0xE9, "JP HL", 1, 4, false, [](CPU& cpu, SPBus&) {
+        cpu.PC() = cpu.HL();
+        return 0;
+    });
+    ops.emplace_back(0xEA, "LD (u16), A", 3, 16, false, [](CPU& cpu, SPBus& bus) {
+        bus->write(cpu.fetchWord(), cpu.A());
+        return 0;
+    });
+    ops.emplace_back(0xEB, "NOP", 1, 4, false, [](CPU&, SPBus&) { return 0; });
+    ops.emplace_back(0xEC, "NOP", 1, 4, false, [](CPU&, SPBus&) { return 0; });
+    ops.emplace_back(0xED, "NOP", 1, 4, false, [](CPU&, SPBus&) { return 0; });
+    ops.emplace_back(0xEE, "XOR A, u8", 2, 8, false, [](CPU& cpu, SPBus&) {
+        cpu.xorR8(cpu.fetchByte());
+        return 0;
+    });
+    ops.emplace_back(0xEF, "RST 28h", 1, 16, false, [](CPU& cpu, SPBus&) {
+        cpu.push(cpu.PC());
+        cpu.PC() = 0x28;
+        return 0;
+    });
 
     return ops;
 }

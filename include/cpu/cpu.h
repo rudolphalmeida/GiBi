@@ -100,7 +100,7 @@ class CPU {
           f{0xB0},
           sp{0xFFFE},
           pc{0x00},  // This should start at 0x100 for emulation tests
-          //          interrupt_master{true},
+          interrupt_master{true},
           bus{std::move(bus)},
           state{CPUState::EXECUTING} {}
 
