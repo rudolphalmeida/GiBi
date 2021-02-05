@@ -1065,7 +1065,7 @@ std::vector<Opcode> nonExtendedOpcodes() {
         F.zf = false;
         F.n = false;
         // Reference: https://github.com/jgilchrist/gbemu/blob/master/src/cpu/opcodes.cc
-        F.h = ((sp ^ value ^ (result & 0xFFFF)) & 0x100) == 0x100;
+        F.h = ((sp ^ value ^ (result & 0xFFFF)) & 0x10) == 0x10;
         F.cy = ((sp ^ value ^ (result & 0xFFFF)) & 0x100) == 0x100;
 
         cpu.SP() = static_cast<word>(result);
@@ -1090,6 +1090,79 @@ std::vector<Opcode> nonExtendedOpcodes() {
     ops.emplace_back(0xEF, "RST 28h", 1, 16, false, [](CPU& cpu, SPBus&) {
         cpu.push(cpu.PC());
         cpu.PC() = 0x28;
+        return 0;
+    });
+    ops.emplace_back(0xF0, "LD A, (FF00+u8)", 2, 12, false, [](CPU& cpu, SPBus& bus) {
+        cpu.A() = bus->read(0xFF00 + cpu.fetchByte());
+        return 0;
+    });
+    ops.emplace_back(0xF1, "POP AF", 1, 12, false, [](CPU& cpu, SPBus&) {
+        cpu.AF(cpu.pop());
+        return 0;
+    });
+    ops.emplace_back(0xF2, "LD A, (FF00+C)", 1, 8, false, [](CPU& cpu, SPBus& bus) {
+        cpu.A() = bus->read(0xFF00 + cpu.C());
+        return 0;
+    });
+    ops.emplace_back(0xF3, "DI", 1, 4, false, [](CPU& cpu, SPBus&) {
+        cpu.IME() = false;
+        return 0;
+    });
+    ops.emplace_back(0xF4, "NOP", 1, 4, false, [](CPU&, SPBus&) { return 0; });
+    ops.emplace_back(0xF5, "PUSH AF", 1, 16, false, [](CPU& cpu, SPBus&) {
+        cpu.push(cpu.AF());
+        return 0;
+    });
+    ops.emplace_back(0xF6, "OR A, u8", 2, 8, false, [](CPU& cpu, SPBus&) {
+        cpu.orR8(cpu.fetchByte());
+        return 0;
+    });
+    ops.emplace_back(0xF7, "RST 30h", 1, 16, false, [](CPU& cpu, SPBus&) {
+        cpu.push(cpu.PC());
+        cpu.PC() = 0x30;
+        return 0;
+    });
+    ops.emplace_back(0xF8, "LD HL, SP+i8", 2, 12, false, [](CPU& cpu, SPBus&) {
+        auto value = static_cast<sbyte>(cpu.fetchByte());
+        word sp = cpu.SP();
+
+        uint result = static_cast<uint>(reg + value);
+
+        auto& F = cpu.F();
+        F.zf = false;
+        F.n = false;
+        F.h = ((sp ^ value ^ (result & 0xFFFF)) & 0x10) == 0x10;
+        F.cy = ((sp ^ value ^ (result & 0xFFFF)) & 0x100) == 0x100;
+
+        cpu.HL(static_cast<word>(result));
+
+        return 0;
+    });
+    ops.emplace_back(0xF9, "LD SP, HL", 1, 8, false, [](CPU& cpu, SPBus&) {
+        cpu.SP() = cpu.HL();
+        return 0;
+    });
+    ops.emplace_back(0xFA, "LD A, (16)", 3, 16, false, [](CPU& cpu, SPBus& bus) {
+        cpu.A() = bus->read(cpu.fetchWord());
+        return 0;
+    });
+    ops.emplace_back(0xFB, "EI", 1, 4, false, [](CPU& cpu, SPBus&) {
+        // The side effect of the EI instruction is delayed by one opcode
+        uint nextOpCycles = cpu.execute();
+        cpu.IME() = true;
+        return nextOpCycles;
+    });
+    ops.emplace_back(0xFC, "NOP", 1, 4, false, [](CPU&, SPBus&) { return 0; });
+    ops.emplace_back(0xFD, "NOP", 1, 4, false, [](CPU&, SPBus&) { return 0; });
+    ops.emplace_back(0xFE, "CP A, u8", 2, 8, false, [](CPU& cpu, SPBus&) {
+        byte A = cpu.A();
+        cpu.subR8(cpu.fetchByte());
+        cpu.A() = A;
+        return 0;
+    });
+    ops.emplace_back(0xFF, "RST 38h", 1, 16, false, [](CPU& cpu, SPBus&) {
+        cpu.push(cpu.PC());
+        cpu.PC() = 0x38;
         return 0;
     });
 

@@ -80,9 +80,6 @@ class CPU {
     // executing, and jumps to the interrupt vector with the highest priority
     uint handle_interrupts();
 
-    // Run a single opcode and return the number of clock cycles (t) it took
-    uint execute();
-
    public:
     CPUState state;
 
@@ -103,6 +100,9 @@ class CPU {
           interrupt_master{true},
           bus{std::move(bus)},
           state{CPUState::EXECUTING} {}
+
+    // Run a single opcode and return the number of clock cycles (t) it took
+    uint execute();
 
     word& SP() { return sp; }
     [[nodiscard]] const word& SP() const { return sp; }
