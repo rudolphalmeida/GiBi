@@ -319,6 +319,43 @@ byte CPU::rrcR8(byte value) {
     return result;
 }
 
+byte CPU::rlR8(byte value) {
+    auto& F = this->F();
+    bool oldCarry = F.cy;
+
+    F.cy = isSet(value, 7);
+
+    byte result = value << 1;
+    if (oldCarry) {
+        result = setBit(result, 0);
+    }
+
+    F.n = false;
+    F.h = false;
+    F.zf = result == 0;
+
+    return result;
+}
+
+
+byte CPU::rrR8(byte value) {
+    auto& F = this->F();
+    bool oldCarry = F.cy;
+
+    F.cy = isSet(value, 0);
+
+    byte result = value >> 1;
+    if (oldCarry) {
+        result = setBit(result, 7);
+    }
+
+    F.n = false;
+    F.h = false;
+    F.zf = result == 0;
+
+    return result;
+}
+
 void CPU::push(word value) {
     auto [upper, lower] = decomposeWord(value);
 

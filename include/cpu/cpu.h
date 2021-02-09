@@ -220,6 +220,12 @@ class CPU {
 
     // RRC R8 opcodes
     byte rrcR8(byte value);
+
+    // RL R8 opcodes
+    byte rlR8(byte value);
+
+    // RR R8 opcodes
+    byte rrR8(byte value);
 };
 
 #endif  // GIBI_INCLUDE_CPU_CPU_H_

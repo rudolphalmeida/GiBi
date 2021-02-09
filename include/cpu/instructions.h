@@ -1244,6 +1244,70 @@ std::vector<Opcode> extendedOpcodeImpl() {
         cpu.A() = cpu.rrcR8(cpu.A());
         return 0;
     });
+    ops.emplace_back(0x10, "RL B", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.B() = cpu.rlR8(cpu.B());
+        return 0;
+    });
+    ops.emplace_back(0x11, "RL C", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.C() = cpu.rlR8(cpu.C());
+        return 0;
+    });
+    ops.emplace_back(0x12, "RL D", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.D() = cpu.rlR8(cpu.D());
+        return 0;
+    });
+    ops.emplace_back(0x13, "RL E", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.E() = cpu.rlR8(cpu.E());
+        return 0;
+    });
+    ops.emplace_back(0x14, "RL H", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.H() = cpu.rlR8(cpu.H());
+        return 0;
+    });
+    ops.emplace_back(0x15, "RL L", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.L() = cpu.rlR8(cpu.L());
+        return 0;
+    });
+    ops.emplace_back(0x16, "RL [HL]", 1, 12, true, [](CPU& cpu, SPBus& bus) {
+        bus->write(cpu.HL(), cpu.rlR8(bus->read(cpu.HL())));
+        return 0;
+    });
+    ops.emplace_back(0x17, "RL A", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.A() = cpu.rlR8(cpu.A());
+        return 0;
+    });
+    ops.emplace_back(0x18, "RR B", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.B() = cpu.rrR8(cpu.B());
+        return 0;
+    });
+    ops.emplace_back(0x19, "RR C", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.C() = cpu.rrR8(cpu.C());
+        return 0;
+    });
+    ops.emplace_back(0x1A, "RR D", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.D() = cpu.rrR8(cpu.D());
+        return 0;
+    });
+    ops.emplace_back(0x1B, "RR E", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.E() = cpu.rrR8(cpu.E());
+        return 0;
+    });
+    ops.emplace_back(0x1C, "RR H", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.H() = cpu.rrR8(cpu.H());
+        return 0;
+    });
+    ops.emplace_back(0x1D, "RR L", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.L() = cpu.rrR8(cpu.L());
+        return 0;
+    });
+    ops.emplace_back(0x1E, "RR [HL]", 1, 12, true, [](CPU& cpu, SPBus& bus) {
+        bus->write(cpu.HL(), cpu.rrR8(bus->read(cpu.HL())));
+        return 0;
+    });
+    ops.emplace_back(0x1F, "RR A", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.A() = cpu.rrR8(cpu.A());
+        return 0;
+    });
 
     return ops;
 }
