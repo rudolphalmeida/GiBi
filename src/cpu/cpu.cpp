@@ -301,6 +301,24 @@ byte CPU::rlcR8(byte value) {
     return result;
 }
 
+byte CPU::rrcR8(byte value) {
+    bool oldBit0 = isSet(value, 0);
+    byte result = value >> 1;
+
+    auto& F = this->F();
+
+    if (oldBit0) {
+        result = setBit(result, 7);
+        F.cy = true;
+    }
+
+    F.n = false;
+    F.h = false;
+    F.zf = result == 0;
+
+    return result;
+}
+
 void CPU::push(word value) {
     auto [upper, lower] = decomposeWord(value);
 

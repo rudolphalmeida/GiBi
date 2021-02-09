@@ -217,6 +217,9 @@ class CPU {
 
     // RLC R8 opcodes
     byte rlcR8(byte value);
+
+    // RRC R8 opcodes
+    byte rrcR8(byte value);
 };
 
 #endif  // GIBI_INCLUDE_CPU_CPU_H_

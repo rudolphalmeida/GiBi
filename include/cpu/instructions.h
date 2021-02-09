@@ -1176,11 +1176,72 @@ std::vector<Opcode> extendedOpcodeImpl() {
     /*
      * The opcode docs at https://izik1.github.io/gbops/index.html mention the extended opcodes
      * as being 2 bytes long, but that is including the 0xCB prefix, and we ignore that in the
-     * length parameter here
+     * length parameter here. Similarly the timing includes 4 cycles for the 0xCB fetch but we
+     * ignore that here
      * */
 
-    ops.emplace_back(0x00, "RLC B", 1, 8, true, [](CPU& cpu, SPBus&) {
+    ops.emplace_back(0x00, "RLC B", 1, 4, true, [](CPU& cpu, SPBus&) {
         cpu.B() = cpu.rlcR8(cpu.B());
+        return 0;
+    });
+    ops.emplace_back(0x01, "RLC C", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.C() = cpu.rlcR8(cpu.C());
+        return 0;
+    });
+    ops.emplace_back(0x02, "RLC D", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.D() = cpu.rlcR8(cpu.D());
+        return 0;
+    });
+    ops.emplace_back(0x03, "RLC E", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.E() = cpu.rlcR8(cpu.E());
+        return 0;
+    });
+    ops.emplace_back(0x04, "RLC H", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.H() = cpu.rlcR8(cpu.H());
+        return 0;
+    });
+    ops.emplace_back(0x05, "RLC L", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.L() = cpu.rlcR8(cpu.L());
+        return 0;
+    });
+    ops.emplace_back(0x06, "RLC [HL]", 1, 12, true, [](CPU& cpu, SPBus& bus) {
+        bus->write(cpu.HL(), cpu.rlcR8(bus->read(cpu.HL())));
+        return 0;
+    });
+    ops.emplace_back(0x07, "RLC A", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.A() = cpu.rlcR8(cpu.A());
+        return 0;
+    });
+    ops.emplace_back(0x08, "RRC B", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.B() = cpu.rrcR8(cpu.B());
+        return 0;
+    });
+    ops.emplace_back(0x09, "RRC C", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.C() = cpu.rrcR8(cpu.C());
+        return 0;
+    });
+    ops.emplace_back(0x0A, "RRC D", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.D() = cpu.rrcR8(cpu.D());
+        return 0;
+    });
+    ops.emplace_back(0x0B, "RRC E", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.E() = cpu.rrcR8(cpu.E());
+        return 0;
+    });
+    ops.emplace_back(0x0C, "RRC H", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.H() = cpu.rrcR8(cpu.H());
+        return 0;
+    });
+    ops.emplace_back(0x0D, "RRC L", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.L() = cpu.rrcR8(cpu.L());
+        return 0;
+    });
+    ops.emplace_back(0x0E, "RRC [HL]", 1, 12, true, [](CPU& cpu, SPBus& bus) {
+        bus->write(cpu.HL(), cpu.rrcR8(bus->read(cpu.HL())));
+        return 0;
+    });
+    ops.emplace_back(0x0F, "RRC A", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.A() = cpu.rrcR8(cpu.A());
         return 0;
     });
 
