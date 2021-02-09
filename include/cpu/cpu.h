@@ -14,6 +14,7 @@
 #include "gibi.h"
 #include "mmu/bus.h"
 #include "timings.h"
+#include "opcode.h"
 
 // The GameBoy CPU had a 8-bit flag register of which only the upper nibble was
 // used. The lower nibble was always 0. The four flags included were:
@@ -80,26 +81,16 @@ class CPU {
     // executing, and jumps to the interrupt vector with the highest priority
     uint handle_interrupts();
 
+    std::vector<Opcode> opcodes;
+    std::vector<Opcode> extendedOpcodes;
+
    public:
     CPUState state;
 
     CPU() : CPU(nullptr) {}
 
     // Initialize the CPU with init values for the DMG-01 model
-    explicit CPU(std::shared_ptr<Bus> bus)
-        : a{0x01},
-          b{0x00},
-          c{0x13},
-          d{0x00},
-          e{0xD8},
-          h{0x01},
-          l{0x4D},
-          f{0xB0},
-          sp{0xFFFE},
-          pc{0x00},  // This should start at 0x100 for emulation tests
-          interrupt_master{true},
-          bus{std::move(bus)},
-          state{CPUState::EXECUTING} {}
+    explicit CPU(std::shared_ptr<Bus> bus);
 
     // Run a single opcode and return the number of clock cycles (t) it took
     uint execute();
@@ -221,6 +212,11 @@ class CPU {
 
     // CPL - Complement Accumalator
     void cpl();
+
+    // Extended Opcodes
+
+    // RLC R8 opcodes
+    byte rlcR8(byte value);
 };
 
 #endif  // GIBI_INCLUDE_CPU_CPU_H_

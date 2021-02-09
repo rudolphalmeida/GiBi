@@ -10,10 +10,11 @@
 #include <string>
 #include <utility>
 
-#include "cpu.h"
 #include "gibi.h"
 #include "mmu/bus.h"
 #include "timings.h"
+
+class CPU;
 
 class Opcode {
    private:

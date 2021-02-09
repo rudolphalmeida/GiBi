@@ -4,7 +4,25 @@
  * */
 
 #include "cpu/cpu.h"
+#include "cpu/instructions.h"
 #include "gibi.h"
+
+CPU::CPU(std::shared_ptr<Bus> bus)
+    : a{0x01},
+      b{0x00},
+      c{0x13},
+      d{0x00},
+      e{0xD8},
+      h{0x01},
+      l{0x4D},
+      f{0xB0},
+      sp{0xFFFE},
+      pc{0x00},  // This should start at 0x100 for emulation tests
+      interrupt_master{true},
+      bus{std::move(bus)},
+      opcodes{opcodeImpl()},
+      extendedOpcodes{extendedOpcodeImpl()},
+      state{CPUState::EXECUTING} {}
 
 uint CPU::tick() {
     uint isrTCycles = handle_interrupts();
@@ -22,9 +40,15 @@ uint CPU::handle_interrupts() {
     return 0;
 }
 
-// TODO: Complete execute opcode
+/* Fetch and execute a single opcode. Might execute two opcodes if executing
+ * the EI instruction or an extended opcode if opcode is 0xCB
+ */
 uint CPU::execute() {
-    return 0;
+    byte code = fetchByte();
+    auto& opcode = opcodes.at(code);
+
+    uint branchTakeCycles = opcode(*this, bus);
+    return opcode.tCycles + branchTakeCycles;
 }
 
 void CPU::AF(word af) {
@@ -134,7 +158,7 @@ void CPU::rra() {
     bool oldCarry = f.cy;
     rrca();  // This will set all flags
 
-    // Ignore the 7 bit from RLCA and set to oldCarry
+    // Ignore the 7 bit from RRCA and set to oldCarry
     if (oldCarry) {
         setBit(A(), 7);
     } else {
@@ -259,6 +283,24 @@ void CPU::orR8(byte value) {
     F.cy = false;
 }
 
+byte CPU::rlcR8(byte value) {
+    bool oldBit7 = isSet(value, 7);
+    byte result = value << 1;
+
+    auto& F = this->F();
+
+    if (oldBit7) {
+        result = setBit(result, 0);
+        F.cy = true;
+    }
+
+    F.n = false;
+    F.h = false;
+    F.zf = result == 0;
+
+    return result;
+}
+
 void CPU::push(word value) {
     auto [upper, lower] = decomposeWord(value);
 
@@ -276,5 +318,9 @@ word CPU::pop() {
 
 // TODO: Complete extended opcode execute
 uint CPU::executeExtended() {
-    return 0;
+    byte code = fetchByte();
+    auto& opcode = extendedOpcodes.at(code);
+
+    opcode(*this, bus);
+    return opcode.tCycles;
 }

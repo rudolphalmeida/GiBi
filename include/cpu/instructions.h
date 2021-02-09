@@ -17,7 +17,7 @@
 
 using SPBus = std::shared_ptr<Bus>;
 
-std::vector<Opcode> nonExtendedOpcodes() {
+std::vector<Opcode> opcodeImpl() {
     std::vector<Opcode> ops;
     ops.reserve(256);
 
@@ -565,10 +565,10 @@ std::vector<Opcode> nonExtendedOpcodes() {
         cpu.A() = bus->read(cpu.HL());
         return 0;
     });
-    ops.push_back(Opcode(0x7F, "LD A, A", 1, 4, false, [](CPU& cpu, SPBus&) {
+    ops.emplace_back(0x7F, "LD A, A", 1, 4, false, [](CPU& cpu, SPBus&) {
         cpu.A() = cpu.A();
         return 0;
-    }));
+    });
     ops.emplace_back(0x80, "ADD A, B", 1, 4, false, [](CPU& cpu, SPBus&) {
         cpu.addR8(cpu.B());
         return 0;
@@ -1018,7 +1018,7 @@ std::vector<Opcode> nonExtendedOpcodes() {
             return 0;
         }
     });
-    ops.emplace_back(0xDD, "NOP", 1, 4, false, [](CPU& cpu, SPBus&) { return 0; });
+    ops.emplace_back(0xDD, "NOP", 1, 4, false, [](CPU&, SPBus&) { return 0; });
     ops.emplace_back(0xDE, "SBC A, u8", 2, 8, false, [](CPU& cpu, SPBus&) {
         cpu.sbcR8(cpu.fetchByte());
         return 0;
@@ -1059,7 +1059,7 @@ std::vector<Opcode> nonExtendedOpcodes() {
         auto value = static_cast<sbyte>(cpu.fetchByte());
         word sp = cpu.SP();
 
-        uint result = static_cast<uint>(reg + value);
+        uint result = static_cast<uint>(sp + value);
 
         auto& F = cpu.F();
         F.zf = false;
@@ -1126,7 +1126,7 @@ std::vector<Opcode> nonExtendedOpcodes() {
         auto value = static_cast<sbyte>(cpu.fetchByte());
         word sp = cpu.SP();
 
-        uint result = static_cast<uint>(reg + value);
+        uint result = static_cast<uint>(sp + value);
 
         auto& F = cpu.F();
         F.zf = false;
@@ -1163,6 +1163,24 @@ std::vector<Opcode> nonExtendedOpcodes() {
     ops.emplace_back(0xFF, "RST 38h", 1, 16, false, [](CPU& cpu, SPBus&) {
         cpu.push(cpu.PC());
         cpu.PC() = 0x38;
+        return 0;
+    });
+
+    return ops;
+}
+
+std::vector<Opcode> extendedOpcodeImpl() {
+    std::vector<Opcode> ops;
+    ops.reserve(256);
+
+    /*
+     * The opcode docs at https://izik1.github.io/gbops/index.html mention the extended opcodes
+     * as being 2 bytes long, but that is including the 0xCB prefix, and we ignore that in the
+     * length parameter here
+     * */
+
+    ops.emplace_back(0x00, "RLC B", 1, 8, true, [](CPU& cpu, SPBus&) {
+        cpu.B() = cpu.rlcR8(cpu.B());
         return 0;
     });
 
