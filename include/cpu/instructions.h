@@ -1308,6 +1308,70 @@ std::vector<Opcode> extendedOpcodeImpl() {
         cpu.A() = cpu.rrR8(cpu.A());
         return 0;
     });
+    ops.emplace_back(0x20, "SLA B", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.B() = cpu.slaR8(cpu.B());
+        return 0;
+    });
+    ops.emplace_back(0x21, "SLA C", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.C() = cpu.slaR8(cpu.C());
+        return 0;
+    });
+    ops.emplace_back(0x22, "SLA D", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.D() = cpu.slaR8(cpu.D());
+        return 0;
+    });
+    ops.emplace_back(0x23, "SLA E", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.E() = cpu.slaR8(cpu.E());
+        return 0;
+    });
+    ops.emplace_back(0x24, "SLA H", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.H() = cpu.slaR8(cpu.H());
+        return 0;
+    });
+    ops.emplace_back(0x25, "SLA L", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.L() = cpu.slaR8(cpu.L());
+        return 0;
+    });
+    ops.emplace_back(0x26, "SLA [HL]", 1, 12, true, [](CPU& cpu, SPBus& bus) {
+        bus->write(cpu.HL(), cpu.slaR8(bus->read(cpu.HL())));
+        return 0;
+    });
+    ops.emplace_back(0x27, "SLA A", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.A() = cpu.slaR8(cpu.A());
+        return 0;
+    });
+    ops.emplace_back(0x28, "SRA B", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.B() = cpu.sraR8(cpu.B());
+        return 0;
+    });
+    ops.emplace_back(0x29, "SRA C", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.C() = cpu.sraR8(cpu.C());
+        return 0;
+    });
+    ops.emplace_back(0x2A, "SRA D", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.D() = cpu.sraR8(cpu.D());
+        return 0;
+    });
+    ops.emplace_back(0x2B, "SRA E", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.E() = cpu.sraR8(cpu.E());
+        return 0;
+    });
+    ops.emplace_back(0x2C, "SRA H", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.H() = cpu.sraR8(cpu.H());
+        return 0;
+    });
+    ops.emplace_back(0x2D, "SRA L", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.L() = cpu.sraR8(cpu.L());
+        return 0;
+    });
+    ops.emplace_back(0x2E, "SRA [HL]", 1, 12, true, [](CPU& cpu, SPBus& bus) {
+        bus->write(cpu.HL(), cpu.sraR8(bus->read(cpu.HL())));
+        return 0;
+    });
+    ops.emplace_back(0x2F, "SRA A", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.A() = cpu.sraR8(cpu.A());
+        return 0;
+    });
 
     return ops;
 }

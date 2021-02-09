@@ -337,7 +337,6 @@ byte CPU::rlR8(byte value) {
     return result;
 }
 
-
 byte CPU::rrR8(byte value) {
     auto& F = this->F();
     bool oldCarry = F.cy;
@@ -352,6 +351,32 @@ byte CPU::rrR8(byte value) {
     F.n = false;
     F.h = false;
     F.zf = result == 0;
+
+    return result;
+}
+
+byte CPU::slaR8(byte value) {
+    auto& F = this->F();
+    F.cy = isSet(value, 7);
+
+    byte result = value << 1;
+
+    F.zf = result == 0;
+    F.n = false;
+    F.h = false;
+
+    return result;
+}
+
+byte CPU::sraR8(byte value) {
+    auto& F = this->F();
+    F.cy = isSet(value, 0);
+
+    byte result = value >> 1;
+
+    F.zf = result == 0;
+    F.n = false;
+    F.h = false;
 
     return result;
 }
