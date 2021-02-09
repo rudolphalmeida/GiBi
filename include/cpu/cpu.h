@@ -232,6 +232,12 @@ class CPU {
 
     // SRA R8 opcodes
     byte sraR8(byte value);
+
+    // SWAP R8 opcodes
+    byte swapR8(byte value);
+
+    // SRL R8 opcodes
+    byte srlR8(byte value);
 };
 
 #endif  // GIBI_INCLUDE_CPU_CPU_H_

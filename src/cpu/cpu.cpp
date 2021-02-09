@@ -372,6 +372,36 @@ byte CPU::sraR8(byte value) {
     auto& F = this->F();
     F.cy = isSet(value, 0);
 
+    bool oldBit7 = isSet(value, 7);
+
+    byte result = value >> 1;
+    if (oldBit7) {
+        result = setBit(result, 7);
+    }
+
+    F.zf = result == 0;
+    F.n = false;
+    F.h = false;
+
+    return result;
+}
+
+byte CPU::swapR8(byte value) {
+    byte result = (value << 4) | (value >> 4);
+
+    auto& F = this->F();
+    F.zf = result == 0;
+    F.n = false;
+    F.h = false;
+    F.cy = false;
+
+    return result;
+}
+
+byte CPU::srlR8(byte value) {
+    auto& F = this->F();
+    F.cy = isSet(value, 0);
+
     byte result = value >> 1;
 
     F.zf = result == 0;
