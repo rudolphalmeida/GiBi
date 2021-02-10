@@ -1532,6 +1532,198 @@ std::vector<Opcode> extendedOpcodeImpl() {
         cpu.F().h = true;
         return 0;
     });
+    ops.emplace_back(0x50, "BIT 2, B", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.F().zf = !isSet(cpu.B(), 2);
+        cpu.F().n = false;
+        cpu.F().h = true;
+        return 0;
+    });
+    ops.emplace_back(0x51, "BIT 2, C", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.F().zf = !isSet(cpu.C(), 2);
+        cpu.F().n = false;
+        cpu.F().h = true;
+        return 0;
+    });
+    ops.emplace_back(0x52, "BIT 2, D", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.F().zf = !isSet(cpu.D(), 2);
+        cpu.F().n = false;
+        cpu.F().h = true;
+        return 0;
+    });
+    ops.emplace_back(0x53, "BIT 2, E", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.F().zf = !isSet(cpu.E(), 2);
+        cpu.F().n = false;
+        cpu.F().h = true;
+        return 0;
+    });
+    ops.emplace_back(0x54, "BIT 2, H", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.F().zf = !isSet(cpu.H(), 2);
+        cpu.F().n = false;
+        cpu.F().h = true;
+        return 0;
+    });
+    ops.emplace_back(0x55, "BIT 2, L", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.F().zf = !isSet(cpu.L(), 2);
+        cpu.F().n = false;
+        cpu.F().h = true;
+        return 0;
+    });
+    ops.emplace_back(0x56, "BIT 2, [HL]", 1, 8, true, [](CPU& cpu, SPBus& bus) {
+        cpu.F().zf = !isSet(bus->read(cpu.HL()), 2);
+        cpu.F().n = false;
+        cpu.F().h = true;
+        return 0;
+    });
+    ops.emplace_back(0x57, "BIT 2, A", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.F().zf = !isSet(cpu.A(), 2);
+        cpu.F().n = false;
+        cpu.F().h = true;
+        return 0;
+    });
+    ops.emplace_back(0x58, "BIT 3, B", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.F().zf = !isSet(cpu.B(), 3);
+        cpu.F().n = false;
+        cpu.F().h = true;
+        return 0;
+    });
+    ops.emplace_back(0x59, "BIT 3, C", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.F().zf = !isSet(cpu.C(), 3);
+        cpu.F().n = false;
+        cpu.F().h = true;
+        return 0;
+    });
+    ops.emplace_back(0x5A, "BIT 3, D", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.F().zf = !isSet(cpu.D(), 3);
+        cpu.F().n = false;
+        cpu.F().h = true;
+        return 0;
+    });
+    ops.emplace_back(0x5B, "BIT 3, E", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.F().zf = !isSet(cpu.E(), 3);
+        cpu.F().n = false;
+        cpu.F().h = true;
+        return 0;
+    });
+    ops.emplace_back(0x5C, "BIT 3, H", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.F().zf = !isSet(cpu.H(), 3);
+        cpu.F().n = false;
+        cpu.F().h = true;
+        return 0;
+    });
+    ops.emplace_back(0x5D, "BIT 3, L", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.F().zf = !isSet(cpu.L(), 3);
+        cpu.F().n = false;
+        cpu.F().h = true;
+        return 0;
+    });
+    ops.emplace_back(0x5E, "BIT 3, [HL]", 1, 8, true, [](CPU& cpu, SPBus& bus) {
+        cpu.F().zf = !isSet(bus->read(cpu.HL()), 3);
+        cpu.F().n = false;
+        cpu.F().h = true;
+        return 0;
+    });
+    ops.emplace_back(0x5F, "BIT 3, A", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.F().zf = !isSet(cpu.A(), 3);
+        cpu.F().n = false;
+        cpu.F().h = true;
+        return 0;
+    });
+    ops.emplace_back(0x60, "BIT 4, B", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.F().zf = !isSet(cpu.B(), 4);
+        cpu.F().n = false;
+        cpu.F().h = true;
+        return 0;
+    });
+    ops.emplace_back(0x61, "BIT 4, C", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.F().zf = !isSet(cpu.C(), 4);
+        cpu.F().n = false;
+        cpu.F().h = true;
+        return 0;
+    });
+    ops.emplace_back(0x62, "BIT 4, D", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.F().zf = !isSet(cpu.D(), 4);
+        cpu.F().n = false;
+        cpu.F().h = true;
+        return 0;
+    });
+    ops.emplace_back(0x63, "BIT 4, E", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.F().zf = !isSet(cpu.E(), 4);
+        cpu.F().n = false;
+        cpu.F().h = true;
+        return 0;
+    });
+    ops.emplace_back(0x64, "BIT 4, H", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.F().zf = !isSet(cpu.H(), 4);
+        cpu.F().n = false;
+        cpu.F().h = true;
+        return 0;
+    });
+    ops.emplace_back(0x65, "BIT 4, L", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.F().zf = !isSet(cpu.L(), 4);
+        cpu.F().n = false;
+        cpu.F().h = true;
+        return 0;
+    });
+    ops.emplace_back(0x66, "BIT 4, [HL]", 1, 8, true, [](CPU& cpu, SPBus& bus) {
+        cpu.F().zf = !isSet(bus->read(cpu.HL()), 4);
+        cpu.F().n = false;
+        cpu.F().h = true;
+        return 0;
+    });
+    ops.emplace_back(0x67, "BIT 4, A", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.F().zf = !isSet(cpu.A(), 4);
+        cpu.F().n = false;
+        cpu.F().h = true;
+        return 0;
+    });
+    ops.emplace_back(0x68, "BIT 4, B", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.F().zf = !isSet(cpu.B(), 4);
+        cpu.F().n = false;
+        cpu.F().h = true;
+        return 0;
+    });
+    ops.emplace_back(0x69, "BIT 4, C", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.F().zf = !isSet(cpu.C(), 4);
+        cpu.F().n = false;
+        cpu.F().h = true;
+        return 0;
+    });
+    ops.emplace_back(0x6A, "BIT 4, D", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.F().zf = !isSet(cpu.D(), 4);
+        cpu.F().n = false;
+        cpu.F().h = true;
+        return 0;
+    });
+    ops.emplace_back(0x6B, "BIT 4, E", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.F().zf = !isSet(cpu.E(), 4);
+        cpu.F().n = false;
+        cpu.F().h = true;
+        return 0;
+    });
+    ops.emplace_back(0x6C, "BIT 4, H", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.F().zf = !isSet(cpu.H(), 4);
+        cpu.F().n = false;
+        cpu.F().h = true;
+        return 0;
+    });
+    ops.emplace_back(0x6D, "BIT 4, L", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.F().zf = !isSet(cpu.L(), 4);
+        cpu.F().n = false;
+        cpu.F().h = true;
+        return 0;
+    });
+    ops.emplace_back(0x6E, "BIT 4, [HL]", 1, 8, true, [](CPU& cpu, SPBus& bus) {
+        cpu.F().zf = !isSet(bus->read(cpu.HL()), 4);
+        cpu.F().n = false;
+        cpu.F().h = true;
+        return 0;
+    });
+    ops.emplace_back(0x6F, "BIT 4, A", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.F().zf = !isSet(cpu.A(), 4);
+        cpu.F().n = false;
+        cpu.F().h = true;
+        return 0;
+    });
 
     return ops;
 }
