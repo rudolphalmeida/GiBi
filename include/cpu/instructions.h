@@ -2076,6 +2076,262 @@ std::vector<Opcode> extendedOpcodeImpl() {
         cpu.A() = resetBit(cpu.A(), 7);
         return 0;
     });
+    ops.emplace_back(0xC0, "SET 0, B", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.B() = setBit(cpu.B(), 0);
+        return 0;
+    });
+    ops.emplace_back(0xC1, "SET 0, C", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.C() = setBit(cpu.C(), 0);
+        return 0;
+    });
+    ops.emplace_back(0xC2, "SET 0, D", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.D() = setBit(cpu.D(), 0);
+        return 0;
+    });
+    ops.emplace_back(0xC3, "SET 0, E", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.E() = setBit(cpu.E(), 0);
+        return 0;
+    });
+    ops.emplace_back(0xC4, "SET 0, H", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.H() = setBit(cpu.H(), 0);
+        return 0;
+    });
+    ops.emplace_back(0xC5, "SET 0, L", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.L() = setBit(cpu.L(), 0);
+        return 0;
+    });
+    ops.emplace_back(0xC6, "SET 0, [HL]", 1, 12, true, [](CPU& cpu, SPBus& bus) {
+        bus->write(cpu.HL(), setBit(bus->read(cpu.HL()), 0));
+        return 0;
+    });
+    ops.emplace_back(0xC7, "SET 0, A", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.A() = setBit(cpu.A(), 0);
+        return 0;
+    });
+    ops.emplace_back(0xC8, "SET 1, B", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.B() = setBit(cpu.B(), 1);
+        return 0;
+    });
+    ops.emplace_back(0xC9, "SET 1, C", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.C() = setBit(cpu.C(), 1);
+        return 0;
+    });
+    ops.emplace_back(0xCA, "SET 1, D", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.D() = setBit(cpu.D(), 1);
+        return 0;
+    });
+    ops.emplace_back(0xCB, "SET 1, E", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.E() = setBit(cpu.E(), 1);
+        return 0;
+    });
+    ops.emplace_back(0xCC, "SET 1, H", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.H() = setBit(cpu.H(), 1);
+        return 0;
+    });
+    ops.emplace_back(0xCD, "SET 1, L", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.L() = setBit(cpu.L(), 1);
+        return 0;
+    });
+    ops.emplace_back(0xCE, "SET 1, [HL]", 1, 12, true, [](CPU& cpu, SPBus& bus) {
+        bus->write(cpu.HL(), setBit(bus->read(cpu.HL()), 1));
+        return 0;
+    });
+    ops.emplace_back(0xCF, "SET 1, A", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.A() = setBit(cpu.A(), 1);
+        return 0;
+    });
+    ops.emplace_back(0xD0, "SET 2, B", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.B() = setBit(cpu.B(), 2);
+        return 0;
+    });
+    ops.emplace_back(0xD1, "SET 2, C", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.C() = setBit(cpu.C(), 2);
+        return 0;
+    });
+    ops.emplace_back(0xD2, "SET 2, D", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.D() = setBit(cpu.D(), 2);
+        return 0;
+    });
+    ops.emplace_back(0xD3, "SET 2, E", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.E() = setBit(cpu.E(), 2);
+        return 0;
+    });
+    ops.emplace_back(0xD4, "SET 2, H", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.H() = setBit(cpu.H(), 2);
+        return 0;
+    });
+    ops.emplace_back(0xD5, "SET 2, L", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.L() = setBit(cpu.L(), 2);
+        return 0;
+    });
+    ops.emplace_back(0xD6, "SET 2, [HL]", 1, 12, true, [](CPU& cpu, SPBus& bus) {
+        bus->write(cpu.HL(), setBit(bus->read(cpu.HL()), 2));
+        return 0;
+    });
+    ops.emplace_back(0xD7, "SET 2, A", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.A() = setBit(cpu.A(), 2);
+        return 0;
+    });
+    ops.emplace_back(0xD8, "SET 3, B", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.B() = setBit(cpu.B(), 3);
+        return 0;
+    });
+    ops.emplace_back(0xD9, "SET 3, C", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.C() = setBit(cpu.C(), 3);
+        return 0;
+    });
+    ops.emplace_back(0xDA, "SET 3, D", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.D() = setBit(cpu.D(), 3);
+        return 0;
+    });
+    ops.emplace_back(0xDB, "SET 3, E", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.E() = setBit(cpu.E(), 3);
+        return 0;
+    });
+    ops.emplace_back(0xDC, "SET 3, H", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.H() = setBit(cpu.H(), 3);
+        return 0;
+    });
+    ops.emplace_back(0xDD, "SET 3, L", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.L() = setBit(cpu.L(), 3);
+        return 0;
+    });
+    ops.emplace_back(0xDE, "SET 3, [HL]", 1, 12, true, [](CPU& cpu, SPBus& bus) {
+        bus->write(cpu.HL(), setBit(bus->read(cpu.HL()), 3));
+        return 0;
+    });
+    ops.emplace_back(0xDF, "SET 3, A", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.A() = setBit(cpu.A(), 3);
+        return 0;
+    });
+    ops.emplace_back(0xE0, "SET 4, B", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.B() = setBit(cpu.B(), 4);
+        return 0;
+    });
+    ops.emplace_back(0xE1, "SET 4, C", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.C() = setBit(cpu.C(), 4);
+        return 0;
+    });
+    ops.emplace_back(0xE2, "SET 4, D", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.D() = setBit(cpu.D(), 4);
+        return 0;
+    });
+    ops.emplace_back(0xE3, "SET 4, E", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.E() = setBit(cpu.E(), 4);
+        return 0;
+    });
+    ops.emplace_back(0xE4, "SET 4, H", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.H() = setBit(cpu.H(), 4);
+        return 0;
+    });
+    ops.emplace_back(0xE5, "SET 4, L", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.L() = setBit(cpu.L(), 4);
+        return 0;
+    });
+    ops.emplace_back(0xE6, "SET 4, [HL]", 1, 12, true, [](CPU& cpu, SPBus& bus) {
+        bus->write(cpu.HL(), setBit(bus->read(cpu.HL()), 4));
+        return 0;
+    });
+    ops.emplace_back(0xE7, "SET 4, A", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.A() = setBit(cpu.A(), 4);
+        return 0;
+    });
+    ops.emplace_back(0xE8, "SET 5, B", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.B() = setBit(cpu.B(), 5);
+        return 0;
+    });
+    ops.emplace_back(0xE9, "SET 5, C", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.C() = setBit(cpu.C(), 5);
+        return 0;
+    });
+    ops.emplace_back(0xEA, "SET 5, D", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.D() = setBit(cpu.D(), 5);
+        return 0;
+    });
+    ops.emplace_back(0xEB, "SET 5, E", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.E() = setBit(cpu.E(), 5);
+        return 0;
+    });
+    ops.emplace_back(0xEC, "SET 5, H", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.H() = setBit(cpu.H(), 5);
+        return 0;
+    });
+    ops.emplace_back(0xED, "SET 5, L", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.L() = setBit(cpu.L(), 5);
+        return 0;
+    });
+    ops.emplace_back(0xEE, "SET 5, [HL]", 1, 12, true, [](CPU& cpu, SPBus& bus) {
+        bus->write(cpu.HL(), setBit(bus->read(cpu.HL()), 5));
+        return 0;
+    });
+    ops.emplace_back(0xEF, "SET 5, A", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.A() = setBit(cpu.A(), 5);
+        return 0;
+    });
+    ops.emplace_back(0xF0, "SET 6, B", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.B() = setBit(cpu.B(), 6);
+        return 0;
+    });
+    ops.emplace_back(0xF1, "SET 6, C", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.C() = setBit(cpu.C(), 6);
+        return 0;
+    });
+    ops.emplace_back(0xF2, "SET 6, D", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.D() = setBit(cpu.D(), 6);
+        return 0;
+    });
+    ops.emplace_back(0xF3, "SET 6, E", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.E() = setBit(cpu.E(), 6);
+        return 0;
+    });
+    ops.emplace_back(0xF4, "SET 6, H", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.H() = setBit(cpu.H(), 6);
+        return 0;
+    });
+    ops.emplace_back(0xF5, "SET 6, L", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.L() = setBit(cpu.L(), 6);
+        return 0;
+    });
+    ops.emplace_back(0xF6, "SET 6, [HL]", 1, 12, true, [](CPU& cpu, SPBus& bus) {
+        bus->write(cpu.HL(), setBit(bus->read(cpu.HL()), 6));
+        return 0;
+    });
+    ops.emplace_back(0xF7, "SET 6, A", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.A() = setBit(cpu.A(), 6);
+        return 0;
+    });
+    ops.emplace_back(0xF8, "SET 7, B", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.B() = setBit(cpu.B(), 7);
+        return 0;
+    });
+    ops.emplace_back(0xF9, "SET 7, C", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.C() = setBit(cpu.C(), 7);
+        return 0;
+    });
+    ops.emplace_back(0xFA, "SET 7, D", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.D() = setBit(cpu.D(), 7);
+        return 0;
+    });
+    ops.emplace_back(0xFB, "SET 7, E", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.E() = setBit(cpu.E(), 7);
+        return 0;
+    });
+    ops.emplace_back(0xFC, "SET 7, H", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.H() = setBit(cpu.H(), 7);
+        return 0;
+    });
+    ops.emplace_back(0xFD, "SET 7, L", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.L() = setBit(cpu.L(), 7);
+        return 0;
+    });
+    ops.emplace_back(0xFE, "SET 7, [HL]", 1, 12, true, [](CPU& cpu, SPBus& bus) {
+        bus->write(cpu.HL(), setBit(bus->read(cpu.HL()), 7));
+        return 0;
+    });
+    ops.emplace_back(0xFF, "SET 7, A", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.A() = setBit(cpu.A(), 7);
+        return 0;
+    });
 
     return ops;
 }
