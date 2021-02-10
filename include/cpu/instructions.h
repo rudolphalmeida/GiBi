@@ -1820,6 +1820,70 @@ std::vector<Opcode> extendedOpcodeImpl() {
         cpu.F().h = true;
         return 0;
     });
+    ops.emplace_back(0x80, "RES 0, B", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.B() = resetBit(cpu.B(), 0);
+        return 0;
+    });
+    ops.emplace_back(0x81, "RES 0, C", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.C() = resetBit(cpu.C(), 0);
+        return 0;
+    });
+    ops.emplace_back(0x82, "RES 0, D", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.D() = resetBit(cpu.D(), 0);
+        return 0;
+    });
+    ops.emplace_back(0x83, "RES 0, E", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.E() = resetBit(cpu.E(), 0);
+        return 0;
+    });
+    ops.emplace_back(0x84, "RES 0, H", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.H() = resetBit(cpu.H(), 0);
+        return 0;
+    });
+    ops.emplace_back(0x85, "RES 0, L", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.L() = resetBit(cpu.L(), 0);
+        return 0;
+    });
+    ops.emplace_back(0x86, "RES 0, [HL]", 1, 12, true, [](CPU& cpu, SPBus& bus) {
+        bus->write(cpu.HL(), resetBit(bus->read(cpu.HL()), 0));
+        return 0;
+    });
+    ops.emplace_back(0x87, "RES 0, A", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.A() = resetBit(cpu.A(), 0);
+        return 0;
+    });
+    ops.emplace_back(0x88, "RES 1, B", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.B() = resetBit(cpu.B(), 1);
+        return 0;
+    });
+    ops.emplace_back(0x89, "RES 1, C", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.C() = resetBit(cpu.C(), 1);
+        return 0;
+    });
+    ops.emplace_back(0x8A, "RES 1, D", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.D() = resetBit(cpu.D(), 1);
+        return 0;
+    });
+    ops.emplace_back(0x8B, "RES 1, E", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.E() = resetBit(cpu.E(), 1);
+        return 0;
+    });
+    ops.emplace_back(0x8C, "RES 1, H", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.H() = resetBit(cpu.H(), 1);
+        return 0;
+    });
+    ops.emplace_back(0x8D, "RES 1, L", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.L() = resetBit(cpu.L(), 1);
+        return 0;
+    });
+    ops.emplace_back(0x8E, "RES 1, [HL]", 1, 12, true, [](CPU& cpu, SPBus& bus) {
+        bus->write(cpu.HL(), resetBit(bus->read(cpu.HL()), 1));
+        return 0;
+    });
+    ops.emplace_back(0x8F, "RES 1, A", 1, 4, true, [](CPU& cpu, SPBus&) {
+        cpu.A() = resetBit(cpu.A(), 1);
+        return 0;
+    });
 
     return ops;
 }
