@@ -13,6 +13,7 @@
 #include <utility>
 
 #include "cartridge.h"
+#include "cpu/interrupts.h"
 #include "gibi.h"
 #include "memory.h"
 
@@ -24,9 +25,17 @@ class Bus : public Memory {
     std::vector<byte> wram;
     std::vector<byte> hram;
 
+    std::shared_ptr<IntF> intf;
+    std::shared_ptr<IntE> inte;
+
    public:
     // Bus needs to have ownership the Cartridge
-    explicit Bus(Cartridge&& cart) : cart{std::move(cart)}, wram(0x2000), hram(0x7F) {}
+    explicit Bus(Cartridge&& cart, std::shared_ptr<IntF> intf, std::shared_ptr<IntE> inte)
+        : cart{std::move(cart)},
+          wram(0x2000),
+          hram(0x7F),
+          intf{std::move(intf)},
+          inte{std::move(inte)} {}
 
     [[nodiscard]] byte read(word address) const override;
 

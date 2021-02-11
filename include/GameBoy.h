@@ -11,6 +11,7 @@
 #include <memory>
 
 #include "cpu/cpu.h"
+#include "cpu/interrupts.h"
 #include "gibi.h"
 #include "mmu/bus.h"
 
@@ -22,6 +23,8 @@ class GameBoy {
     std::string romPath{};
     std::string savePath{};
 
+    std::shared_ptr<IntF> intf;
+    std::shared_ptr<IntE> inte;
     std::shared_ptr<Bus> bus;
     CPU cpu;
 

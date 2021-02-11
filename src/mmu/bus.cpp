@@ -3,6 +3,7 @@
  * */
 
 #include "mmu/bus.h"
+#include "cpu/interrupts.h"
 #include "gibi.h"
 
 byte Bus::read(word address) const {
@@ -22,11 +23,12 @@ byte Bus::read(word address) const {
         return 0xFF;
     } else if (inRange(address, 0xFEA0, 0xFEFF)) {
         return 0xFF;  // Unusable space
+    } else if (address == 0xFF0F) {
+        return intf->data;
     } else if (inRange(address, 0xFF80, 0xFFFE)) {
         return hram[address - 0xFF80];
-    } else if (inRange(address, 0xFFFF, 0xFFFF)) {
-        // IE register
-        return 0xFF;
+    } else if (address == 0xFFFF) {
+        return inte->data;
     }
 
     return 0xFF;
@@ -47,9 +49,11 @@ void Bus::write(word address, byte data) {
         // PPU
     } else if (inRange(address, 0xFEA0, 0xFEFF)) {
         // Do Nothing
+    } else if (address == 0xFF0F) {
+        intf->data = data;
     } else if (inRange(address, 0xFF80, 0xFFFE)) {
         hram[address - 0xFF80] = data;
-    } else if (inRange(address, 0xFFFF, 0xFFFF)) {
-        // IE register
+    } else if (address == 0xFFFF) {
+        inte->data = data;
     }
 }

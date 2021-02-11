@@ -71,7 +71,10 @@ void GameBoy::initComponents() {
     }
 
     Cartridge cart(romData, !savePath.empty() ? std::optional(saveData) : std::nullopt);
-    bus = std::make_shared<Bus>(std::move(cart));
+
+    inte = std::make_shared<IntE>();
+    intf = std::make_shared<IntF>();
+    bus = std::make_shared<Bus>(std::move(cart), intf, inte);
     cpu = CPU(bus);
 }
 
@@ -80,7 +83,7 @@ int GameBoy::run() {
 
     gameLoop();
 
-    //return 0;
+    // return 0;
 }
 
 [[noreturn]] void GameBoy::gameLoop() {
