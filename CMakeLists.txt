@@ -7,7 +7,7 @@ set(HEADER_FILES
         include/gibi.h
         include/GameBoy.h
         include/cpu/cpu.h
-        include/timings.h
+        include/constants.h
         include/cpu/opcode.h
         include/mmu/memory.h
         include/mmu/cartridge.h

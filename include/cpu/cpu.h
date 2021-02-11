@@ -11,9 +11,9 @@
 
 #include <spdlog/spdlog.h>
 
+#include "constants.h"
 #include "gibi.h"
 #include "mmu/bus.h"
-#include "timings.h"
 #include "opcode.h"
 
 // The GameBoy CPU had a 8-bit flag register of which only the upper nibble was

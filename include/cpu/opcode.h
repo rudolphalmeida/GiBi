@@ -10,9 +10,9 @@
 #include <string>
 #include <utility>
 
+#include "constants.h"
 #include "gibi.h"
 #include "mmu/bus.h"
-#include "timings.h"
 
 class CPU;
 

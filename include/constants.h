@@ -1,5 +1,5 @@
 /*
- * Timings for many different operations in the GameBoy.
+ * Timings and constants for many different operations in the GameBoy.
  * All timings are clock cycles at 4.19MHz. Dividing by 4 gives us the machine
  * cycles at 1.05MHz
  * Author: Rudolph Almeida <rudolf1.almeida@gmail.com>
@@ -53,5 +53,13 @@ const uint CB_CLOCK_CYCLES[] = {
     8, 8, 8, 8, 8, 8, 16, 8, 8, 8, 8, 8, 8, 8, 16, 8, // f
 };
 /* clang-format on */
+
+const word VBLANK_HANDLER_ADDRESS = 0x40;
+const word LCDSTAT_HANDLER_ADDRESS = 0x48;
+const word TIMER_HANDLER_ADDRESS = 0x50;
+const word SERIAL_HANDLER_ADDRESS = 0x58;
+const word JOYPAD_HANDLER_ADDRESS = 0x60;
+
+const uint ISR_CLOCK_CYCLES = 20; // TODO: Confirm if this is the right value
 
 #endif  // GIBI_INCLUDE_TIMINGS_H_

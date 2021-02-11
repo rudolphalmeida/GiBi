@@ -3,6 +3,9 @@
  * Author: Rudolph Almeida <rudolf1.almeida@gmail.com>
  * */
 
+#include <cstring>
+
+#include "constants.h"
 #include "cpu/cpu.h"
 #include "cpu/instructions.h"
 #include "gibi.h"
@@ -35,9 +38,66 @@ uint CPU::tick() {
     }
 }
 
-// TODO: Complete ISR
 uint CPU::handle_interrupts() {
-    return 0;
+    if (state != CPUState::HALTED && !interrupt_master) {
+        return 0;
+    }
+
+    byte intf = bus->read(0xFF0F);
+    byte inte = bus->read(0xFFFF);
+
+    // Set only *enabled* and *requested* interrupts
+    byte ii = intf & inte;
+    if (!ii) {  // No pending interrupts
+        return 0;
+    }
+
+    // When there are pending interrupts, the CPU starts executing again and jumps to the interrupt
+    // with the highest priority
+    state = CPUState::EXECUTING;
+
+    // However if there are pending interrupts, but *all* interrupts are disabled, the CPU still
+    // needs to be executing, however we don't service any interrupt.
+    if (!interrupt_master) {
+        return 0;
+    }
+
+    interrupt_master = false;  // Disable interrupts when an interrupt is executing
+
+    // Find the interrupt with the highest priority. The priority goes from right to left, i.e the
+    // interrupt with lower bit index has the higher priority
+    // `ffs` indexes start from 1 so we decrement it
+    auto n = ffs(ii) - 1;  // TODO: Find a portable solution to this
+    assert(n < 5);
+    intf = resetBit(intf, n);  // Mark the interrupt as serviced
+    bus->write(0xFF0F, intf);
+
+    // Jump to interrupt handler
+    push(PC());
+    switch (static_cast<Interrupts>(n)) {
+        case Interrupts::VBlank: {
+            PC() = VBLANK_HANDLER_ADDRESS;
+            break;
+        }
+        case Interrupts::LCDStat: {
+            PC() = LCDSTAT_HANDLER_ADDRESS;
+            break;
+        }
+        case Interrupts::Timer: {
+            PC() = TIMER_HANDLER_ADDRESS;
+            break;
+        }
+        case Interrupts::Serial: {
+            PC() = SERIAL_HANDLER_ADDRESS;
+            break;
+        }
+        case Interrupts::JoyPad: {
+            PC() = JOYPAD_HANDLER_ADDRESS;
+            break;
+        }
+    }
+
+    return ISR_CLOCK_CYCLES;
 }
 
 /* Fetch and execute a single opcode. Might execute two opcodes if executing
