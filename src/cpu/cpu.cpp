@@ -3,6 +3,7 @@
  * Author: Rudolph Almeida <rudolf1.almeida@gmail.com>
  * */
 
+#include <cassert>
 #include <cstring>
 
 #include "constants.h"
@@ -300,7 +301,7 @@ void CPU::sbcR8(byte value) {
     auto carry = F.cy ? 1 : 0;
 
     byte reg = A();
-    uint overflowedResult = reg - value - carry;
+    int overflowedResult = reg - value - carry;
     byte result = static_cast<byte>(overflowedResult);
     A() = result;
 

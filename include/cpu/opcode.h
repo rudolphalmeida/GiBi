@@ -9,6 +9,7 @@
 #include <memory>
 #include <string>
 #include <utility>
+#include <functional>
 
 #include "constants.h"
 #include "gibi.h"

@@ -14,6 +14,7 @@
 
 #include "cartridge.h"
 #include "cpu/interrupts.h"
+#include "cpu/timer.h"
 #include "gibi.h"
 #include "memory.h"
 
@@ -28,6 +29,8 @@ class Bus : public Memory {
     std::shared_ptr<IntF> intf;
     std::shared_ptr<IntE> inte;
 
+    Timer timer;
+
    public:
     // Bus needs to have ownership the Cartridge
     explicit Bus(Cartridge&& cart, std::shared_ptr<IntF> intf, std::shared_ptr<IntE> inte)
@@ -35,7 +38,10 @@ class Bus : public Memory {
           wram(0x2000),
           hram(0x7F),
           intf{std::move(intf)},
-          inte{std::move(inte)} {}
+          inte{std::move(inte)},
+          timer{intf} {}
+
+    void tick(uint cycles);
 
     [[nodiscard]] byte read(word address) const override;
 

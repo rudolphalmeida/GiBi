@@ -109,6 +109,7 @@ uint GameBoy::tick() {
     uint cpuCycles = cpu.tick();
 
     // Drive other components by cpuCycles here
+    bus->tick(cpuCycles);
 
     return cpuCycles;
 }

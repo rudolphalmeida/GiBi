@@ -9,8 +9,6 @@
 #include <memory>
 #include <utility>
 
-#include <spdlog/spdlog.h>
-
 #include "constants.h"
 #include "gibi.h"
 #include "mmu/bus.h"

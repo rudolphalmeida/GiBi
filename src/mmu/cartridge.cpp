@@ -2,10 +2,8 @@
  * Author: Rudolph Almeida <rudolf1.almeida@gmail.com>
  * */
 
-#include <spdlog/spdlog.h>
-
-#include "gibi.h"
 #include "mmu/cartridge.h"
+#include "gibi.h"
 
 byte NoMBC::read(word address) const {
     if (inRange(address, 0x0000, 0x7FFF)) {
@@ -36,7 +34,6 @@ Cartridge::Cartridge(std::vector<byte> rom, std::optional<std::vector<byte>> ram
 
     // If RAM is required but not supplied
     if (ramSizeInKB != 0 && !ram) {
-        spdlog::info("RAM not supplied. Allocating...");
         std::vector<byte> data(ramSizeInKB, 0);
         ram = std::optional(data);
     }
@@ -77,7 +74,6 @@ std::pair<CartType, bool> determineMBCType(byte code) {
             return {CartType::ROM_RAM, true};
         }
         default: {
-            spdlog::critical("Unknown or unsupported cartridge type");
             std::exit(-1);
         }
     }
@@ -110,7 +106,6 @@ uint determineROMBanks(byte code) {
         case 0x54:
             return 96;
         default: {
-            spdlog::critical("Unknown ROM Size");
             std::exit(-1);
         }
     }
@@ -131,7 +126,6 @@ uint determineRAMSize(byte code) {
         case 0x05:
             return 64;
         default: {
-            spdlog::critical("Unknown RAM size");
             std::exit(-1);
         }
     }
@@ -143,7 +137,7 @@ std::unique_ptr<Memory> initMBC(CartType type,
     switch (type) {
         case CartType::ROM: {
             if (ram) {
-                spdlog::error("Cart does not support RAM. Ignoring...");
+                // Cart does not support RAM. Ignoring..
             }
             return std::make_unique<NoMBC>(rom);
         }
@@ -155,7 +149,7 @@ std::unique_ptr<Memory> initMBC(CartType type,
             //        case CartType::MBC2:
             //            break;
         default: {
-            spdlog::error("Unimplemented MBC");
+            // Unimplemented MBC
             std::exit(-1);
         }
     }
