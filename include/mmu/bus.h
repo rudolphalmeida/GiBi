@@ -16,6 +16,7 @@
 #include "cpu/interrupts.h"
 #include "cpu/timer.h"
 #include "gibi.h"
+#include "joypad.h"
 #include "memory.h"
 
 // Abstracts the memory-map and delegates reads and writes to the appropriate
@@ -30,6 +31,7 @@ class Bus : public Memory {
     std::shared_ptr<IntE> inte;
 
     Timer timer;
+    JoyPad joyPad;
 
    public:
     // Bus needs to have ownership the Cartridge
@@ -39,9 +41,12 @@ class Bus : public Memory {
           hram(0x7F),
           intf{std::move(intf)},
           inte{std::move(inte)},
-          timer{intf} {}
+          timer{intf},
+          joyPad{intf} {}
 
     void tick(uint cycles);
+
+    JoyPad& getJoyPad() { return joyPad; }
 
     [[nodiscard]] byte read(word address) const override;
 
