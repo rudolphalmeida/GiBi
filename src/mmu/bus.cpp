@@ -24,6 +24,8 @@ byte Bus::read(word address) const {
         return 0xFF;  // Unusable space
     } else if (address == 0xFF00) {
         return joyPad.read(address);
+    } else if (inRange(address, 0xFF01, 0xFF02)) {
+        return serial.read(address);
     } else if (inRange(address, 0xFF04, 0xFF07)) {
         return timer.read(address);
     } else if (address == 0xFF0F) {
@@ -54,6 +56,8 @@ void Bus::write(word address, byte data) {
         // Do Nothing
     } else if (address == 0xFF00) {
         joyPad.write(address, data);
+    } else if (inRange(address, 0xFF01, 0xFF02)) {
+        return serial.write(address, data);
     } else if (inRange(address, 0xFF04, 0xFF07)) {
         timer.write(address, data);
     } else if (address == 0xFF0F) {

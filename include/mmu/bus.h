@@ -18,6 +18,7 @@
 #include "gibi.h"
 #include "joypad.h"
 #include "memory.h"
+#include "serial.h"
 
 // Abstracts the memory-map and delegates reads and writes to the appropriate
 // component or region of memory
@@ -32,6 +33,7 @@ class Bus : public Memory {
 
     Timer timer;
     JoyPad joyPad;
+    Serial serial;
 
    public:
     // Bus needs to have ownership the Cartridge
@@ -42,7 +44,8 @@ class Bus : public Memory {
           intf{std::move(intf)},
           inte{std::move(inte)},
           timer{intf},
-          joyPad{intf} {}
+          joyPad{intf},
+          serial{} {}
 
     void tick(uint cycles);
 
