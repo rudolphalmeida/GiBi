@@ -3,6 +3,8 @@
  * */
 
 #include "mmu/cartridge.h"
+
+#include <utility>
 #include "gibi.h"
 
 byte NoMBC::read(word address) const {
@@ -144,13 +146,89 @@ std::unique_ptr<Memory> initMBC(CartType type,
         case CartType::ROM_RAM: {
             return std::make_unique<NoMBC>(rom, ram);
         }
-            //        case CartType::MBC1:
-            //            break;
+        case CartType::MBC1: {
+            return std::make_unique<MBC1>(rom, ram);
+        }
             //        case CartType::MBC2:
             //            break;
         default: {
             // Unimplemented MBC
             std::exit(-1);
+        }
+    }
+}
+
+MBC1::MBC1(std::vector<byte> rom, std::optional<std::vector<byte>> ram)
+    : rom{std::move(rom)},
+      ram{std::move(ram)},
+      bankMode{MBC1::BankMode::ROM},
+      bank{0x01},
+      ramEnabled{false} {}
+
+uint MBC1::romBank() const {
+    switch (bankMode) {
+        case BankMode::ROM:
+            return bank & 0x7F;
+        case BankMode::RAM:
+            return bank & 0x1F;
+    }
+}
+
+uint MBC1::ramBank() const {
+    switch (bankMode) {
+        case BankMode::ROM:
+            return 0x00;
+        case BankMode::RAM:
+            return (bank & 0x60) >> 5;
+    }
+}
+
+byte MBC1::read(word address) const {
+    if (inRange(address, 0x0000, 0x3FFF)) {
+        return rom[address];
+    } else if (inRange(address, 0x4000, 0x7FFF)) {
+        word mappedAddress = romBank() * 0x4000 + address - 0x4000;
+        return rom[mappedAddress];
+    } else if (inRange(address, 0xA000, 0xBFFF)) {
+        if (ram && ramEnabled) {
+            word mappedAddress = ramBank() * 0x2000 + address - 0xA000;
+            return ram.value()[mappedAddress];
+        } else {
+            return 0xFF;
+        }
+    }
+
+    return 0xFF;
+}
+
+void MBC1::write(word address, byte data) {
+    if (inRange(address, 0x0000, 0x1FFF)) {
+        ramEnabled = (data & 0x0F) == 0x0A;
+    } else if (inRange(address, 0x2000, 0x3FFF)) {
+        byte n = data & 0x1F;
+        n = n == 0x00 ? 0x01 : n;
+        bank = (bank & 0x60) | n;
+    } else if (inRange(address, 0x4000, 0x5FFF)) {
+        byte n = data & 0x03;
+        bank = (bank & 0x9F) | (n << 5);
+    } else if (inRange(address, 0x6000, 0x7FFF)) {
+        switch (data) {
+            case 0x00: {
+                bankMode = BankMode::ROM;
+                break;
+            }
+            case 0x01: {
+                bankMode = BankMode::RAM;
+                break;
+            }
+            default: {
+                // Invalid mode select value
+            }
+        }
+    } else if (inRange(address, 0xA000, 0xBFFF)) {
+        if (ram && ramEnabled) {
+            word mappedAddress = ramBank() * 0x2000 + address - 0xA000;
+            ram.value()[mappedAddress] = data;
         }
     }
 }

@@ -75,4 +75,29 @@ class NoMBC : public Memory {
     void write(word address, byte data) override;
 };
 
+// The MBC1 was the first MBC controller for the GameBoy and allows for ROM and RAM banking
+// Allows for a max 2MB ROM and 32KB RAM
+class MBC1 : public Memory {
+   public:
+    enum class BankMode { ROM, RAM };
+
+   private:
+    std::vector<byte> rom;
+    std::optional<std::vector<byte>> ram;
+    BankMode bankMode;
+    uint bank;
+    bool ramEnabled;
+
+   public:
+    MBC1(std::vector<byte> rom, std::optional<std::vector<byte>> ram);
+
+    [[nodiscard]] uint romBank() const;
+
+    [[nodiscard]] uint ramBank() const;
+
+    [[nodiscard]] byte read(word address) const override;
+
+    void write(word address, byte data) override;
+};
+
 #endif  // GIBI_INCLUDE_MMU_CARTRIDGE_H_

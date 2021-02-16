@@ -21,8 +21,8 @@ CPU::CPU(std::shared_ptr<Bus> bus)
       l{0x4D},
       f{0xB0},
       sp{0xFFFE},
-      pc{0x00},  // This should start at 0x100 for emulation tests
-      interrupt_master{true},
+      pc{0x100},  // This should start at 0x100 for emulation tests
+      interrupt_master{false},
       bus{std::move(bus)},
       opcodes{opcodeImpl()},
       extendedOpcodes{extendedOpcodeImpl()},
@@ -69,7 +69,6 @@ uint CPU::handle_interrupts() {
     // interrupt with lower bit index has the higher priority
     // `ffs` indexes start from 1 so we decrement it
     auto n = ffs(ii) - 1;  // TODO: Find a portable solution to this
-    assert(n < 5);
     intf = resetBit(intf, n);  // Mark the interrupt as serviced
     bus->write(0xFF0F, intf);
 
@@ -257,6 +256,7 @@ void CPU::cpl() {
     f.h = true;
 }
 
+// FIXME: Error in all CPU tests
 void CPU::addR8(byte value) {
     uint result = A() + value;
 
@@ -269,6 +269,7 @@ void CPU::addR8(byte value) {
     A() = static_cast<byte>(result);
 }
 
+// FIXME: Error in all CPU tests
 void CPU::adcR8(byte value) {
     auto& F = this->F();
     auto carry = F.cy ? 1 : 0;
@@ -344,6 +345,7 @@ void CPU::orR8(byte value) {
     F.cy = false;
 }
 
+// FIXME: Error in CPU tests
 byte CPU::rlcR8(byte value) {
     bool oldBit7 = isSet(value, 7);
     byte result = value << 1;
@@ -362,6 +364,7 @@ byte CPU::rlcR8(byte value) {
     return result;
 }
 
+// FIXME: Error in CPU tests
 byte CPU::rrcR8(byte value) {
     bool oldBit0 = isSet(value, 0);
     byte result = value >> 1;

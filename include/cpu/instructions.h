@@ -120,7 +120,8 @@ std::vector<Opcode> opcodeImpl() {
         return 0;
     });
     ops.emplace_back(0x18, "JR i8", 2, 12, false, [](CPU& cpu, SPBus&) {
-        cpu.PC() = cpu.PC() + static_cast<sbyte>(cpu.fetchByte());
+        auto offset = static_cast<sbyte>(cpu.fetchByte());
+        cpu.PC() = cpu.PC() + offset;
         return 0;
     });
     ops.emplace_back(0x19, "ADD HL, DE", 1, 8, false, [](CPU& cpu, SPBus&) {
@@ -153,7 +154,8 @@ std::vector<Opcode> opcodeImpl() {
     });
     ops.emplace_back(0x20, "JR NZ, i8", 2, 8, false, [](CPU& cpu, SPBus&) {
         if (!cpu.F().zf) {
-            cpu.PC() = cpu.PC() + static_cast<sbyte>(cpu.fetchByte());
+            auto offset = static_cast<sbyte>(cpu.fetchByte());
+            cpu.PC() = cpu.PC() + offset;
             return 4;
         } else {
             cpu.fetchByte();
@@ -191,7 +193,8 @@ std::vector<Opcode> opcodeImpl() {
     });
     ops.emplace_back(0x28, "JR Z, i8", 2, 8, false, [](CPU& cpu, SPBus&) {
         if (cpu.F().zf) {
-            cpu.PC() = cpu.PC() + static_cast<sbyte>(cpu.fetchByte());
+            auto offset = static_cast<sbyte>(cpu.fetchByte());
+            cpu.PC() = cpu.PC() + offset;
             return 4;
         } else {
             cpu.fetchByte();
@@ -229,7 +232,8 @@ std::vector<Opcode> opcodeImpl() {
     });
     ops.emplace_back(0x30, "JR NC, i8", 2, 8, false, [](CPU& cpu, SPBus&) {
         if (!cpu.F().cy) {
-            cpu.PC() = cpu.PC() + static_cast<sbyte>(cpu.fetchByte());
+            auto offset = static_cast<sbyte>(cpu.fetchByte());
+            cpu.PC() = cpu.PC() + offset;
             return 4;
         } else {
             cpu.fetchByte();
@@ -274,7 +278,8 @@ std::vector<Opcode> opcodeImpl() {
     });
     ops.emplace_back(0x38, "JR C, i8", 2, 8, false, [](CPU& cpu, SPBus&) {
         if (cpu.F().cy) {
-            cpu.PC() = cpu.PC() + static_cast<sbyte>(cpu.fetchByte());
+            auto offset = static_cast<sbyte>(cpu.fetchByte());
+            cpu.PC() = cpu.PC() + offset;
             return 4;
         } else {
             cpu.fetchByte();
