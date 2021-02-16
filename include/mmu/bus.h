@@ -37,11 +37,11 @@ class Bus : public Memory {
 
    public:
     // Bus needs to have ownership the Cartridge
-    explicit Bus(Cartridge&& cart, std::shared_ptr<IntF> intf, std::shared_ptr<IntE> inte)
+    explicit Bus(Cartridge&& cart, const std::shared_ptr<IntF>& intf, std::shared_ptr<IntE> inte)
         : cart{std::move(cart)},
           wram(0x2000),
           hram(0x7F),
-          intf{std::move(intf)},
+          intf{intf},
           inte{std::move(inte)},
           timer{intf},
           joyPad{intf},
