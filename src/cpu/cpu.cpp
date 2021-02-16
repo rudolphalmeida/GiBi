@@ -157,7 +157,7 @@ void CPU::addToHL(word value) {
 }
 
 void CPU::decR8(byte& reg) {
-    f.h = (reg & 0x0Fu) == 0x0Fu;
+    f.h = willHalfCarry8BitSub(reg, 1u);
     f.n = true;
 
     reg = reg - 1;
