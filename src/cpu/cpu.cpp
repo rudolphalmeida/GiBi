@@ -256,12 +256,11 @@ void CPU::cpl() {
     f.h = true;
 }
 
-// FIXME: Error in all CPU tests
 void CPU::addR8(byte value) {
     uint result = A() + value;
 
     auto& F = this->F();
-    F.zf = result == 0;
+    F.zf = (result & 0xFF) == 0;
     F.n = false;
     F.h = willHalfCarry8BitAdd(A(), value);
     F.cy = (result & 0x100u) != 0;
@@ -269,14 +268,13 @@ void CPU::addR8(byte value) {
     A() = static_cast<byte>(result);
 }
 
-// FIXME: Error in all CPU tests
 void CPU::adcR8(byte value) {
     auto& F = this->F();
     auto carry = F.cy ? 1 : 0;
 
     uint result = A() + value + carry;
 
-    F.zf = result == 0;
+    F.zf = (result & 0xFF) == 0;
     F.n = false;
     F.h = ((value & 0xFu) + (A() & 0xFu) + carry) > 0xFu;
     F.cy = result > 0xFFu;
@@ -345,7 +343,6 @@ void CPU::orR8(byte value) {
     F.cy = false;
 }
 
-// FIXME: Error in CPU tests
 byte CPU::rlcR8(byte value) {
     bool oldBit7 = isSet(value, 7);
     byte result = value << 1;
@@ -355,6 +352,8 @@ byte CPU::rlcR8(byte value) {
     if (oldBit7) {
         result = setBit(result, 0);
         F.cy = true;
+    } else {
+        F.cy = false;
     }
 
     F.n = false;
@@ -364,7 +363,6 @@ byte CPU::rlcR8(byte value) {
     return result;
 }
 
-// FIXME: Error in CPU tests
 byte CPU::rrcR8(byte value) {
     bool oldBit0 = isSet(value, 0);
     byte result = value >> 1;
@@ -374,6 +372,8 @@ byte CPU::rrcR8(byte value) {
     if (oldBit0) {
         result = setBit(result, 7);
         F.cy = true;
+    } else {
+        F.cy = false;
     }
 
     F.n = false;

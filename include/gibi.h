@@ -50,7 +50,7 @@ inline std::pair<byte, byte> decomposeWord(word value) {
 
 // Check if addition of two bytes results in a half-carry
 inline bool willHalfCarry8BitAdd(byte left, byte right) {
-    return (left & 0xFFu) + (right & 0xFFu) > 0xFF;
+    return ((left & 0xFu) + (right & 0xFu)) > 0xFu;
 }
 
 // Check if addition of two words results in a half-carry
