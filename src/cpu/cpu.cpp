@@ -68,7 +68,7 @@ uint CPU::handle_interrupts() {
     // Find the interrupt with the highest priority. The priority goes from right to left, i.e the
     // interrupt with lower bit index has the higher priority
     // `ffs` indexes start from 1 so we decrement it
-    auto n = ffs(ii) - 1;  // TODO: Find a portable solution to this
+    auto n = ffs(ii) - 1;      // TODO: Find a portable solution to this
     intf = resetBit(intf, n);  // Mark the interrupt as serviced
     bus->write(0xFF0F, intf);
 
@@ -175,55 +175,23 @@ void CPU::incR8(byte& reg) {
 }
 
 void CPU::rrca() {
-    f.cy = isSet(A(), 0);
-    A() = A() >> 1u;  // Shift all to right and set bit 7 to old bit 0
-    if (f.cy) {
-        setBit(A(), 7);
-    } else {
-        resetBit(A(), 7);
-    }
-
-    f.zf = false;
-    f.n = false;
-    f.h = false;
+    A() = rrcR8(A());
+    F().zf = false;
 }
 
 void CPU::rlca() {
-    f.cy = isSet(A(), 7);
-    A() = A() << 1u;  // Shift all to left and set bit 0 to old bit 7
-    if (f.cy) {
-        setBit(A(), 0);
-    } else {
-        resetBit(A(), 0);
-    }
-
-    f.zf = false;
-    f.n = false;
-    f.h = false;
+    A() = rlcR8(A());
+    F().zf = false;
 }
 
 void CPU::rla() {
-    bool oldCarry = f.cy;
-    rlca();  // This will set all flags
-
-    // Ignore the 0 bit from RLCA and set to oldCarry
-    if (oldCarry) {
-        setBit(A(), 0);
-    } else {
-        resetBit(A(), 0);
-    }
+    A() = rlR8(A());
+    F().zf = false;
 }
 
 void CPU::rra() {
-    bool oldCarry = f.cy;
-    rrca();  // This will set all flags
-
-    // Ignore the 7 bit from RRCA and set to oldCarry
-    if (oldCarry) {
-        setBit(A(), 7);
-    } else {
-        resetBit(A(), 7);
-    }
+    A() = rrR8(A());
+    F().zf = false;
 }
 
 void CPU::daa() {
