@@ -18,6 +18,7 @@
 #include "gibi.h"
 #include "joypad.h"
 #include "memory.h"
+#include "ppu/ppu.h"
 #include "serial.h"
 
 // Abstracts the memory-map and delegates reads and writes to the appropriate
@@ -34,6 +35,7 @@ class Bus : public Memory {
     Timer timer;
     JoyPad joyPad;
     Serial serial;
+    PPU ppu;
 
    public:
     // Bus needs to have ownership the Cartridge
@@ -45,7 +47,8 @@ class Bus : public Memory {
           inte{std::move(inte)},
           timer{intf},
           joyPad{intf},
-          serial{} {}
+          serial{},
+          ppu{intf} {}
 
     void tick(uint cycles);
 

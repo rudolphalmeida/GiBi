@@ -14,13 +14,12 @@
 #include "lcdstatus.h"
 #include "mmu/memory.h"
 #include "cpu/interrupts.h"
-#include "mmu/bus.h"
 
 /*
  * Alongside the PPU state, the PPU class is also responsible for rendering the frame to a texture,
  * which will be displayed in the window
  * */
-class PPU {
+class PPU : public Memory {
    private:
     LCDC lcdc;
     LCDStatus stat;
@@ -36,12 +35,14 @@ class PPU {
     std::vector<byte> oam;
 
     std::shared_ptr<IntF> intf;
-    std::shared_ptr<Bus> bus;
 
    public:
-    PPU(std::shared_ptr<Bus> bus, std::shared_ptr<IntF> intf);
+    explicit PPU(std::shared_ptr<IntF> intf);
 
     void tick(uint cycles);
+
+    [[nodiscard]] byte read(word address) const override;
+    void write(word address, byte data) override;
 };
 
 #endif  // GIBI_PPU_H

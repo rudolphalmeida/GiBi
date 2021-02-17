@@ -22,6 +22,10 @@ class LCDC : public Memory {
    public:
     LCDC() : data{0x91} {}
 
+    [[nodiscard]] byte getData() const { return data; }
+
+    void setData(byte d) { data = d; }
+
     // Corresponds to LCDC.7
     [[nodiscard]] bool displayEnabled() const { return isSet(data, 7); }
 

@@ -20,6 +20,10 @@ class LCDStatus : public Memory {
     // TODO: What does STAT default to?
     LCDStatus() : data{} {}
 
+    [[nodiscard]] byte getData() const { return data; }
+
+    void setData(byte d) { data = d; }
+
     // Corresponds to STAT.6
     [[nodiscard]] bool coincidenceInterruptEnabled() const { return isSet(data, 6); }
 
@@ -46,10 +50,12 @@ class LCDStatus : public Memory {
                 return LCDMode::AccessingOAM;
             case 0b11:
                 return LCDMode::AccessingVRAM;
+            default:
+                return LCDMode::VBlank;  // Really don't need this and nothing makes sense
         }
-
-        return LCDMode::VBlank; // Really don't need this and nothing makes sense
     }
+
+    void setMode(LCDMode mode) { data = (data & 0b01111100) | static_cast<byte>(mode); }
 
     [[nodiscard]] byte read(word) const override { return data; }
 
