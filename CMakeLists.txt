@@ -11,7 +11,7 @@ set(HEADER_FILES
         include/cpu/opcode.h
         include/mmu/memory.h
         include/mmu/cartridge.h
-        include/mmu/bus.h include/cpu/instructions.h include/cpu/interrupts.h include/cpu/timer.h include/joypad.h include/serial.h)
+        include/mmu/bus.h include/cpu/instructions.h include/cpu/interrupts.h include/cpu/timer.h include/joypad.h include/serial.h include/ppu/lcdc.h include/ppu/lcdstatus.h)
 set(SRC_FILES
         src/cpu/cpu.cpp
         src/mmu/bus.cpp

@@ -3,7 +3,6 @@
  * Author: Rudolph Almeida <rudolf1.almeida@gmail.com>
  * */
 
-#include <cassert>
 #include <cstring>
 
 #include "constants.h"
