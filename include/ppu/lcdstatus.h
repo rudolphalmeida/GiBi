@@ -1,6 +1,6 @@
 /*
- * LCD Status (0xFF41) is used to store the current mode of the LCD, and the cause of the LCDStat
- * interrupt
+ * LCD Status (0xFF41) is used to store the current mode of the LCD, and enable LCDStat
+ * interrupts
  *
  * Author: Rudolph Almeida <rudolf1.almeida@gmail.com>
  * */
@@ -12,7 +12,7 @@
 
 enum class LCDMode : byte { HBlank = 0, VBlank = 1, AccessingOAM = 2, AccessingVRAM = 3 };
 
-class LCDStatus: public Memory {
+class LCDStatus : public Memory {
    private:
     byte data;
 
@@ -47,13 +47,13 @@ class LCDStatus: public Memory {
             case 0b11:
                 return LCDMode::AccessingVRAM;
         }
+
+        return LCDMode::VBlank; // Really don't need this and nothing makes sense
     }
 
-    [[nodiscard]] byte read(word address) const override { return data; }
+    [[nodiscard]] byte read(word) const override { return data; }
 
-    void write(word address, byte d) override {
-        data = (data & 0b00000111) | (d & 0b01111000);
-    }
+    void write(word, byte d) override { data = (data & 0b00000111) | (d & 0b01111000); }
 };
 
 #endif  // GIBI_LCDSTATUS_H

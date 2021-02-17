@@ -15,7 +15,7 @@ enum class TileMapBase : word { TileMap0 = 0x9800, TileMap1 = 0x9C00 };
 
 enum class TileDataBase : word { TileData0 = 0x8800, TileData1 = 0x8000 };
 
-class LCDC: public Memory {
+class LCDC : public Memory {
    private:
     byte data;
 
@@ -53,11 +53,9 @@ class LCDC: public Memory {
     // Corresponds to LCDC.0
     [[nodiscard]] bool bgWindowDisplayPriority() const { return isSet(data, 0); }
 
-    [[nodiscard]] byte read(word address) const override { return data; }
+    [[nodiscard]] byte read(word) const override { return data; }
 
-    void write(word address, byte d) override {
-        data = d;
-    }
+    void write(word, byte d) override { data = d; }
 };
 
 #endif  // GIBI_LCDC_H

@@ -62,6 +62,15 @@ void Bus::write(word address, byte data) {
         timer.write(address, data);
     } else if (address == 0xFF0F) {
         intf->data = data;
+    } else if (address == 0xFF46) {
+        // Run DMA. Since the program is probably waiting for the DMA to complete by running
+        // a busy-wait from HRAM for about 160 machine cycles, we don't care about factoring in
+        // these clock cycles in other components
+        word baseAddress = static_cast<word>(data) << 8;
+        for (word i = 0; i <= 0x9F; ++i) {
+            byte value = read(baseAddress + i);
+            write(0xFE00 + i, value);
+        }
     } else if (inRange(address, 0xFF80, 0xFFFE)) {
         hram[address - 0xFF80] = data;
     } else if (address == 0xFFFF) {
