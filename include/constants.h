@@ -60,6 +60,11 @@ const word TIMER_HANDLER_ADDRESS = 0x50;
 const word SERIAL_HANDLER_ADDRESS = 0x58;
 const word JOYPAD_HANDLER_ADDRESS = 0x60;
 
-const uint ISR_CLOCK_CYCLES = 20; // TODO: Confirm if this is the right value
+const uint ISR_CLOCK_CYCLES = 20;  // TODO: Confirm if this is the right value
+
+const uint ACCESSING_OAM_CLOCKS = 80;
+const uint ACCESSING_VRAM_CLOCKS = 172;
+const uint HBLANK_CLOCKS = 204;
+const uint CLOCKS_PER_SCANLINE = ACCESSING_OAM_CLOCKS + ACCESSING_VRAM_CLOCKS + HBLANK_CLOCKS;
 
 #endif  // GIBI_INCLUDE_TIMINGS_H_

@@ -36,6 +36,8 @@ class PPU : public Memory {
 
     std::shared_ptr<IntF> intf;
 
+    uint dots;
+
    public:
     explicit PPU(std::shared_ptr<IntF> intf);
 
@@ -43,6 +45,10 @@ class PPU : public Memory {
 
     [[nodiscard]] byte read(word address) const override;
     void write(word address, byte data) override;
+
+    void drawScanline(byte line) const;
+
+    void drawSprites() const;
 };
 
 #endif  // GIBI_PPU_H

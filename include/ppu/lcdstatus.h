@@ -18,7 +18,7 @@ class LCDStatus : public Memory {
 
    public:
     // TODO: What does STAT default to?
-    LCDStatus() : data{} {}
+    LCDStatus() : data{} { setMode(LCDMode::AccessingOAM); }
 
     [[nodiscard]] byte getData() const { return data; }
 
@@ -60,6 +60,7 @@ class LCDStatus : public Memory {
     [[nodiscard]] byte read(word) const override { return data; }
 
     void write(word, byte d) override { data = (data & 0b00000111) | (d & 0b01111000); }
+
 };
 
 #endif  // GIBI_LCDSTATUS_H
