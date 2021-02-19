@@ -15,9 +15,6 @@
 #include "gibi.h"
 #include "mmu/bus.h"
 
-// Read a binary file from disk
-std::vector<byte> readBinaryToVec(const char* filename);
-
 class GameBoy {
    private:
     std::string romPath{};

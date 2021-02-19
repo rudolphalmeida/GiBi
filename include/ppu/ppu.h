@@ -8,17 +8,24 @@
 #define GIBI_PPU_H
 
 #include <memory>
+#include <vector>
 
+#include "cpu/interrupts.h"
 #include "gibi.h"
 #include "lcdc.h"
 #include "lcdstatus.h"
 #include "mmu/memory.h"
-#include "cpu/interrupts.h"
 
 class Bus;
 
+// The GameBoy (DMG-01) had a color depth of 4 which were actually 4 shades of gray, but appeared
+// green on the screen. We want the user to be able to select the palette that is to be used (For
+// e.g. 4 shades of green, or gray) so we map the shades to "names" and not actual "colors" in the
+// PPU. The renderer will map these to actual colors
+enum class DisplayColor : byte { White = 0, LightGray = 1, DarkGray = 2, Black = 3 };
+
 /*
- * Alongside the PPU state, the PPU class is also responsible for rendering the frame to a texture,
+ * Alongside the PPU state, the PPU class is also responsible for rendering the frame to a buffer,
  * which will be displayed in the window
  * */
 class PPU : public Memory {
@@ -39,6 +46,8 @@ class PPU : public Memory {
     std::shared_ptr<IntF> intf;
     std::shared_ptr<Bus> bus;
 
+    std::vector<DisplayColor> pixelBuffer;
+
     uint dots;
 
    public:
@@ -49,11 +58,38 @@ class PPU : public Memory {
     [[nodiscard]] byte read(word address) const override;
     void write(word address, byte data) override;
 
-    void drawScanline(byte line) const;
-    void drawBackgroundScanline(byte line) const;
+    [[nodiscard]] const std::vector<DisplayColor>& buffer() const {
+        return pixelBuffer;
+    }
+
+    // Draws a single scanline of the background and the window layer
+    void drawScanline(byte line);
+    void drawBackgroundScanline(byte line);
     void drawWindowScanline(byte line) const;
 
     void drawSprites() const;
+};
+
+// A palette allowed any of the four gray shades to be mapped to any of the above "actual" color
+// shades
+struct Palette {
+    DisplayColor color0, color1, color2, color3;
+
+    explicit Palette(byte data)
+        : color0{static_cast<DisplayColor>(data & 0b11)},
+          color1{static_cast<DisplayColor>((data & 0b1100) >> 2)},
+          color2{static_cast<DisplayColor>((data & 0b110000) >> 4)},
+          color3{static_cast<DisplayColor>((data & 0b11000000) >> 6)} {}
+
+    [[nodiscard]] DisplayColor fromID(byte id) const {
+        switch (id) {
+            case 0: return color0;
+            case 1: return color1;
+            case 2: return color2;
+            case 3: return color3;
+            default: return color0; // Not really needed
+        }
+    }
 };
 
 #endif  // GIBI_PPU_H

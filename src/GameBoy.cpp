@@ -96,7 +96,9 @@ int GameBoy::run() {
         // Run the components for one frame
         update();
 
-        // Render frame
+        auto pixelBuffer = ppu->buffer();
+
+        // Render pixel buffer to screen here
     }
 }
 
@@ -111,8 +113,8 @@ void GameBoy::update() {
 uint GameBoy::tick() {
     uint cpuCycles = cpu.tick();
 
-    // Drive other components by cpuCycles here
     bus->tick(cpuCycles);
+    ppu->tick(cpuCycles);
 
     return cpuCycles;
 }

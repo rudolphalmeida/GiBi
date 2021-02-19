@@ -22,6 +22,7 @@ PPU::PPU(std::shared_ptr<IntF> intf, std::shared_ptr<Bus> bus)
       oam(0xA0),
       intf{std::move(intf)},
       bus{std::move(bus)},
+      pixelBuffer(LCD_WIDTH * LCD_HEIGHT),
       dots{0} {}
 
 void PPU::tick(uint cycles) {
@@ -176,7 +177,7 @@ void PPU::write(word address, byte data) {
     }
 }
 
-void PPU::drawScanline(byte line) const {
+void PPU::drawScanline(byte line) {
     if (!lcdc.displayEnabled()) {
         return;
     }
@@ -190,7 +191,55 @@ void PPU::drawScanline(byte line) const {
     }
 }
 
-void PPU::drawBackgroundScanline(byte) const {}
+// Based on jgilchrist/gbemu (https://github.com/jgilchrist/gbemu/)
+void PPU::drawBackgroundScanline(byte line) {
+    Palette palette{bgp};
+
+    word tileSetAddress = static_cast<word>(lcdc.tileData());
+    word tileMapAddress = static_cast<word>(lcdc.bgTileMap());
+
+    uint screenY = line;
+
+    for (uint screenX = 0; screenX < LCD_WIDTH; screenX++) {
+        // Position of the pixel in the framebuffer
+        uint scrolledX = screenX + scx;
+        uint scrolledY = screenY + scy;
+
+        // Index of the pixel in background map
+        uint bgMapX = scrolledX % BG_MAP_SIZE;
+        uint bgMapY = scrolledY % BG_MAP_SIZE;
+
+        // Index of the tile in the background map
+        uint tileX = bgMapX / TILE_WIDTH_PX;
+        uint tileY = bgMapY / TILE_HEIGHT_PX;
+
+        // Index in the tile
+        uint tilePixelX = bgMapX % TILE_WIDTH_PX;
+        uint tilePixelY = bgMapY % TILE_HEIGHT_PX;
+
+        uint tileIndex = tileY * TILES_PER_LINE + tileX;
+        word tileIndexAddress = tileMapAddress + tileIndex;
+
+        byte tileId = bus->read(tileIndexAddress);
+
+        // Calculate offset from start of tile data
+        uint tileDataMemOffset = lcdc.tileData() == TileDataBase::TileData0
+            ? (static_cast<sbyte>(tileId) + 128) * SIZEOF_TILE
+            : tileId * SIZEOF_TILE;
+
+        uint tileDataLineOffset = tilePixelY * 2;
+
+        word tileLineDataStartAddress = tileSetAddress + tileDataMemOffset + tileDataLineOffset;
+
+        byte pixel1 = bus->read(tileLineDataStartAddress);
+        byte pixel2 = bus->read(tileLineDataStartAddress + 1);
+
+        byte colorId = static_cast<byte>((bitValue(pixel2, 7 - tilePixelX) << 1) | bitValue(pixel1, 7 - tilePixelX));
+        DisplayColor actualColor = palette.fromID(colorId);
+
+        pixelBuffer[screenX + screenY * LCD_WIDTH] = actualColor;
+    }
+}
 
 void PPU::drawWindowScanline(byte) const {}
 

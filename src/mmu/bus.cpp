@@ -82,5 +82,4 @@ void Bus::write(word address, byte data) {
 
 void Bus::tick(uint cycles) {
     timer.tick(cycles);
-    ppu->tick(cycles);
 }

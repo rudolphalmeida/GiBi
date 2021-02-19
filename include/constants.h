@@ -65,6 +65,13 @@ const uint ISR_CLOCK_CYCLES = 20;  // TODO: Confirm if this is the right value
 const uint LCD_WIDTH = 160;
 const uint LCD_HEIGHT = 144;
 const uint TOTAL_SCANLINES = 154;
+const uint BG_MAP_SIZE = 256;
+
+const uint TILE_WIDTH_PX = 8;
+const uint TILE_HEIGHT_PX = 8; // For background and window tiles. Can be 16 for sprites
+const uint TILES_PER_LINE = 32;
+
+const uint SIZEOF_TILE = 16; // Each 8x8 tile has 8 lines where each line is 2 bytes
 
 const uint ACCESSING_OAM_CLOCKS = 80;
 const uint ACCESSING_VRAM_CLOCKS = 172;
