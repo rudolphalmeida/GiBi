@@ -1,11 +1,12 @@
 #include <memory>
 
+#include "constants.h"
 #include "cpu/interrupts.h"
 #include "gibi.h"
 #include "ppu/ppu.h"
-#include "constants.h"
+#include "mmu/bus.h"
 
-PPU::PPU(std::shared_ptr<IntF> intf)
+PPU::PPU(std::shared_ptr<IntF> intf, std::shared_ptr<Bus> bus)
     : lcdc{},
       stat{},
       scy{0x00},
@@ -20,6 +21,7 @@ PPU::PPU(std::shared_ptr<IntF> intf)
       vram(0x2000),
       oam(0xA0),
       intf{std::move(intf)},
+      bus{std::move(bus)},
       dots{0} {}
 
 void PPU::tick(uint cycles) {
@@ -56,14 +58,14 @@ void PPU::tick(uint cycles) {
                 drawScanline(ly);
                 ly += 1;
 
-                if (ly > 143) { // Going into VBlank
+                if (ly >= LCD_HEIGHT) {  // Going into VBlank
                     if (stat.mode1VBlankInterruptEnabled()) {
                         intf->request(Interrupts::LCDStat);
                     }
 
                     intf->request(Interrupts::VBlank);
                     stat.setMode(LCDMode::VBlank);
-                } else { // Going into OAM Search
+                } else {  // Going into OAM Search
                     // Even if both conditions are met, only one interrupt fires
                     // From PanDocs:
                     // The interrupt is triggered when transitioning from "No conditions met" to
@@ -71,7 +73,8 @@ void PPU::tick(uint cycles) {
                     // Example : the Mode 0 and LY=LYC interrupts are enabled ; since the latter
                     // triggers during Mode 2 (right after Mode 0), the interrupt will trigger
                     // for Mode 0 but fail to for LY=LYC.
-                    if (stat.mode2OAMInterruptEnabled() || (stat.coincidenceInterruptEnabled() && ly == lyc)) {
+                    if (stat.mode2OAMInterruptEnabled() ||
+                        (stat.coincidenceInterruptEnabled() && ly == lyc)) {
                         intf->request(Interrupts::LCDStat);
                     }
 
@@ -92,7 +95,7 @@ void PPU::tick(uint cycles) {
                 dots %= CLOCKS_PER_SCANLINE;
                 ly += 1;
 
-                if (ly > 153) { // Starting new frame. Going into OAM Search
+                if (ly >= TOTAL_SCANLINES) {  // Starting new frame. Going into OAM Search
                     if (stat.mode2OAMInterruptEnabled()) {
                         intf->request(Interrupts::LCDStat);
                     }
@@ -173,6 +176,22 @@ void PPU::write(word address, byte data) {
     }
 }
 
-void PPU::drawScanline(byte) const {}
+void PPU::drawScanline(byte line) const {
+    if (!lcdc.displayEnabled()) {
+        return;
+    }
+
+    if (lcdc.bgWindowDisplayPriority()) {
+        drawBackgroundScanline(line);
+    }
+
+    if (lcdc.windowEnabled()) {
+        drawWindowScanline(line);
+    }
+}
+
+void PPU::drawBackgroundScanline(byte) const {}
+
+void PPU::drawWindowScanline(byte) const {}
 
 void PPU::drawSprites() const {}

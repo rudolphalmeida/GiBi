@@ -26,6 +26,7 @@ class GameBoy {
     std::shared_ptr<IntF> intf;
     std::shared_ptr<IntE> inte;
     std::shared_ptr<Bus> bus;
+    std::shared_ptr<PPU> ppu;
     CPU cpu;
 
     void initComponents();

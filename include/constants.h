@@ -62,6 +62,10 @@ const word JOYPAD_HANDLER_ADDRESS = 0x60;
 
 const uint ISR_CLOCK_CYCLES = 20;  // TODO: Confirm if this is the right value
 
+const uint LCD_WIDTH = 160;
+const uint LCD_HEIGHT = 144;
+const uint TOTAL_SCANLINES = 154;
+
 const uint ACCESSING_OAM_CLOCKS = 80;
 const uint ACCESSING_VRAM_CLOCKS = 172;
 const uint HBLANK_CLOCKS = 204;

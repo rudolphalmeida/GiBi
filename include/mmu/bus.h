@@ -35,7 +35,10 @@ class Bus : public Memory {
     Timer timer;
     JoyPad joyPad;
     Serial serial;
-    PPU ppu;
+
+    std::shared_ptr<PPU> ppu;
+
+//    PPU ppu;
 
    public:
     // Bus needs to have ownership the Cartridge
@@ -48,7 +51,11 @@ class Bus : public Memory {
           timer{intf},
           joyPad{intf},
           serial{},
-          ppu{intf} {}
+          ppu{nullptr} {}
+
+    void connectPPU(std::shared_ptr<PPU> ppu1) {
+        ppu = std::move(ppu1);
+    }
 
     void tick(uint cycles);
 

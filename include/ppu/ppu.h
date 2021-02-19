@@ -15,6 +15,8 @@
 #include "mmu/memory.h"
 #include "cpu/interrupts.h"
 
+class Bus;
+
 /*
  * Alongside the PPU state, the PPU class is also responsible for rendering the frame to a texture,
  * which will be displayed in the window
@@ -35,11 +37,12 @@ class PPU : public Memory {
     std::vector<byte> oam;
 
     std::shared_ptr<IntF> intf;
+    std::shared_ptr<Bus> bus;
 
     uint dots;
 
    public:
-    explicit PPU(std::shared_ptr<IntF> intf);
+    explicit PPU(std::shared_ptr<IntF> intf, std::shared_ptr<Bus> bus);
 
     void tick(uint cycles);
 
@@ -47,6 +50,8 @@ class PPU : public Memory {
     void write(word address, byte data) override;
 
     void drawScanline(byte line) const;
+    void drawBackgroundScanline(byte line) const;
+    void drawWindowScanline(byte line) const;
 
     void drawSprites() const;
 };

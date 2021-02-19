@@ -8,6 +8,7 @@
 #include <args.hxx>
 
 #include "GameBoy.h"
+#include "ppu/ppu.h"
 
 std::vector<byte> readBinaryToVec(const std::string& filename) {
     std::ifstream file(filename, std::ios::binary);
@@ -75,6 +76,8 @@ void GameBoy::initComponents() {
     inte = std::make_shared<IntE>();
     intf = std::make_shared<IntF>();
     bus = std::make_shared<Bus>(std::move(cart), intf, inte);
+    ppu = std::make_shared<PPU>(intf, bus);
+    bus->connectPPU(ppu); // TODO: Will making PPU a singleton solve a possible null pointer exception?
     cpu = CPU(bus);
 }
 
