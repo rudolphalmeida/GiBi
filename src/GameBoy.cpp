@@ -5,6 +5,7 @@
 #include <iostream>
 #include <string>
 
+#include <SDL.h>
 #include <args.hxx>
 
 #include "GameBoy.h"
@@ -28,7 +29,7 @@ std::vector<byte> readBinaryToVec(const std::string& filename) {
     return data;
 }
 
-GameBoy::GameBoy(int argc, char** argv) {
+GameBoy::GameBoy(int argc, char** argv) : pixels(WIDTH * HEIGHT) {
     // Command-line argument config
     args::ArgumentParser parser("GiBi is a GameBoy Emulator made for fun and learning");
     args::HelpFlag help(parser, "help", "Display this help menu", {'h', "help"});
@@ -60,6 +61,7 @@ GameBoy::GameBoy(int argc, char** argv) {
     }
 
     initComponents();
+    initRendering();
 }
 
 void GameBoy::initComponents() {
@@ -77,28 +79,91 @@ void GameBoy::initComponents() {
     intf = std::make_shared<IntF>();
     bus = std::make_shared<Bus>(std::move(cart), intf, inte);
     ppu = std::make_shared<PPU>(intf, bus);
-    bus->connectPPU(ppu); // TODO: Will making PPU a singleton solve a possible null pointer exception?
+    // TODO: Will making PPU a singleton solve a possible null pointer exception?
+    bus->connectPPU(ppu);
     cpu = CPU(bus);
 }
 
-int GameBoy::run() {
-    // Setup display and input stuff here
+void GameBoy::initRendering() {
+    // Graphics init
+    if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+        std::cerr << "SDL_Init error: " << SDL_GetError() << "\n";
+        std::exit(1);
+    }
 
-    gameLoop();
+    window = SDL_CreateWindow("GiBi - GameBoy Emulator", 100, 100, WIDTH * SCALE_FACTOR,
+                              HEIGHT * SCALE_FACTOR, SDL_WINDOW_SHOWN);
+    if (!window) {
+        std::cerr << "SDL_CreateWindow error: " << SDL_GetError() << "\n";
+        SDL_Quit();
+        std::exit(1);
+    }
 
-    // return 0;
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    if (!renderer) {
+        SDL_DestroyWindow(window);
+        std::cerr << "SDL_CreateRenderer error: " << SDL_GetError() << "\n";
+        SDL_Quit();
+        std::exit(1);
+    }
+
+    texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STATIC, WIDTH,
+                                HEIGHT);
 }
 
-[[noreturn]] void GameBoy::gameLoop() {
-    while (true) {
-        // Check input
+int GameBoy::run() {
+    gameLoop();
+
+    return 0;
+}
+
+void GameBoy::gameLoop() {
+    while (!shouldQuit) {
+        if (SDL_PollEvent(&event) == 1) {
+            if (event.type == SDL_QUIT) {
+                shouldQuit = true;
+                continue;
+            }
+        }
 
         // Run the components for one frame
         update();
 
         auto pixelBuffer = ppu->buffer();
+        std::transform(pixelBuffer.cbegin(), pixelBuffer.cend(), pixels.begin(),
+                       [](DisplayColor color) {
+                           byte greyValue;
 
-        // Render pixel buffer to screen here
+                           // TODO: Make this mapping user configurable
+                           switch (color) {
+                               case DisplayColor::White: {
+                                   greyValue = 255;
+                                   break;
+                               }
+                               case DisplayColor::LightGray: {
+                                   greyValue = 170;
+                                   break;
+                               }
+                               case DisplayColor::DarkGray: {
+                                   greyValue = 85;
+                                   break;
+                               }
+                               case DisplayColor::Black: {
+                                   greyValue = 0;
+                                   break;
+                               }
+                           }
+
+                           return (greyValue << 24) | (greyValue << 16) | (greyValue << 8) | 0xFF;
+                       });
+
+        // Render pixel buffer to texture...
+        SDL_UpdateTexture(texture, nullptr, pixels.data(), WIDTH * sizeof(uint));
+
+        // and render texture to screen
+        SDL_RenderClear(renderer);
+        SDL_RenderCopy(renderer, texture, nullptr, nullptr);
+        SDL_RenderPresent(renderer);
     }
 }
 
@@ -117,4 +182,11 @@ uint GameBoy::tick() {
     ppu->tick(cpuCycles);
 
     return cpuCycles;
+}
+
+GameBoy::~GameBoy() {
+    SDL_DestroyTexture(texture);
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
 }

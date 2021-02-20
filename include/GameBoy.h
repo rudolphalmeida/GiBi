@@ -10,6 +10,8 @@
 
 #include <memory>
 
+#include <SDL.h>
+
 #include "cpu/cpu.h"
 #include "cpu/interrupts.h"
 #include "gibi.h"
@@ -27,6 +29,21 @@ class GameBoy {
     CPU cpu;
 
     void initComponents();
+    void initRendering();
+
+    // Rendering and Event handling stuff
+    const int WIDTH = LCD_WIDTH;
+    const int HEIGHT = LCD_HEIGHT;
+    const int SCALE_FACTOR = 5; // TODO: Make this configurable by user
+
+    SDL_Window * window{};
+    SDL_Renderer * renderer{};
+    SDL_Texture * texture{};
+
+    std::vector<uint> pixels;
+
+    SDL_Event  event{};
+    bool shouldQuit{};
 
    public:
     GameBoy(int argc, char** argv);
@@ -35,13 +52,15 @@ class GameBoy {
     int run();
 
     // The main input-update-render loop. Should run at 60FPS
-    [[noreturn]] void gameLoop();
+    void gameLoop();
 
     // Run one frame worth of clock cycles for each component
     void update();
 
     // Use the clock cycles used by the CPU to drive the other components
     uint tick();
+
+    ~GameBoy();
 };
 
 #endif  // GIBI_INCLUDE_GAMEBOY_H_

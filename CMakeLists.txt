@@ -19,10 +19,11 @@ set(SRC_FILES
         src/GameBoy.cpp src/cpu/timer.cpp src/joypad.cpp src/ppu/ppu.cpp)
 
 find_package(args CONFIG REQUIRED)
+find_package(SDL2 CONFIG REQUIRED)
 
 add_executable(GiBi src/main.cpp ${HEADER_FILES} ${SRC_FILES})
 target_include_directories(GiBi PRIVATE include)
-target_link_libraries(GiBi PRIVATE taywee::args)
+target_link_libraries(GiBi PRIVATE taywee::args SDL2::SDL2main SDL2::SDL2-static)
 target_compile_options(GiBi PRIVATE
         $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
         -Wall -Wextra -Werror>
