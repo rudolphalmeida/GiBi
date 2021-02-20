@@ -1008,6 +1008,7 @@ std::vector<Opcode> opcodeImpl() {
             cpu.PC() = cpu.fetchWord();
             return 12;
         } else {
+            cpu.fetchWord();
             return 0;
         }
     });
