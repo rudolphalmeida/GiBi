@@ -65,7 +65,7 @@ class PPU : public Memory {
     // Draws a single scanline of the background and the window layer
     void drawScanline(byte line);
     void drawBackgroundScanline(byte line);
-    void drawWindowScanline(byte line) const;
+    void drawWindowScanline(byte line);
 
     void drawSprites() const;
 };

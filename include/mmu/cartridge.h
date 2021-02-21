@@ -3,7 +3,7 @@
  * Due to the limited address space of the GameBoy, carts often came with special
  * chips called memory banking controllers, or MBCs, which allowed the programmer
  * to include additional memory banks that the program could swap in and out at will.
- * This could be used to increase the memory up to 2MB.
+ * This could be used to increase the memory up to 8MB.
  *
  * Author: Rudolph Almeida <rudolf1.almeida@gmail.com>
  * */

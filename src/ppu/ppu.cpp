@@ -3,8 +3,8 @@
 #include "constants.h"
 #include "cpu/interrupts.h"
 #include "gibi.h"
-#include "ppu/ppu.h"
 #include "mmu/bus.h"
+#include "ppu/ppu.h"
 
 PPU::PPU(std::shared_ptr<IntF> intf, std::shared_ptr<Bus> bus)
     : lcdc{},
@@ -224,8 +224,8 @@ void PPU::drawBackgroundScanline(byte line) {
 
         // Calculate offset from start of tile data
         uint tileDataMemOffset = lcdc.tileData() == TileDataBase::TileData0
-            ? (static_cast<sbyte>(tileId) + 128) * SIZEOF_TILE
-            : tileId * SIZEOF_TILE;
+                                     ? (static_cast<sbyte>(tileId) + 128) * SIZEOF_TILE
+                                     : tileId * SIZEOF_TILE;
 
         uint tileDataLineOffset = tilePixelY * 2;
 
@@ -234,13 +234,57 @@ void PPU::drawBackgroundScanline(byte line) {
         byte pixel1 = bus->read(tileLineDataStartAddress);
         byte pixel2 = bus->read(tileLineDataStartAddress + 1);
 
-        byte colorId = static_cast<byte>((bitValue(pixel2, 7 - tilePixelX) << 1) | bitValue(pixel1, 7 - tilePixelX));
+        byte colorId = static_cast<byte>((bitValue(pixel2, 7 - tilePixelX) << 1) |
+                                         bitValue(pixel1, 7 - tilePixelX));
         DisplayColor actualColor = palette.fromID(colorId);
 
         pixelBuffer[screenX + screenY * LCD_WIDTH] = actualColor;
     }
 }
 
-void PPU::drawWindowScanline(byte) const {}
+void PPU::drawWindowScanline(byte line) {
+    Palette palette{bgp};
+
+    word tileSetAddress = static_cast<word>(lcdc.tileData());
+    word tileMapAddress = static_cast<word>(lcdc.windowTileMap());
+
+    uint screenY = line;
+    uint scrolledY = screenY - wy;
+
+    if (scrolledY >= LCD_HEIGHT)
+        return;
+
+    for (uint screenX = 0; screenX < LCD_WIDTH; screenX++) {
+        uint scrolledX = screenX + wx - 7;
+
+        uint tileX = scrolledX / TILE_WIDTH_PX;
+        uint tileY = scrolledY / TILE_HEIGHT_PX;
+
+        uint tilePixelX = scrolledX % TILE_WIDTH_PX;
+        uint tilePixelY = scrolledY % TILE_HEIGHT_PX;
+
+        uint tileIndex = tileY * TILES_PER_LINE + tileX;
+        word tileIndexAddress = tileMapAddress + tileIndex;
+
+        byte tileId = bus->read(tileIndexAddress);
+
+        uint tileDataMemOffset = lcdc.tileData() == TileDataBase::TileData0
+                                     ? (static_cast<sbyte>(tileId) + 128) * SIZEOF_TILE
+                                     : tileId * SIZEOF_TILE;
+
+        uint tileDataLineOffset = tilePixelY * 2;
+
+        word tileLineDataStartAddress = tileSetAddress + tileDataMemOffset + tileDataLineOffset;
+
+        byte pixel1 = bus->read(tileLineDataStartAddress);
+        byte pixel2 = bus->read(tileLineDataStartAddress + 1);
+
+        byte colorId = static_cast<byte>((bitValue(pixel2, 7 - tilePixelX) << 1) |
+                                         bitValue(pixel1, 7 - tilePixelX));
+        DisplayColor actualColor = palette.fromID(colorId);
+
+        pixelBuffer[screenX + screenY * LCD_WIDTH] = actualColor;
+    }
+}
 
 void PPU::drawSprites() const {}
