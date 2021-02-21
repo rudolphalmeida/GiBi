@@ -67,7 +67,7 @@ uint CPU::handle_interrupts() {
     // Find the interrupt with the highest priority. The priority goes from right to left, i.e the
     // interrupt with lower bit index has the higher priority
     // `ffs` indexes start from 1 so we decrement it
-    auto n = ffs(ii) - 1;      // TODO: Find a portable solution to this
+    auto n = ffs(ii) - 1;
     intf = resetBit(intf, n);  // Mark the interrupt as serviced
     bus->write(0xFF0F, intf);
 
@@ -457,7 +457,6 @@ word CPU::pop() {
     return composeWord(upper, lower);
 }
 
-// TODO: Complete extended opcode execute
 uint CPU::executeExtended() {
     byte code = fetchByte();
     auto& opcode = extendedOpcodes.at(code);

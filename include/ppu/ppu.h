@@ -50,27 +50,28 @@ class PPU : public Memory {
 
     uint dots;
 
-   public:
-    explicit PPU(std::shared_ptr<IntF> intf, std::shared_ptr<Bus> bus);
-
-    void tick(uint cycles);
-
-    [[nodiscard]] byte read(word address) const override;
-    void write(word address, byte data) override;
-
-    [[nodiscard]] const std::vector<DisplayColor>& buffer() const {
-        return pixelBuffer;
-    }
-
     // Draws a single scanline of the background and the window layer
     void drawScanline(byte line);
     void drawBackgroundScanline(byte line);
     void drawWindowScanline(byte line);
 
     void drawSprites() const;
+
+   public:
+
+    explicit PPU(std::shared_ptr<IntF> intf, std::shared_ptr<Bus> bus);
+
+    void tick(uint cycles);
+    [[nodiscard]] byte read(word address) const override;
+
+    void write(word address, byte data) override;
+
+    [[nodiscard]] const std::vector<DisplayColor>& buffer() const {
+        return pixelBuffer;
+    }
 };
 
-// A palette allowed any of the four gray shades to be mapped to any of the above "actual" color
+// A palette allowed any of the four gray shades to be mapped to any of the "actual" color
 // shades
 struct Palette {
     DisplayColor color0, color1, color2, color3;

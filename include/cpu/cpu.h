@@ -142,9 +142,6 @@ class CPU {
     // the CPU is halted, or a single opcode
     uint tick();
 
-    // These methods should all be private but friend class Opcode doesn't help.
-    // TODO: Make these methods private
-
     // Fetch the byte at PC and increment PC
     byte fetchByte();
 

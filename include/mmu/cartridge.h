@@ -47,7 +47,7 @@ class Cartridge : public Memory {
     uint ramSizeInKB;  // Size in KBytes. If >8 then #RAM Banks = size / 8;
 
     //    std::string title;
-    //    ModelMode mode;  // TODO: Let user choose this for games that support both
+    //    ModelMode mode;
 
    public:
     explicit Cartridge(std::vector<byte> rom, std::optional<std::vector<byte>> ram = std::nullopt);

@@ -79,7 +79,6 @@ void GameBoy::initComponents() {
     intf = std::make_shared<IntF>();
     bus = std::make_shared<Bus>(std::move(cart), intf, inte);
     ppu = std::make_shared<PPU>(intf, bus);
-    // TODO: Will making PPU a singleton solve a possible null pointer exception?
     bus->connectPPU(ppu);
     cpu = CPU(bus);
 }
