@@ -287,4 +287,89 @@ void PPU::drawWindowScanline(byte line) {
     }
 }
 
-void PPU::drawSprites() const {}
+void PPU::drawSprites() {
+    if (!lcdc.objEnabled())
+        return;
+
+    for (uint sprite = 0; sprite < NUM_SPRITES_PER_FRAME; sprite++) {
+        drawSprite(sprite);
+    }
+}
+
+void PPU::drawSprite(uint sprite) {
+    word offSetInOAM = sprite * SIZEOF_SPRITE_IN_OAM;
+    word addressInOAM = OAM_START + offSetInOAM;
+    byte spriteX = bus->read(addressInOAM);
+    byte spriteY = bus->read(addressInOAM + 1);
+
+    // The maximum dimensions of a tile are 8x16. So the only way to hide a sprite is by putting it
+    // outside the drawn area which is upto 16px around the vertical and 8px horizontal
+    if (spriteY == 0 || spriteY >= (LCD_HEIGHT + 16))
+        return;
+    if (spriteX == 0 || spriteX >= (LCD_WIDTH + 8))
+        return;
+
+    uint spriteHeight = lcdc.objHeight();
+
+    // Sprites always use 0x8000 addressing mode
+    word tileSetAddress = static_cast<word>(TileDataBase::TileData1);
+
+    byte tileNumber = bus->read(addressInOAM + 2);
+    byte spriteAttribs = bus->read(addressInOAM + 3);
+
+    bool flipX = isSet(spriteAttribs, 5);
+    bool flipY = isSet(spriteAttribs, 6);
+    bool hiddenBehindBG = isSet(spriteAttribs, 7);
+
+    Palette palette{isSet(spriteAttribs, 4) ? obp1 : obp0};
+
+    uint tileOffset = tileNumber * SIZEOF_TILE;
+    word tileAddress = tileSetAddress + tileOffset;
+
+    SpriteTile spriteTile{tileAddress, bus, spriteHeight};
+    int startY = spriteY - 16;
+    int startX = spriteX - 8;
+
+    for (uint y = 0; y < spriteHeight; y++) {
+        for (uint x = 0; x < TILE_WIDTH_PX; x++) {
+            uint maybeFlippedY = !flipY ? y : spriteHeight - y - 1;
+            uint maybeFlippedX = !flipX ? x : TILE_WIDTH_PX - x - 1;
+
+            DisplayColor colorInTileData = spriteTile.pixelValue(maybeFlippedX, maybeFlippedY);
+
+            if (colorInTileData == DisplayColor::White)
+                continue;  // White is transparent for sprites
+
+            uint screenX = startX + x;
+            uint screenY = startY + y;
+
+            if (!((screenX < LCD_WIDTH) && (screenY < LCD_HEIGHT)))
+                continue;
+
+            DisplayColor bgOrWindowPixel = pixelBuffer[screenX + screenY * LCD_WIDTH];
+
+            if (hiddenBehindBG && bgOrWindowPixel != DisplayColor::White)
+                continue;
+
+            pixelBuffer[screenX + screenY * LCD_WIDTH] =
+                palette.fromID(static_cast<byte>(colorInTileData));
+        }
+    }
+}
+
+SpriteTile::SpriteTile(word startAddress, const std::shared_ptr<Bus>& bus, uint heightOfTile)
+    : spriteData(heightOfTile * TILE_WIDTH_PX), heightOfTile{heightOfTile} {
+    for (uint tileLine = 0; tileLine < heightOfTile; tileLine++) {
+        uint lineByteIndexInTile = tileLine * 2;
+        word byteAddress = startAddress + lineByteIndexInTile;
+
+        byte pixel1 = bus->read(byteAddress);
+        byte pixel2 = bus->read(byteAddress + 1);
+
+        for (uint x = 0; x < TILE_WIDTH_PX; x++) {
+            byte colorCode =
+                static_cast<byte>((bitValue(pixel2, 7 - x) << 1) | bitValue(pixel1, 7 - x));
+            spriteData[x + tileLine * heightOfTile] = static_cast<DisplayColor>(colorCode);
+        }
+    }
+}

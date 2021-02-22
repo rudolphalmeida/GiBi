@@ -39,9 +39,10 @@ class Serial : public Memory {
             }
             case 0xFF02: {
                 this->control = d;
-                if (isSet(d, 7)) {
-                    std::cout << static_cast<char>(data);
-                }
+                // Uncomment if debugging
+//                if (isSet(d, 7)) {
+//                    std::cout << static_cast<char>(data);
+//                }
                 break;
             }
             default: {

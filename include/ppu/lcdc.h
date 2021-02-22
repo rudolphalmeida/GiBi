@@ -48,7 +48,6 @@ class LCDC : public Memory {
     }
 
     // Corresponds to LCDC.2. Sprites can either be 8x8 or 8x16
-    // TODO: Check this function
     [[nodiscard]] uint objHeight() const { return isSet(data, 2) ? 16 : 8; }
 
     // Corresponds to LCDC.1

@@ -55,10 +55,10 @@ class PPU : public Memory {
     void drawBackgroundScanline(byte line);
     void drawWindowScanline(byte line);
 
-    void drawSprites() const;
+    void drawSprites();
+    void drawSprite(uint sprite);
 
    public:
-
     explicit PPU(std::shared_ptr<IntF> intf, std::shared_ptr<Bus> bus);
 
     void tick(uint cycles);
@@ -66,9 +66,7 @@ class PPU : public Memory {
 
     void write(word address, byte data) override;
 
-    [[nodiscard]] const std::vector<DisplayColor>& buffer() const {
-        return pixelBuffer;
-    }
+    [[nodiscard]] const std::vector<DisplayColor>& buffer() const { return pixelBuffer; }
 };
 
 // A palette allowed any of the four gray shades to be mapped to any of the "actual" color
@@ -84,13 +82,32 @@ struct Palette {
 
     [[nodiscard]] DisplayColor fromID(byte id) const {
         switch (id) {
-            case 0: return color0;
-            case 1: return color1;
-            case 2: return color2;
-            case 3: return color3;
-            default: return color0; // Not really needed
+            case 0:
+                return color0;
+            case 1:
+                return color1;
+            case 2:
+                return color2;
+            case 3:
+                return color3;
+            default:
+                return color0;  // Not really needed
         }
     }
+};
+
+// Used to represent sprite tiles
+class SpriteTile {
+   private:
+    std::vector<DisplayColor> spriteData;
+    uint heightOfTile;
+
+   public:
+    SpriteTile(word startAddress, const std::shared_ptr<Bus>& bus, uint heightOfTile = 8);
+
+    // This color represents the color stored in the tile data. It should be mapped through a
+    // palette to get the final color as it appears on the screen
+    DisplayColor pixelValue(uint x, uint y) { return spriteData[x + y * heightOfTile]; }
 };
 
 #endif  // GIBI_PPU_H

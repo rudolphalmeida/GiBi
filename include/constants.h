@@ -73,6 +73,10 @@ const uint TILES_PER_LINE = 32;
 
 const uint SIZEOF_TILE = 16; // Each 8x8 tile has 8 lines where each line is 2 bytes
 
+const uint NUM_SPRITES_PER_FRAME = 40;
+const uint SIZEOF_SPRITE_IN_OAM = 4;
+const word OAM_START = 0xFE00;
+
 const uint ACCESSING_OAM_CLOCKS = 80;
 const uint ACCESSING_VRAM_CLOCKS = 172;
 const uint HBLANK_CLOCKS = 204;
