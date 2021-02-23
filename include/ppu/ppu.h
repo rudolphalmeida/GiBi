@@ -81,7 +81,7 @@ struct Palette {
           color3{static_cast<DisplayColor>((data & 0b11000000) >> 6)} {}
 
     [[nodiscard]] DisplayColor fromID(byte id) const {
-        switch (id) {
+        switch (id & 0b11) {
             case 0:
                 return color0;
             case 1:
@@ -92,6 +92,19 @@ struct Palette {
                 return color3;
             default:
                 return color0;  // Not really needed
+        }
+    }
+
+    [[nodiscard]] DisplayColor fromColor(DisplayColor color) const {
+        switch (color) {
+            case DisplayColor::White:
+                return color0;
+            case DisplayColor::LightGray:
+                return color1;
+            case DisplayColor::DarkGray:
+                return color2;
+            case DisplayColor::Black:
+                return color3;
         }
     }
 };

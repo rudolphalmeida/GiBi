@@ -105,9 +105,6 @@ void PPU::tick(uint cycles) {
                     stat.setMode(LCDMode::AccessingOAM);
 
                     drawSprites();
-                    // Render to screen here
-
-                    // Clear the buffer here
                 }
             }
 
@@ -201,34 +198,43 @@ void PPU::drawBackgroundScanline(byte line) {
     uint screenY = line;
 
     for (uint screenX = 0; screenX < LCD_WIDTH; screenX++) {
-        // Position of the pixel in the framebuffer
-        uint scrolledX = screenX + scx;
-        uint scrolledY = screenY + scy;
+        // Displace the coordinate in the background map by the position of the viewport that is
+        // shown on the screen and wrap around the BG map if it overflows the BG map
+        uint bgMapX = (screenX + scx) % BG_MAP_SIZE;
+        uint bgMapY = (screenY + scy) % BG_MAP_SIZE;
 
-        // Index of the pixel in background map
-        uint bgMapX = scrolledX % BG_MAP_SIZE;
-        uint bgMapY = scrolledY % BG_MAP_SIZE;
-
-        // Index of the tile in the background map
+        // Find the "tile coordinate" i.e. the tile position where the pixel falls
         uint tileX = bgMapX / TILE_WIDTH_PX;
         uint tileY = bgMapY / TILE_HEIGHT_PX;
 
-        // Index in the tile
+        // Find the coordinate of the pixel inside the tile it falls on
         uint tilePixelX = bgMapX % TILE_WIDTH_PX;
         uint tilePixelY = bgMapY % TILE_HEIGHT_PX;
 
+        // Index of the tile in the 1D tile map
         uint tileIndex = tileY * TILES_PER_LINE + tileX;
         word tileIndexAddress = tileMapAddress + tileIndex;
-
         byte tileId = bus->read(tileIndexAddress);
 
-        // Calculate offset from start of tile data
+        /* VRAM tile data is divided into three sections of 128 tiles each:
+         *   0x8000 - 0x87FF
+         *   0x8800 - 0x8FFF
+         *   0x9000 - 0x9FFF
+         *
+         * Indexing into these is performed using an 8-bit integer using two addressing modes
+         * controlled by LCDC.4
+         *
+         * 0x8000 method (TileData1): Use 0x8000 as the base address and unsigned indices
+         * 0x8800 method (TileData0): Use 0x9000 as the base address and signed indices
+         *
+         * ^ This is only applicable to BG and window tiles. Sprites always use 0x8000 addressing
+         * */
         uint tileDataMemOffset = lcdc.tileData() == TileDataBase::TileData0
                                      ? (static_cast<sbyte>(tileId) + 128) * SIZEOF_TILE
                                      : tileId * SIZEOF_TILE;
 
+        // Offset of the particular pixels 2 bytes in the whole tile
         uint tileDataLineOffset = tilePixelY * 2;
-
         word tileLineDataStartAddress = tileSetAddress + tileDataMemOffset + tileDataLineOffset;
 
         byte pixel1 = bus->read(tileLineDataStartAddress);
@@ -302,8 +308,8 @@ void PPU::drawSprite(uint sprite) {
     byte spriteX = bus->read(addressInOAM);
     byte spriteY = bus->read(addressInOAM + 1);
 
-    // The maximum dimensions of a tile are 8x16. So the only way to hide a sprite is by putting it
-    // outside the drawn area which is upto 16px around the vertical and 8px horizontal
+    // The maximum dimensions of a tile are 8x16. So the only way to (partially) hide a sprite is by
+    // putting it outside the drawn area which is upto 16px around the vertical and 8px horizontal
     if (spriteY == 0 || spriteY >= (LCD_HEIGHT + 16))
         return;
     if (spriteX == 0 || spriteX >= (LCD_WIDTH + 8))
@@ -351,8 +357,7 @@ void PPU::drawSprite(uint sprite) {
             if (hiddenBehindBG && bgOrWindowPixel != DisplayColor::White)
                 continue;
 
-            pixelBuffer[screenX + screenY * LCD_WIDTH] =
-                palette.fromID(static_cast<byte>(colorInTileData));
+            pixelBuffer[screenX + screenY * LCD_WIDTH] = palette.fromColor(colorInTileData);
         }
     }
 }
