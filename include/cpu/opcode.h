@@ -6,21 +6,21 @@
 #ifndef GIBI_INCLUDE_CPU_OPCODE_H_
 #define GIBI_INCLUDE_CPU_OPCODE_H_
 
+#include <functional>
 #include <memory>
 #include <string>
 #include <utility>
-#include <functional>
 
-#include "constants.h"
 #include "gibi.h"
 #include "mmu/bus.h"
+#include "timings.h"
 
 class CPU;
 
 class Opcode {
    private:
-    std::function<uint(CPU&, std::shared_ptr<Bus>&)>
-        proc;  // The code to be executed for each opcode
+    // The code to be executed for each opcode
+    std::function<uint(CPU&, std::shared_ptr<Bus>&)> proc;
 
    public:
     byte value;

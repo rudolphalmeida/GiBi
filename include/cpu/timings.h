@@ -10,11 +10,9 @@
 
 #include "gibi.h"
 
-const uint CYCLES_PER_FRAME = 69905;
-
 /* clang-format off */
-const uint NON_CB_CLOCK_CYCLES[] = {
-//  0   1   2   3   4   5   6   7   8   9   a   b  c   d   e  f
+constexpr static const uint NON_CB_CLOCK_CYCLES[] = {
+    //  0   1   2   3   4   5   6   7   8   9   a   b  c   d   e  f
     4,  12, 8,  8,  4,  4,  8,  4,  20, 8,  8,  8, 4,  4,  8, 4,  // 0
     0,  12, 8,  8,  4,  4,  8,  4,  12, 8,  8,  8, 4,  4,  8, 4,  // 1
     8,  12, 8,  8,  4,  4,  8,  4,  8,  8,  8,  8, 4,  4,  8, 4,  // 2
@@ -33,8 +31,8 @@ const uint NON_CB_CLOCK_CYCLES[] = {
     12, 12, 8,  4,  0,  16, 8,  16, 12, 8,  16, 4, 0,  0,  8, 16, // f
 };
 
-const uint CB_CLOCK_CYCLES[] = {
-//  0  1  2  3  4  5   6  7  8  9  a  b  c  d   e  f
+constexpr static const uint CB_CLOCK_CYCLES[] = {
+    //  0  1  2  3  4  5   6  7  8  9  a  b  c  d   e  f
     8, 8, 8, 8, 8, 8, 16, 8, 8, 8, 8, 8, 8, 8, 16, 8, // 0
     8, 8, 8, 8, 8, 8, 16, 8, 8, 8, 8, 8, 8, 8, 16, 8, // 1
     8, 8, 8, 8, 8, 8, 16, 8, 8, 8, 8, 8, 8, 8, 16, 8, // 2
@@ -53,33 +51,5 @@ const uint CB_CLOCK_CYCLES[] = {
     8, 8, 8, 8, 8, 8, 16, 8, 8, 8, 8, 8, 8, 8, 16, 8, // f
 };
 /* clang-format on */
-
-const word VBLANK_HANDLER_ADDRESS = 0x40;
-const word LCDSTAT_HANDLER_ADDRESS = 0x48;
-const word TIMER_HANDLER_ADDRESS = 0x50;
-const word SERIAL_HANDLER_ADDRESS = 0x58;
-const word JOYPAD_HANDLER_ADDRESS = 0x60;
-
-const uint ISR_CLOCK_CYCLES = 20;  // TODO: Confirm if this is the right value
-
-const uint LCD_WIDTH = 160;
-const uint LCD_HEIGHT = 144;
-const uint TOTAL_SCANLINES = 154;
-const uint BG_MAP_SIZE = 256;
-
-const uint TILE_WIDTH_PX = 8;
-const uint TILE_HEIGHT_PX = 8; // For background and window tiles. Can be 16 for sprites
-const uint TILES_PER_LINE = 32;
-
-const uint SIZEOF_TILE = 16; // Each 8x8 tile has 8 lines where each line is 2 bytes
-
-const uint NUM_SPRITES_PER_FRAME = 40;
-const uint SIZEOF_SPRITE_IN_OAM = 4;
-const word OAM_START = 0xFE00;
-
-const uint ACCESSING_OAM_CLOCKS = 80;
-const uint ACCESSING_VRAM_CLOCKS = 172;
-const uint HBLANK_CLOCKS = 204;
-const uint CLOCKS_PER_SCANLINE = ACCESSING_OAM_CLOCKS + ACCESSING_VRAM_CLOCKS + HBLANK_CLOCKS;
 
 #endif  // GIBI_INCLUDE_TIMINGS_H_

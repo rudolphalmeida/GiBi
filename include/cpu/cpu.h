@@ -9,7 +9,6 @@
 #include <memory>
 #include <utility>
 
-#include "constants.h"
 #include "gibi.h"
 #include "mmu/bus.h"
 #include "opcode.h"
@@ -89,6 +88,14 @@ class CPU {
 
     // Initialize the CPU with init values for the DMG-01 model
     explicit CPU(std::shared_ptr<Bus> bus);
+
+    static const word VBLANK_HANDLER_ADDRESS = 0x40;
+    static const word LCDSTAT_HANDLER_ADDRESS = 0x48;
+    static const word TIMER_HANDLER_ADDRESS = 0x50;
+    static const word SERIAL_HANDLER_ADDRESS = 0x58;
+    static const word JOYPAD_HANDLER_ADDRESS = 0x60;
+
+    static const uint ISR_CLOCK_CYCLES = 20;  // TODO: Confirm if this is the right value
 
     // Run a single opcode and return the number of clock cycles (t) it took
     uint execute();

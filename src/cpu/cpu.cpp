@@ -5,9 +5,9 @@
 
 #include <cstring>
 
-#include "constants.h"
 #include "cpu/cpu.h"
 #include "cpu/instructions.h"
+#include "cpu/timings.h"
 #include "gibi.h"
 
 CPU::CPU(std::shared_ptr<Bus> bus)
@@ -104,10 +104,15 @@ uint CPU::handle_interrupts() {
  */
 uint CPU::execute() {
     byte code = fetchByte();
-    auto& opcode = opcodes.at(code);
+    const Opcode& opcode = opcodes[code];
 
-    uint branchTakeCycles = opcode(*this, bus);
-    return opcode.tCycles + branchTakeCycles;
+    uint branchTakenCycles{};
+    try {
+        branchTakenCycles = opcode(*this, bus);
+    } catch (std::exception&) {
+        std::cout << "Exception in opcode";
+    }
+    return opcode.tCycles + branchTakenCycles;
 }
 
 void CPU::AF(word af) {

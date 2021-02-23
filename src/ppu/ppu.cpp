@@ -1,7 +1,7 @@
 #include <memory>
 
-#include "constants.h"
 #include "cpu/interrupts.h"
+#include "cpu/timings.h"
 #include "gibi.h"
 #include "mmu/bus.h"
 #include "ppu/ppu.h"
@@ -363,7 +363,7 @@ void PPU::drawSprite(uint sprite) {
 }
 
 SpriteTile::SpriteTile(word startAddress, const std::shared_ptr<Bus>& bus, uint heightOfTile)
-    : spriteData(heightOfTile * TILE_WIDTH_PX), heightOfTile{heightOfTile} {
+    : spriteData(heightOfTile * PPU::TILE_WIDTH_PX), heightOfTile{heightOfTile} {
     for (uint tileLine = 0; tileLine < heightOfTile; tileLine++) {
         uint lineByteIndexInTile = tileLine * 2;
         word byteAddress = startAddress + lineByteIndexInTile;
@@ -371,7 +371,7 @@ SpriteTile::SpriteTile(word startAddress, const std::shared_ptr<Bus>& bus, uint 
         byte pixel1 = bus->read(byteAddress);
         byte pixel2 = bus->read(byteAddress + 1);
 
-        for (uint x = 0; x < TILE_WIDTH_PX; x++) {
+        for (uint x = 0; x < PPU::TILE_WIDTH_PX; x++) {
             byte colorCode =
                 static_cast<byte>((bitValue(pixel2, 7 - x) << 1) | bitValue(pixel1, 7 - x));
             spriteData[x + tileLine * heightOfTile] = static_cast<DisplayColor>(colorCode);

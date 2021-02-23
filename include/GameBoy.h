@@ -16,6 +16,7 @@
 #include "cpu/interrupts.h"
 #include "gibi.h"
 #include "mmu/bus.h"
+#include "ppu/ppu.h"
 
 class GameBoy {
    private:
@@ -32,21 +33,23 @@ class GameBoy {
     void initRendering();
 
     // Rendering and Event handling stuff
-    const int WIDTH = LCD_WIDTH;
-    const int HEIGHT = LCD_HEIGHT;
-    const int SCALE_FACTOR = 5; // TODO: Make this configurable by user
+    const int WIDTH = PPU::LCD_WIDTH;
+    const int HEIGHT = PPU::LCD_HEIGHT;
+    const int SCALE_FACTOR = 5;  // TODO: Make this configurable by user
 
-    SDL_Window * window{};
-    SDL_Renderer * renderer{};
-    SDL_Texture * texture{};
+    SDL_Window* window{};
+    SDL_Renderer* renderer{};
+    SDL_Texture* texture{};
 
     std::vector<uint> pixels;
 
-    SDL_Event  event{};
+    SDL_Event event{};
     bool shouldQuit{};
 
    public:
     GameBoy(int argc, char** argv);
+
+    const uint CYCLES_PER_FRAME = 69905;
 
     // Run the emulator till the user quits (or it crashes)
     int run();

@@ -25,8 +25,8 @@ class Bus;
 enum class DisplayColor : byte { White = 0, LightGray = 1, DarkGray = 2, Black = 3 };
 
 /*
- * Alongside the PPU state, the PPU class is also responsible for rendering the frame to a buffer,
- * which will be displayed in the window
+ * Alongside the PPU state, the PPU class is also responsible for rendering the
+ * frame to a buffer, which will be displayed in the window
  * */
 class PPU : public Memory {
    private:
@@ -60,6 +60,31 @@ class PPU : public Memory {
 
    public:
     explicit PPU(std::shared_ptr<IntF> intf, std::shared_ptr<Bus> bus);
+
+    static const uint LCD_WIDTH = 160;
+    static const uint LCD_HEIGHT = 144;
+
+    static const uint TOTAL_SCANLINES = 154;
+
+    static const uint BG_MAP_SIZE = 256;
+
+    static const uint TILE_WIDTH_PX = 8;
+    // For background and window tiles. Can be 16 for sprites
+    static const uint TILE_HEIGHT_PX = 8;
+
+    static const uint TILES_PER_LINE = 32;
+
+    // Each 8x8 tile has 8 lines where each line is 2 bytes
+    static const uint SIZEOF_TILE = 16;
+    static const uint NUM_SPRITES_PER_FRAME = 40;
+    static const uint SIZEOF_SPRITE_IN_OAM = 4;
+    static const word OAM_START = 0xFE00;
+
+    static const uint ACCESSING_OAM_CLOCKS = 80;
+    static const uint ACCESSING_VRAM_CLOCKS = 172;
+    static const uint HBLANK_CLOCKS = 204;
+    static const uint CLOCKS_PER_SCANLINE =
+        ACCESSING_OAM_CLOCKS + ACCESSING_VRAM_CLOCKS + HBLANK_CLOCKS;
 
     void tick(uint cycles);
     [[nodiscard]] byte read(word address) const override;
