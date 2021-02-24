@@ -121,7 +121,7 @@ uint CPU::decodeAndExecute() {
 
     switch (x) {
         case 0b00: {
-            if (z == 0b0) {
+            if (z == 0b00) {
                 if (y == 0b0) {  // NOP
                     break;
                 } else if (y == 0b1) {  // LD (u16), SP
@@ -141,15 +141,12 @@ uint CPU::decodeAndExecute() {
                     if (checkCondition(conditionCode)) {
                         jr();
                         branchTakenCycles = 4;
-                        break;
                     } else {
                         fetchByte();
-                        break;
                     }
+                    break;
                 }
-            }
-
-            if (z == 0b1) {
+            } else if (z == 0b01) {
                 // r16 is decoded from group 1
                 if (q) {  // ADD HL, r16
                     word r16{};
@@ -170,7 +167,6 @@ uint CPU::decodeAndExecute() {
                             break;
                     }
                     addToHL(r16);
-                    break;
                 } else {  // LD r16, u16
                     word u16 = fetchWord();
                     switch (p) {
@@ -189,11 +185,9 @@ uint CPU::decodeAndExecute() {
                         default:
                             break;
                     }
-                    break;
                 }
-            }
-
-            if (z == 0b10) {
+                break;
+            } else if (z == 0b10) {
                 // r16 is decoded from group 2
                 word address{};
 
@@ -220,6 +214,44 @@ uint CPU::decodeAndExecute() {
                     A() = bus->read(address);
                 } else {  // LD (r16), A
                     bus->write(address, A());
+                }
+
+                break;
+            } else if (z == 0b11) {
+                if (q) {  // DEC r16
+                    switch (p) {
+                        case 0:
+                            BC(BC() - 1);
+                            break;
+                        case 1:
+                            DE(DE() - 1);
+                            break;
+                        case 2:
+                            HL(HL() - 1);
+                            break;
+                        case 3:
+                            SP() = SP() - 1;
+                            break;
+                        default:
+                            break;
+                    }
+                } else {  // INC r16
+                    switch (p) {
+                        case 0:
+                            BC(BC() + 1);
+                            break;
+                        case 1:
+                            DE(DE() + 1);
+                            break;
+                        case 2:
+                            HL(HL() + 1);
+                            break;
+                        case 3:
+                            SP() = SP() + 1;
+                            break;
+                        default:
+                            break;
+                    }
                 }
 
                 break;
