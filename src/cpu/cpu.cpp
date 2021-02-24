@@ -4,9 +4,9 @@
  * */
 
 #include <cstring>
+#include <sstream>
 
 #include "cpu/cpu.h"
-#include "cpu/instructions.h"
 #include "cpu/opcode_info.h"
 #include "gibi.h"
 
@@ -23,8 +23,6 @@ CPU::CPU(std::shared_ptr<Bus> bus)
       pc{0x100},  // This should start at 0x100 for emulation tests
       interrupt_master{false},
       bus{std::move(bus)},
-      opcodes{opcodeImpl()},
-      extendedOpcodes{extendedOpcodeImpl()},
       state{CPUState::EXECUTING} {}
 
 uint CPU::tick() {
@@ -34,7 +32,7 @@ uint CPU::tick() {
     } else if (state == CPUState::HALTED) {
         return CB_CLOCK_CYCLES[0];  // Execute a NOP
     } else {
-        return execute();  // Execute a single opcode
+        return decodeAndExecute();  // Execute a single opcode
     }
 }
 
@@ -99,20 +97,88 @@ uint CPU::handle_interrupts() {
     return ISR_CLOCK_CYCLES;
 }
 
-/* Fetch and execute a single opcode. Might execute two opcodes if executing
- * the EI instruction or an extended opcode if opcode is 0xCB
+/*
+ * Decode and execute a single opcode. Might execute two opcodes if executing
+ * the EI instruction or an extended opcode if opcode is 0xCB,
+ * Reference:
+ * https://gb-archive.github.io/salvage/decoding_gbz80_opcodes/Decoding%20Gamboy%20Z80%20Opcodes.html
  */
-uint CPU::execute() {
+uint CPU::decodeAndExecute() {
     byte code = fetchByte();
-    const Opcode& opcode = opcodes[code];
+
+    if (code == 0xCB) {
+        return decodeAndExecuteExtended();
+    }
+
+    // Extract components of opcode as defined in the reference
+    byte x = bitValue(code, 7) << 1 | bitValue(code, 6);
+//    bool q = isSet(code, 3);
+    byte p = bitValue(code, 5) << 1 | bitValue(code, 4);
+    byte y = p << 1 | bitValue(code, 3);
+    byte z = code & 0b111;
 
     uint branchTakenCycles{};
-    try {
-        branchTakenCycles = opcode(*this, bus);
-    } catch (std::exception&) {
-        std::cout << "Exception in opcode";
+
+    switch (x) {
+        case 0b00: {
+            if (y == 0b0 && z == 0b0) {  // NOP
+                break;
+            }
+
+            if (z == 0b0) {
+                if (y == 0b1) {  // LD (u16), SP
+                    ld_u16_sp();
+                    break;
+                } else if (y == 0b10) {  // STOP
+                    state = CPUState::HALTED;
+                    fetchByte();
+                    break;
+                } else if (y == 0b11) {  // JR
+                    jr();
+                    break;
+                }
+
+                if (isSet(y, 2)) {  // JR <condition>
+                    byte conditionCode = bitValue(y, 1) << 1 | bitValue(y, 0);
+                    if (checkCondition(conditionCode)) {
+                        jr();
+                        branchTakenCycles = 4;
+                    } else {
+                        fetchByte();
+                    }
+                }
+            }
+
+            break;
+        }
+        case 0b01:
+            break;
+        case 0b10:
+            break;
+        case 0b11:
+            break;
     }
-    return opcode.tCycles + branchTakenCycles;
+
+    return NON_CB_CLOCK_CYCLES[code] + branchTakenCycles;
+}
+
+uint CPU::decodeAndExecuteExtended() {
+    return 0;
+}
+
+bool CPU::checkCondition(byte conditionCode) const {
+    switch (conditionCode) {
+        case 0:
+            return !F().zf;
+        case 1:
+            return F().zf;
+        case 2:
+            return !F().cy;
+        case 3:
+            return F().cy;
+        default:
+            return false;  // Never needed
+    }
 }
 
 void CPU::AF(word af) {
@@ -462,10 +528,16 @@ word CPU::pop() {
     return composeWord(upper, lower);
 }
 
-uint CPU::executeExtended() {
-    byte code = fetchByte();
-    auto& opcode = extendedOpcodes.at(code);
+void CPU::ld_u16_sp() {
+    word address = fetchWord();
 
-    opcode(*this, bus);
-    return opcode.tCycles;
+    auto [upper, lower] = decomposeWord(SP());
+
+    bus->write(address, lower);
+    bus->write(address, upper);
+}
+
+void CPU::jr() {
+    auto offset = static_cast<sbyte>(fetchByte());
+    PC() = PC() + offset;
 }

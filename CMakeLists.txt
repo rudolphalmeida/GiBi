@@ -8,17 +8,16 @@ set(HEADER_FILES
         include/GameBoy.h
         include/cpu/cpu.h
         include/cpu/opcode_info.h
-        include/cpu/opcode.h
         include/mmu/memory.h
         include/mmu/cartridge.h
-        include/mmu/bus.h include/cpu/instructions.h
+        include/mmu/bus.h
         include/cpu/interrupts.h
         include/cpu/timer.h
         include/joypad.h
         include/serial.h
         include/ppu/lcdc.h
         include/ppu/lcdstatus.h
-        include/ppu/ppu.h include/cpu/decoder.h)
+        include/ppu/ppu.h)
 set(SRC_FILES
         src/cpu/cpu.cpp
         src/mmu/bus.cpp
@@ -26,7 +25,7 @@ set(SRC_FILES
         src/GameBoy.cpp
         src/cpu/timer.cpp
         src/joypad.cpp
-        src/ppu/ppu.cpp src/cpu/decoder.cpp)
+        src/ppu/ppu.cpp)
 
 find_package(args CONFIG REQUIRED)
 find_package(SDL2 CONFIG REQUIRED)

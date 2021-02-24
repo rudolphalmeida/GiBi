@@ -11,7 +11,6 @@
 
 #include "gibi.h"
 #include "mmu/bus.h"
-#include "opcode.h"
 
 // The GameBoy CPU had a 8-bit flag register of which only the upper nibble was
 // used. The lower nibble was always 0. The four flags included were:
@@ -78,8 +77,8 @@ class CPU {
     // executing, and jumps to the interrupt vector with the highest priority
     uint handle_interrupts();
 
-    std::vector<Opcode> opcodes;
-    std::vector<Opcode> extendedOpcodes;
+    // Check the condition table and return the boolean of the condition
+    [[nodiscard]] bool checkCondition(byte conditionCode) const;
 
    public:
     CPUState state;
@@ -97,8 +96,11 @@ class CPU {
 
     static const uint ISR_CLOCK_CYCLES = 20;  // TODO: Confirm if this is the right value
 
-    // Run a single opcode and return the number of clock cycles (t) it took
-    uint execute();
+    // Decode and execute a single opcode and return the number of clock cycles (t) it took
+    uint decodeAndExecute();
+
+    // Decode and execute a 0xCB prefixed opcode and return the number of clock cycles it took
+    uint decodeAndExecuteExtended();
 
     word& SP() { return sp; }
     [[nodiscard]] const word& SP() const { return sp; }
@@ -163,11 +165,13 @@ class CPU {
     // Pop a word from the stack
     word pop();
 
+    // LD (u16), SP - Load SP into immediate address
+    void ld_u16_sp();
+
+    void jr();
+
     // RLCA - Rotate Register A Left
     void rlca();
-
-    // Execute an 0xCB-prefixed opcode
-    uint executeExtended();
 
     // RRCA - Rotate Register A Right
     void rrca();
