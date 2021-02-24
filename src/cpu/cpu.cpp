@@ -112,7 +112,7 @@ uint CPU::decodeAndExecute() {
 
     // Extract components of opcode as defined in the reference
     byte x = bitValue(code, 7) << 1 | bitValue(code, 6);
-//    bool q = isSet(code, 3);
+    bool q = isSet(code, 3);
     byte p = bitValue(code, 5) << 1 | bitValue(code, 4);
     byte y = p << 1 | bitValue(code, 3);
     byte z = code & 0b111;
@@ -121,12 +121,10 @@ uint CPU::decodeAndExecute() {
 
     switch (x) {
         case 0b00: {
-            if (y == 0b0 && z == 0b0) {  // NOP
-                break;
-            }
-
             if (z == 0b0) {
-                if (y == 0b1) {  // LD (u16), SP
+                if (y == 0b0) {  // NOP
+                    break;
+                } else if (y == 0b1) {  // LD (u16), SP
                     ld_u16_sp();
                     break;
                 } else if (y == 0b10) {  // STOP
@@ -143,9 +141,54 @@ uint CPU::decodeAndExecute() {
                     if (checkCondition(conditionCode)) {
                         jr();
                         branchTakenCycles = 4;
+                        break;
                     } else {
                         fetchByte();
+                        break;
                     }
+                }
+            }
+
+            if (z == 0b1) {
+                if (q) {  // ADD HL, r16
+                    word r16{};
+                    switch (p) {
+                        case 0:
+                            r16 = BC();
+                            break;
+                        case 1:
+                            r16 = DE();
+                            break;
+                        case 2:
+                            r16 = HL();
+                            break;
+                        case 3:
+                            r16 = SP();
+                            break;
+                        default:  // Not really needed
+                            break;
+                    }
+                    addToHL(r16);
+                    break;
+                } else {  // LD r16, u16
+                    word u16 = fetchWord();
+                    switch (p) {
+                        case 0:
+                            BC(u16);
+                            break;
+                        case 1:
+                            DE(u16);
+                            break;
+                        case 2:
+                            HL(u16);
+                            break;
+                        case 3:
+                            SP() = u16;
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
                 }
             }
 
