@@ -279,6 +279,37 @@ uint CPU::decodeAndExecute() {
                 } else {
                     bus->write(HL(), fetchByte());
                 }
+            } else if (b210 == 0b111) {  // Operations on ALU
+                switch (b543) {
+                    case 0:
+                        rlca();
+                        break;
+                    case 1:
+                        rrca();
+                        break;
+                    case 2:
+                        rla();
+                        break;
+                    case 3:
+                        rra();
+                        break;
+                    case 4:
+                        daa();
+                        break;
+                    case 5:
+                        cpl();
+                        break;
+                    case 6:  // SCF
+                        F().cy = true;
+                        F().n = false;
+                        F().h = false;
+                        break;
+                    case 7:  // CCF
+                        F().cy = !F().cy;
+                        F().n = false;
+                        F().h = false;
+                        break;
+                }
             }
 
             break;
