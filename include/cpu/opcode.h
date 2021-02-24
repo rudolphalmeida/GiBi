@@ -13,7 +13,7 @@
 
 #include "gibi.h"
 #include "mmu/bus.h"
-#include "timings.h"
+#include "opcode_info.h"
 
 class CPU;
 

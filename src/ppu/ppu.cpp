@@ -1,7 +1,6 @@
 #include <memory>
 
 #include "cpu/interrupts.h"
-#include "cpu/timings.h"
 #include "gibi.h"
 #include "mmu/bus.h"
 #include "ppu/ppu.h"

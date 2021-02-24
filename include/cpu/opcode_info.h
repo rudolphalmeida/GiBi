@@ -1,7 +1,6 @@
 /*
- * Timings and constants for many different operations in the GameBoy.
- * All timings are clock cycles at 4.19MHz. Dividing by 4 gives us the machine
- * cycles at 1.05MHz
+ * Timings and lengths for the various opcodes used by the Sharp LR35902 CPU used by the GameBoy
+ *
  * Author: Rudolph Almeida <rudolf1.almeida@gmail.com>
  * */
 
@@ -11,8 +10,29 @@
 #include "gibi.h"
 
 /* clang-format off */
+
+constexpr static const uint NON_CB_LENGTHS[] = {
+//  0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+    1, 3, 1, 1, 1, 1, 2, 1, 3, 1, 1, 1, 1, 1, 2, 1,  // 0
+    2, 3, 1, 1, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1, 2, 1,  // 1
+    2, 3, 1, 1, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1, 2, 1,  // 2
+    2, 3, 1, 1, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1, 2, 1,  // 3
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // 4
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // 5
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // 6
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // 7
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // 8
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // 9
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // a
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // b
+    1, 1, 3, 3, 4, 1, 2, 1, 1, 1, 3, 1, 3, 3, 2, 1,  // c
+    1, 1, 3, 1, 3, 1, 2, 1, 1, 1, 3, 1, 3, 1, 2, 1,  // d
+    2, 1, 1, 1, 1, 1, 2, 1, 2, 1, 3, 1, 1, 1, 2, 1,  // e
+    2, 1, 1, 1, 1, 1, 2, 1, 2, 1, 3, 1, 1, 1, 2, 1,  // f
+};
+
 constexpr static const uint NON_CB_CLOCK_CYCLES[] = {
-    //  0   1   2   3   4   5   6   7   8   9   a   b  c   d   e  f
+//  0   1   2   3   4   5   6   7   8   9   a   b  c   d   e  f
     4,  12, 8,  8,  4,  4,  8,  4,  20, 8,  8,  8, 4,  4,  8, 4,  // 0
     0,  12, 8,  8,  4,  4,  8,  4,  12, 8,  8,  8, 4,  4,  8, 4,  // 1
     8,  12, 8,  8,  4,  4,  8,  4,  8,  8,  8,  8, 4,  4,  8, 4,  // 2
@@ -32,7 +52,7 @@ constexpr static const uint NON_CB_CLOCK_CYCLES[] = {
 };
 
 constexpr static const uint CB_CLOCK_CYCLES[] = {
-    //  0  1  2  3  4  5   6  7  8  9  a  b  c  d   e  f
+//  0  1  2  3  4  5   6  7  8  9  a  b  c  d   e  f
     8, 8, 8, 8, 8, 8, 16, 8, 8, 8, 8, 8, 8, 8, 16, 8, // 0
     8, 8, 8, 8, 8, 8, 16, 8, 8, 8, 8, 8, 8, 8, 16, 8, // 1
     8, 8, 8, 8, 8, 8, 16, 8, 8, 8, 8, 8, 8, 8, 16, 8, // 2
@@ -50,6 +70,7 @@ constexpr static const uint CB_CLOCK_CYCLES[] = {
     8, 8, 8, 8, 8, 8, 16, 8, 8, 8, 8, 8, 8, 8, 16, 8, // e
     8, 8, 8, 8, 8, 8, 16, 8, 8, 8, 8, 8, 8, 8, 16, 8, // f
 };
+
 /* clang-format on */
 
 #endif  // GIBI_INCLUDE_TIMINGS_H_

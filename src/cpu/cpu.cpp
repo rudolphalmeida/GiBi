@@ -7,7 +7,7 @@
 
 #include "cpu/cpu.h"
 #include "cpu/instructions.h"
-#include "cpu/timings.h"
+#include "cpu/opcode_info.h"
 #include "gibi.h"
 
 CPU::CPU(std::shared_ptr<Bus> bus)
