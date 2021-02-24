@@ -168,6 +168,7 @@ class CPU {
     // LD (u16), SP - Load SP into immediate address
     void ld_u16_sp();
 
+    // Relative jump from signed immediate integer
     void jr();
 
     // RLCA - Rotate Register A Left
@@ -181,6 +182,9 @@ class CPU {
 
     // RRA - Rotate Register A Right through Carry
     void rra();
+
+    // Decode r8 register for algorithmic decoding; ignoring (HL)
+    byte& decodeR8(byte y);
 
     // Used for INC r8 opcodes
     void incR8(byte& reg);

@@ -111,33 +111,33 @@ uint CPU::decodeAndExecute() {
     }
 
     // Extract components of opcode as defined in the reference
-    byte x = bitValue(code, 7) << 1 | bitValue(code, 6);
-    bool q = isSet(code, 3);
-    byte p = bitValue(code, 5) << 1 | bitValue(code, 4);
-    byte y = p << 1 | bitValue(code, 3);
-    byte z = code & 0b111;
+    byte b76 = bitValue(code, 7) << 1 | bitValue(code, 6);
+    bool b3 = isSet(code, 3);
+    byte b54 = bitValue(code, 5) << 1 | bitValue(code, 4);
+    byte b543 = b54 << 1 | bitValue(code, 3);
+    byte b210 = code & 0b111;
 
     uint branchTakenCycles{};
 
-    switch (x) {
+    switch (b76) {
         case 0b00: {
-            if (z == 0b00) {
-                if (y == 0b0) {  // NOP
+            if (b210 == 0b00) {
+                if (b543 == 0b0) {  // NOP
                     break;
-                } else if (y == 0b1) {  // LD (u16), SP
+                } else if (b543 == 0b1) {  // LD (u16), SP
                     ld_u16_sp();
                     break;
-                } else if (y == 0b10) {  // STOP
+                } else if (b543 == 0b10) {  // STOP
                     state = CPUState::HALTED;
                     fetchByte();
                     break;
-                } else if (y == 0b11) {  // JR
+                } else if (b543 == 0b11) {  // JR
                     jr();
                     break;
                 }
 
-                if (isSet(y, 2)) {  // JR <condition>
-                    byte conditionCode = bitValue(y, 1) << 1 | bitValue(y, 0);
+                if (isSet(b543, 2)) {  // JR <condition>
+                    byte conditionCode = bitValue(b543, 1) << 1 | bitValue(b543, 0);
                     if (checkCondition(conditionCode)) {
                         jr();
                         branchTakenCycles = 4;
@@ -146,11 +146,11 @@ uint CPU::decodeAndExecute() {
                     }
                     break;
                 }
-            } else if (z == 0b01) {
+            } else if (b210 == 0b01) {
                 // r16 is decoded from group 1
-                if (q) {  // ADD HL, r16
+                if (b3) {  // ADD HL, r16
                     word r16{};
-                    switch (p) {
+                    switch (b54) {
                         case 0:
                             r16 = BC();
                             break;
@@ -169,7 +169,7 @@ uint CPU::decodeAndExecute() {
                     addToHL(r16);
                 } else {  // LD r16, u16
                     word u16 = fetchWord();
-                    switch (p) {
+                    switch (b54) {
                         case 0:
                             BC(u16);
                             break;
@@ -187,11 +187,11 @@ uint CPU::decodeAndExecute() {
                     }
                 }
                 break;
-            } else if (z == 0b10) {
+            } else if (b210 == 0b10) {
                 // r16 is decoded from group 2
                 word address{};
 
-                switch (p) {
+                switch (b54) {
                     case 0:
                         address = BC();
                         break;
@@ -210,16 +210,16 @@ uint CPU::decodeAndExecute() {
                         break;
                 }
 
-                if (q) {  // LD A, (r16)
+                if (b3) {  // LD A, (r16)
                     A() = bus->read(address);
                 } else {  // LD (r16), A
                     bus->write(address, A());
                 }
 
                 break;
-            } else if (z == 0b11) {
-                if (q) {  // DEC r16
-                    switch (p) {
+            } else if (b210 == 0b11) {
+                if (b3) {  // DEC r16
+                    switch (b54) {
                         case 0:
                             BC(BC() - 1);
                             break;
@@ -236,7 +236,7 @@ uint CPU::decodeAndExecute() {
                             break;
                     }
                 } else {  // INC r16
-                    switch (p) {
+                    switch (b54) {
                         case 0:
                             BC(BC() + 1);
                             break;
@@ -255,6 +255,30 @@ uint CPU::decodeAndExecute() {
                 }
 
                 break;
+            } else if (b210 == 0b100) {  // INC r8
+                if (b543 != 6) {
+                    byte& r8 = decodeR8(b543);
+                    incR8(r8);
+                } else {
+                    byte value = bus->read(HL());
+                    incR8(value);
+                    bus->write(HL(), value);
+                }
+            } else if (b210 == 0b101) {  // DEC r8
+                if (b543 != 6) {
+                    byte& r8 = decodeR8(b543);
+                    decR8(r8);
+                } else {
+                    byte value = bus->read(HL());
+                    decR8(value);
+                    bus->write(HL(), value);
+                }
+            } else if (b210 == 0b110) {  // LD r8, u8
+                if (b543 != 6) {
+                    decodeR8(b543) = fetchByte();
+                } else {
+                    bus->write(HL(), fetchByte());
+                }
             }
 
             break;
@@ -272,6 +296,25 @@ uint CPU::decodeAndExecute() {
 
 uint CPU::decodeAndExecuteExtended() {
     return 0;
+}
+
+byte& CPU::decodeR8(byte y) {
+    switch (y) {
+        case 0:
+            return B();
+        case 1:
+            return C();
+        case 2:
+            return D();
+        case 3:
+            return E();
+        case 4:
+            return H();
+        case 5:
+            return L();
+        default:
+            return A();  // Really case 7
+    }
 }
 
 bool CPU::checkCondition(byte conditionCode) const {
