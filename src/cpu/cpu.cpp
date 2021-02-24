@@ -195,45 +195,34 @@ uint CPU::decodeAndExecute() {
 
             if (z == 0b10) {
                 // r16 is decoded from group 2
-                if (q) {  // LD A, (r16)
-                    switch (p) {
-                        case 0:
-                            A() = bus->read(BC());
-                            break;
-                        case 1:
-                            A() = bus->read(DE());
-                            break;
-                        case 2:
-                            A() = bus->read(HL());
-                            HL(HL() + 1);
-                            break;
-                        case 3:
-                            A() = bus->read(HL());
-                            HL(HL() - 1);
-                            break;
-                        default:
-                            break;
-                    }
-                } else {  // LD (r16), A
-                    switch (p) {
-                        case 0:
-                            bus->write(BC(), A());
-                            break;
-                        case 1:
-                            bus->write(DE(), A());
-                            break;
-                        case 2:
-                            bus->write(HL(), A());
-                            HL(HL() + 1);
-                            break;
-                        case 3:
-                            bus->write(HL(), A());
-                            HL(HL() - 1);
-                            break;
-                        default:
-                            break;
-                    }
+                word address{};
+
+                switch (p) {
+                    case 0:
+                        address = BC();
+                        break;
+                    case 1:
+                        address = DE();
+                        break;
+                    case 2:
+                        address = HL();
+                        HL(HL() + 1);
+                        break;
+                    case 3:
+                        address = HL();
+                        HL(HL() - 1);
+                        break;
+                    default:
+                        break;
                 }
+
+                if (q) {  // LD A, (r16)
+                    A() = bus->read(address);
+                } else {  // LD (r16), A
+                    bus->write(address, A());
+                }
+
+                break;
             }
 
             break;
