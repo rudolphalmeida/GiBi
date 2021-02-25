@@ -102,6 +102,8 @@ uint CPU::handle_interrupts() {
  * the EI instruction or an extended opcode if opcode is 0xCB,
  * Reference:
  * https://gb-archive.github.io/salvage/decoding_gbz80_opcodes/Decoding%20Gamboy%20Z80%20Opcodes.html
+ * SM83_decoding.pdf:
+ * https://cdn.discordapp.com/attachments/465586075830845475/742438340078469150/SM83_decoding.pdf
  */
 uint CPU::decodeAndExecute() {
     // clang-format off
@@ -241,8 +243,19 @@ uint CPU::decodeAndExecute() {
 
             break;
         }
-        case 0b01:
+        case 0b01: {
+            if (b543 == 0b110 && b210 == 0b110) { // HALT
+                state = CPUState::HALTED;
+            } else {  // LD r8, r8
+                // LD (HL), (HL) is not a valid code as its encoding overlaps with HALT so we don't
+                // care about it here
+                byte& destR8 = decodeR8(b543);
+                const byte& srcR8 = decodeR8(b210);
+                destR8 = srcR8;
+            }
+
             break;
+        }
         case 0b10:
             break;
         case 0b11:
