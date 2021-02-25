@@ -104,11 +104,10 @@ uint CPU::handle_interrupts() {
  * https://gb-archive.github.io/salvage/decoding_gbz80_opcodes/Decoding%20Gamboy%20Z80%20Opcodes.html
  */
 uint CPU::decodeAndExecute() {
+    // clang-format off
     byte code = fetchByte();
 
-    if (code == 0xCB) {
-        return decodeAndExecuteExtended();
-    }
+    if (code == 0xCB) return decodeAndExecuteExtended();
 
     // Extract components of opcode as defined in the reference
     byte b76 = bitValue(code, 7) << 1 | bitValue(code, 6);
@@ -122,19 +121,14 @@ uint CPU::decodeAndExecute() {
     switch (b76) {
         case 0b00: {
             if (b210 == 0b00) {
-                if (b543 == 0b0) {  // NOP
-                    break;
-                } else if (b543 == 0b1) {  // LD (u16), SP
-                    ld_u16_sp();
-                    break;
-                } else if (b543 == 0b10) {  // STOP
-                    state = CPUState::HALTED;
-                    fetchByte();
-                    break;
-                } else if (b543 == 0b11) {  // JR
-                    jr();
-                    break;
-                }
+                // NOP
+                if (b543 == 0b0) { break; }
+                // LD (u16), SP
+                else if (b543 == 0b1) { ld_u16_sp(); break; }
+                // STOP
+                else if (b543 == 0b10) { state = CPUState::HALTED; fetchByte(); break; }
+                // JR
+                else if (b543 == 0b11) { jr(); break; }
 
                 if (isSet(b543, 2)) {  // JR <condition>
                     byte conditionCode = bitValue(b543, 1) << 1 | bitValue(b543, 0);
@@ -151,106 +145,57 @@ uint CPU::decodeAndExecute() {
                 if (b3) {  // ADD HL, r16
                     word r16{};
                     switch (b54) {
-                        case 0:
-                            r16 = BC();
-                            break;
-                        case 1:
-                            r16 = DE();
-                            break;
-                        case 2:
-                            r16 = HL();
-                            break;
-                        case 3:
-                            r16 = SP();
-                            break;
-                        default:  // Not really needed
-                            break;
+                        case 0: r16 = BC(); break;
+                        case 1: r16 = DE(); break;
+                        case 2: r16 = HL(); break;
+                        case 3: r16 = SP(); break;
+                        default: break;
                     }
                     addToHL(r16);
                 } else {  // LD r16, u16
                     word u16 = fetchWord();
                     switch (b54) {
-                        case 0:
-                            BC(u16);
-                            break;
-                        case 1:
-                            DE(u16);
-                            break;
-                        case 2:
-                            HL(u16);
-                            break;
-                        case 3:
-                            SP() = u16;
-                            break;
-                        default:
-                            break;
+                        case 0: BC(u16); break;
+                        case 1: DE(u16); break;
+                        case 2: HL(u16); break;
+                        case 3: SP() = u16; break;
+                        default: break;
                     }
                 }
                 break;
             } else if (b210 == 0b10) {
                 // r16 is decoded from group 2
                 word address{};
-
                 switch (b54) {
-                    case 0:
-                        address = BC();
-                        break;
-                    case 1:
-                        address = DE();
-                        break;
-                    case 2:
-                        address = HL();
-                        HL(HL() + 1);
-                        break;
-                    case 3:
-                        address = HL();
-                        HL(HL() - 1);
-                        break;
-                    default:
-                        break;
+                    case 0: address = BC(); break;
+                    case 1: address = DE(); break;
+                    case 2: address = HL(); HL(HL() + 1); break;
+                    case 3: address = HL(); HL(HL() - 1); break;
+                    default: break;
                 }
 
-                if (b3) {  // LD A, (r16)
-                    A() = bus->read(address);
-                } else {  // LD (r16), A
-                    bus->write(address, A());
-                }
+                // LD A, (r16)
+                if (b3) { A() = bus->read(address); }
+                // LD (r16), A
+                else { bus->write(address, A()); }
 
                 break;
             } else if (b210 == 0b11) {
                 if (b3) {  // DEC r16
                     switch (b54) {
-                        case 0:
-                            BC(BC() - 1);
-                            break;
-                        case 1:
-                            DE(DE() - 1);
-                            break;
-                        case 2:
-                            HL(HL() - 1);
-                            break;
-                        case 3:
-                            SP() = SP() - 1;
-                            break;
-                        default:
-                            break;
+                        case 0: BC(BC() - 1); break;
+                        case 1: DE(DE() - 1); break;
+                        case 2: HL(HL() - 1); break;
+                        case 3: SP() = SP() - 1; break;
+                        default: break;
                     }
                 } else {  // INC r16
                     switch (b54) {
-                        case 0:
-                            BC(BC() + 1);
-                            break;
-                        case 1:
-                            DE(DE() + 1);
-                            break;
-                        case 2:
-                            HL(HL() + 1);
-                            break;
-                        case 3:
-                            SP() = SP() + 1;
-                            break;
-                        default:
-                            break;
+                        case 0: BC(BC() + 1); break;
+                        case 1: DE(DE() + 1); break;
+                        case 2: HL(HL() + 1); break;
+                        case 3: SP() = SP() + 1; break;
+                        default: break;
                     }
                 }
 
@@ -281,34 +226,16 @@ uint CPU::decodeAndExecute() {
                 }
             } else if (b210 == 0b111) {  // Operations on ALU
                 switch (b543) {
-                    case 0:
-                        rlca();
-                        break;
-                    case 1:
-                        rrca();
-                        break;
-                    case 2:
-                        rla();
-                        break;
-                    case 3:
-                        rra();
-                        break;
-                    case 4:
-                        daa();
-                        break;
-                    case 5:
-                        cpl();
-                        break;
-                    case 6:  // SCF
-                        F().cy = true;
-                        F().n = false;
-                        F().h = false;
-                        break;
-                    case 7:  // CCF
-                        F().cy = !F().cy;
-                        F().n = false;
-                        F().h = false;
-                        break;
+                    case 0: rlca(); break;
+                    case 1: rrca(); break;
+                    case 2: rla(); break;
+                    case 3: rra(); break;
+                    case 4: daa(); break;
+                    case 5: cpl(); break;
+                    // SCF
+                    case 6: F().cy = true; F().n = false; F().h = false; break;
+                    // CCF
+                    case 7: F().cy = !F().cy; F().n = false; F().h = false; break;
                 }
             }
 
@@ -323,6 +250,7 @@ uint CPU::decodeAndExecute() {
     }
 
     return NON_CB_CLOCK_CYCLES[code] + branchTakenCycles;
+    // clang-format on
 }
 
 uint CPU::decodeAndExecuteExtended() {
