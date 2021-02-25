@@ -256,8 +256,21 @@ uint CPU::decodeAndExecute() {
 
             break;
         }
-        case 0b10:
+        case 0b10: {
+            const byte& src = b210 == 6 ? bus->read(HL()) : decodeR8(b210);
+            switch (b543) {
+                case 0: addR8(src); break;
+                case 1: adcR8(src); break;
+                case 2: subR8(src); break;
+                case 3: sbcR8(src); break;
+                case 4: andR8(src); break;
+                case 5: xorR8(src); break;
+                case 6: orR8(src); break;
+                case 7: byte value = A(); subR8(src); A() = value; break;
+            }
+
             break;
+        }
         case 0b11:
             break;
     }
