@@ -315,6 +315,26 @@ uint CPU::decodeAndExecute() {
                         default: break;
                     }
                 }
+            } else if (b210 == 0b010) {
+                if (!isSet(b543, 2)) { // JP condition
+                    byte conditionCode = bitValue(b543, 1) << 1 | bitValue(b543, 0);
+                    if (checkCondition(conditionCode)) {
+                        PC() = fetchWord();
+                        branchTakenCycles = 12;
+                    }
+                } else {
+                    switch (b543) {
+                        // LD (FF00 + C), A
+                        case 0b100: bus->write(0xFF00 + C(), A()); break;
+                        // LD (u16), A
+                        case 0b101: bus->write(fetchWord(), A()); break;
+                        // lD A, (FF00 + C)
+                        case 0b110: A() = bus->read(0xFF00 + C()); break;
+                        // LD A, (u16)
+                        case 0b111: A() = bus->read(fetchWord()); break;
+                        default: break;
+                    }
+                }
             }
 
             break;
