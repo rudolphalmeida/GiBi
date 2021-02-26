@@ -355,6 +355,18 @@ uint CPU::decodeAndExecute() {
                 } else {
                     fetchWord();
                 }
+            } else if (b210 == 0b101) {
+                if (b3) { // CALL u16
+                    call(fetchWord());
+                } else { // PUSH r16
+                    switch (b54) {
+                        case 0: push(BC()); break;
+                        case 1: push(DE()); break;
+                        case 2: push(HL()); break;
+                        case 3: push(AF()); break;
+                        default: break;
+                    }
+                }
             }
 
             break;
