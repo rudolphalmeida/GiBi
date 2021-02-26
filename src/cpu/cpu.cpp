@@ -379,6 +379,9 @@ uint CPU::decodeAndExecute() {
                     case 6: orR8(operand); break;
                     case 7: byte value = A(); subR8(operand); A() = value; break;
                 }
+            } else if (b210 == 0b111) { // RST
+                word rstAddress = b543 << 3;
+                call(rstAddress);
             }
 
             break;
