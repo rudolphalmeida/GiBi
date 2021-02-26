@@ -109,8 +109,6 @@ uint CPU::decodeAndExecute() {
     // clang-format off
     byte code = fetchByte();
 
-    if (code == 0xCB) return decodeAndExecuteExtended();
-
     // Extract components of opcode as defined in the reference
     byte b76 = bitValue(code, 7) << 1 | bitValue(code, 6);
     bool b3 = isSet(code, 3);
@@ -334,6 +332,18 @@ uint CPU::decodeAndExecute() {
                         case 0b111: A() = bus->read(fetchWord()); break;
                         default: break;
                     }
+                }
+            } else if (b210 == 0b011) {
+                switch (b543) {
+                    // JP u16
+                    case 0: PC() = fetchWord(); break;
+                    // CB <opcode>
+                    case 1: branchTakenCycles = decodeAndExecuteExtended(); break;
+                    // DI
+                    case 6: IME() = false; break;
+                    // EI
+                    case 7: branchTakenCycles = decodeAndExecute(); IME() = true; break;
+                    default: break; // Illegal opcodes
                 }
             }
 
