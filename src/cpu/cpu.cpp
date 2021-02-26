@@ -367,6 +367,18 @@ uint CPU::decodeAndExecute() {
                         default: break;
                     }
                 }
+            } else if (b210 == 0b110) { // ALU a, u8
+                byte operand = fetchByte();
+                switch (b543) {
+                    case 0: addR8(operand); break;
+                    case 1: adcR8(operand); break;
+                    case 2: subR8(operand); break;
+                    case 3: sbcR8(operand); break;
+                    case 4: andR8(operand); break;
+                    case 5: xorR8(operand); break;
+                    case 6: orR8(operand); break;
+                    case 7: byte value = A(); subR8(operand); A() = value; break;
+                }
             }
 
             break;
