@@ -201,6 +201,9 @@ class CPU {
     // Used for LD HL, SP + i8 opcode
     void ld_hl_sp_i8(sbyte displacement);
 
+    // Used for CALL opcodes
+    void call(word procAddress);
+
     // Used for ADD A, r8 opcodes
     void addR8(byte value);
 

@@ -319,6 +319,8 @@ uint CPU::decodeAndExecute() {
                     if (checkCondition(conditionCode)) {
                         PC() = fetchWord();
                         branchTakenCycles = 12;
+                    } else {
+                        fetchWord();
                     }
                 } else {
                     switch (b543) {
@@ -344,6 +346,14 @@ uint CPU::decodeAndExecute() {
                     // EI
                     case 7: branchTakenCycles = decodeAndExecute(); IME() = true; break;
                     default: break; // Illegal opcodes
+                }
+            } else if (b210 == 0b100) { // CALL condition
+                byte conditionCode = bitValue(543, 1) << 1 | bitValue(b543, 0);
+                if (checkCondition(conditionCode)) {
+                    call(fetchWord());
+                    branchTakenCycles = 12;
+                } else {
+                    fetchWord();
                 }
             }
 
@@ -775,4 +785,9 @@ void CPU::ld_hl_sp_i8(sbyte displacement) {
     F().cy = ((SP() ^ displacement ^ (result & 0xFFFF)) & 0x100) == 0x100;
 
     HL(static_cast<word>(result));
+}
+
+void CPU::call(word procAddress) {
+    push(PC());
+    PC() = procAddress;
 }
