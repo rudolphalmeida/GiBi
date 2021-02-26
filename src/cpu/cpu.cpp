@@ -271,8 +271,54 @@ uint CPU::decodeAndExecute() {
 
             break;
         }
-        case 0b11:
+        case 0b11: {
+            if (b210 == 0b000) {
+                if (!isSet(b543, 2)) { // RET <condition>
+                    byte conditionCode = bitValue(b543, 1) << 1 | bitValue(b543, 0);
+                    if (checkCondition(conditionCode)) {
+                        PC() = pop();
+                        branchTakenCycles = 12;
+                    }
+                } else if (isSet(b543, 2)) {
+                    byte b43 = bitValue(b543, 1) << 1 | bitValue(b543, 0);
+                    switch (b43) {
+                        // LD (FF00 + u8), A
+                        case 0b00: bus->write(0xFF00 + fetchByte(), A()); break;
+                        // ADD SP, i8
+                        case 0b01: addToSP(static_cast<sbyte>(fetchByte())); break;
+                        // LD A, (FF00 + u8)
+                        case 0b10: A() = bus->read(0xFF00 + fetchByte()); break;
+                        // LD HL, SP + i8
+                        case 0b11: ld_hl_sp_i8(static_cast<sbyte>(fetchByte())); break;
+                        default: break;
+                    }
+                }
+            } else if (b210 == 0b001) {
+                if (b3) {
+                    switch (b54) {
+                        // RET
+                        case 0: PC() = pop(); break;
+                        // RETI
+                        case 1: IME() = true; PC() = pop(); break;
+                        // JP HL
+                        case 2: PC() = HL();
+                        // LD SP, HL
+                        case 3: SP() = HL(); break;
+                        default: break;
+                    }
+                } else { // POP r16
+                    switch (b54) {
+                        case 0: BC(pop()); break;
+                        case 1: DE(pop()); break;
+                        case 2: HL(pop()); break;
+                        case 3: AF(pop()); break;
+                        default: break;
+                    }
+                }
+            }
+
             break;
+        }
     }
 
     return NON_CB_CLOCK_CYCLES[code] + branchTakenCycles;
@@ -676,4 +722,27 @@ void CPU::ld_u16_sp() {
 void CPU::jr() {
     auto offset = static_cast<sbyte>(fetchByte());
     PC() = PC() + offset;
+}
+
+void CPU::addToSP(sbyte displacement) {
+    uint result = static_cast<uint>(SP() + displacement);
+
+    F().zf = false;
+    F().n = false;
+    // Reference: https://github.com/jgilchrist/gbemu/blob/master/src/cpu/opcodes.cc
+    F().h = ((SP() ^ displacement ^ (result & 0xFFFF)) & 0x10) == 0x10;
+    F().cy = ((SP() ^ displacement ^ (result & 0xFFFF)) & 0x100) == 0x100;
+
+    SP() = static_cast<word>(result);
+}
+
+void CPU::ld_hl_sp_i8(sbyte displacement) {
+    uint result = static_cast<uint>(SP() + displacement);
+
+    F().zf = false;
+    F().n = false;
+    F().h = ((SP() ^ displacement ^ (result & 0xFFFF)) & 0x10) == 0x10;
+    F().cy = ((SP() ^ displacement ^ (result & 0xFFFF)) & 0x100) == 0x100;
+
+    HL(static_cast<word>(result));
 }

@@ -195,6 +195,12 @@ class CPU {
     // Used for ADD HL, ** opcodes
     void addToHL(word value);
 
+    // Used for ADD SP, i8 opcode
+    void addToSP(sbyte displacement);
+
+    // Used for LD HL, SP + i8 opcode
+    void ld_hl_sp_i8(sbyte displacement);
+
     // Used for ADD A, r8 opcodes
     void addR8(byte value);
 
