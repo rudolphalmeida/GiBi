@@ -30,7 +30,7 @@ uint CPU::tick() {
     if (isrTCycles) {
         return isrTCycles;
     } else if (state == CPUState::HALTED) {
-        return CB_CLOCK_CYCLES[0];  // Execute a NOP
+        return NON_CB_CLOCK_CYCLES[0];  // Execute a NOP
     } else {
         return decodeAndExecute();  // Execute a single opcode
     }
@@ -109,6 +109,8 @@ uint CPU::decodeAndExecute() {
     // clang-format off
     byte code = fetchByte();
 
+    std::cerr << std::hex << (int) code << ", PC: " << (pc - 1) << "\n";
+
     // Extract components of opcode as defined in the reference
     byte b76 = bitValue(code, 7) << 1 | bitValue(code, 6);
     bool b3 = isSet(code, 3);
@@ -120,15 +122,15 @@ uint CPU::decodeAndExecute() {
 
     switch (b76) {
         case 0b00: {
-            if (b210 == 0b00) {
+            if (b210 == 0b000) {
                 // NOP
-                if (b543 == 0b0) { break; }
+                if (b543 == 0b000) { break; }
                 // LD (u16), SP
-                else if (b543 == 0b1) { ld_u16_sp(); break; }
+                else if (b543 == 0b001) { ld_u16_sp(); break; }
                 // STOP
-                else if (b543 == 0b10) { state = CPUState::HALTED; fetchByte(); break; }
+                else if (b543 == 0b010) { state = CPUState::HALTED; fetchByte(); break; }
                 // JR
-                else if (b543 == 0b11) { jr(); break; }
+                else if (b543 == 0b011) { jr(); break; }
 
                 if (isSet(b543, 2)) {  // JR <condition>
                     byte conditionCode = bitValue(b543, 1) << 1 | bitValue(b543, 0);
@@ -140,7 +142,7 @@ uint CPU::decodeAndExecute() {
                     }
                     break;
                 }
-            } else if (b210 == 0b01) {
+            } else if (b210 == 0b001) {
                 // r16 is decoded from group 1
                 if (b3) {  // ADD HL, r16
                     word r16{};
@@ -393,7 +395,67 @@ uint CPU::decodeAndExecute() {
 }
 
 uint CPU::decodeAndExecuteExtended() {
-    return 0;
+    byte code = fetchByte();
+
+    // Extract components of opcode as defined in the reference
+    byte b76 = bitValue(code, 7) << 1 | bitValue(code, 6);
+    byte b54 = bitValue(code, 5) << 1 | bitValue(code, 4);
+    byte b543 = b54 << 1 | bitValue(code, 3);
+    byte b210 = code & 0b111;
+
+    switch (b76) {
+        case 0b00: {
+            byte& operand = decodeR8(b210);
+            switch (b543) {
+                // RLC
+                case 0:
+                    operand = rlcR8(operand);
+                    break;
+                // RRC
+                case 1:
+                    operand = rrcR8(operand);
+                    break;
+                case 2:
+                    operand = rlR8(operand);
+                    break;
+                case 3:
+                    operand = rrR8(operand);
+                    break;
+                case 4:
+                    operand = slaR8(operand);
+                    break;
+                case 5:
+                    operand = sraR8(operand);
+                    break;
+                case 6:
+                    operand = swapR8(operand);
+                    break;
+                case 7:
+                    operand = srlR8(operand);
+                    break;
+                default:
+                    break;
+            }
+            break;
+        }
+        case 0b01: {
+            byte& operand = decodeR8(b210);
+            bit(operand, b543);
+            break;
+        }
+        case 0b10: {
+            byte& operand = decodeR8(b210);
+            res(operand, b543);
+            break;
+        }
+        case 0b11: {
+            byte& operand = decodeR8(b210);
+            set(operand, b543);
+            break;
+        }
+    }
+
+    return CB_CLOCK_CYCLES[code];
 }
 
 byte& CPU::decodeR8(byte y) {
@@ -783,7 +845,7 @@ void CPU::ld_u16_sp() {
     auto [upper, lower] = decomposeWord(SP());
 
     bus->write(address, lower);
-    bus->write(address, upper);
+    bus->write(address + 1, upper);
 }
 
 void CPU::jr() {
@@ -817,4 +879,18 @@ void CPU::ld_hl_sp_i8(sbyte displacement) {
 void CPU::call(word procAddress) {
     push(PC());
     PC() = procAddress;
+}
+
+void CPU::bit(byte reg, byte bit) {
+    F().zf = !isSet(reg, bit);
+    F().n = false;
+    F().h = true;
+}
+
+void CPU::res(byte& reg, byte bit) {
+    reg = resetBit(reg, bit);
+}
+
+void CPU::set(byte& reg, byte bit) {
+    reg = setBit(reg, bit);
 }

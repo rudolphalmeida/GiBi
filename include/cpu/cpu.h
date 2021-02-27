@@ -80,13 +80,7 @@ class CPU {
     // Check the condition table and return the boolean of the condition
     [[nodiscard]] bool checkCondition(byte conditionCode) const;
 
-   public:
     CPUState state;
-
-    CPU() : CPU(nullptr) {}
-
-    // Initialize the CPU with init values for the DMG-01 model
-    explicit CPU(std::shared_ptr<Bus> bus);
 
     static const word VBLANK_HANDLER_ADDRESS = 0x40;
     static const word LCDSTAT_HANDLER_ADDRESS = 0x48;
@@ -146,10 +140,6 @@ class CPU {
     void BC(word bc);
     void DE(word de);
     void HL(word hl);
-
-    // Run the next "atomic" action for the CPU. This could be the ISR, a NOP if
-    // the CPU is halted, or a single opcode
-    uint tick();
 
     // Fetch the byte at PC and increment PC
     byte fetchByte();
@@ -257,6 +247,23 @@ class CPU {
 
     // SRL R8 opcodes
     byte srlR8(byte value);
+
+    // BIT, RES, & SET opcodes
+    void bit(byte reg, byte bit);
+
+    void res(byte& reg, byte bit);
+
+    void set(byte& reg, byte bit);
+
+   public:
+    CPU() : CPU(nullptr) {}
+
+    // Initialize the CPU with init values for the DMG-01 model
+    explicit CPU(std::shared_ptr<Bus> bus);
+
+    // Run the next "atomic" action for the CPU. This could be the ISR, a NOP if
+    // the CPU is halted, or a single opcode
+    uint tick();
 };
 
 #endif  // GIBI_INCLUDE_CPU_CPU_H_

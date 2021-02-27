@@ -23,7 +23,7 @@ inline bool isSet(U value, byte bit) {
     return (value & (0b1u << bit)) != 0;
 }
 
-// Similar to isSet excepts returns 1 if set or 0 is not set
+// Similar to isSet excepts returns 1 if set or 0 if not set
 template <typename U>
 inline byte bitValue(U value, byte bit) {
     return isSet(value,  bit) ? 1 : 0;
