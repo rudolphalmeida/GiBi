@@ -98,7 +98,7 @@ uint CPU::handle_interrupts() {
 }
 
 /*
- * Decode and execute a single opcode. Might execute two opcodes if executing
+ * Decode and execute a single opcode. execute two opcodes if executing
  * the EI instruction or an extended opcode if opcode is 0xCB,
  * Reference:
  * https://gb-archive.github.io/salvage/decoding_gbz80_opcodes/Decoding%20Gamboy%20Z80%20Opcodes.html
@@ -118,17 +118,17 @@ uint CPU::decodeAndExecute() {
 
     uint branchTakenCycles{};
 
-    switch (b76) {
+    switch (b76 & 0b11) {
         case 0b00: {
             if (b210 == 0b000) {
                 // NOP
-                if (b543 == 0b000) { break; }
+                if (b543 == 0b000) {}
                 // LD (u16), SP
-                else if (b543 == 0b001) { ld_u16_sp(); break; }
+                else if (b543 == 0b001) { ld_u16_sp(); }
                 // STOP
-                else if (b543 == 0b010) { state = CPUState::HALTED; fetchByte(); break; }
+                else if (b543 == 0b010) { state = CPUState::HALTED; fetchByte(); }
                 // JR
-                else if (b543 == 0b011) { jr(); break; }
+                else if (b543 == 0b011) { jr(); }
 
                 if (isSet(b543, 2)) {  // JR <condition>
                     byte conditionCode = bitValue(b543, 1) << 1 | bitValue(b543, 0);
@@ -138,7 +138,6 @@ uint CPU::decodeAndExecute() {
                     } else {
                         fetchByte();
                     }
-                    break;
                 }
             } else if (b210 == 0b001) {
                 // r16 is decoded from group 1
@@ -162,8 +161,7 @@ uint CPU::decodeAndExecute() {
                         default: break;
                     }
                 }
-                break;
-            } else if (b210 == 0b10) {
+            } else if (b210 == 0b010) {
                 // r16 is decoded from group 2
                 word address{};
                 switch (b54) {
@@ -179,8 +177,7 @@ uint CPU::decodeAndExecute() {
                 // LD (r16), A
                 else { bus->write(address, A()); }
 
-                break;
-            } else if (b210 == 0b11) {
+            } else if (b210 == 0b011) {
                 if (b3) {  // DEC r16
                     switch (b54) {
                         case 0: BC(BC() - 1); break;
@@ -199,7 +196,6 @@ uint CPU::decodeAndExecute() {
                     }
                 }
 
-                break;
             } else if (b210 == 0b100) {  // INC r8
                 if (b543 != 6) {
                     byte& r8 = decodeR8(b543);
@@ -209,6 +205,7 @@ uint CPU::decodeAndExecute() {
                     incR8(value);
                     bus->write(HL(), value);
                 }
+
             } else if (b210 == 0b101) {  // DEC r8
                 if (b543 != 6) {
                     byte& r8 = decodeR8(b543);
@@ -218,14 +215,16 @@ uint CPU::decodeAndExecute() {
                     decR8(value);
                     bus->write(HL(), value);
                 }
+
             } else if (b210 == 0b110) {  // LD r8, u8
                 if (b543 != 6) {
                     decodeR8(b543) = fetchByte();
                 } else {
                     bus->write(HL(), fetchByte());
                 }
+
             } else if (b210 == 0b111) {  // Operations on ALU
-                switch (b543) {
+                switch (b543 & 0b111) {
                     case 0: rlca(); break;
                     case 1: rrca(); break;
                     case 2: rla(); break;
@@ -237,6 +236,7 @@ uint CPU::decodeAndExecute() {
                     // CCF
                     case 7: F().cy = !F().cy; F().n = false; F().h = false; break;
                 }
+
             }
 
             break;
@@ -256,7 +256,7 @@ uint CPU::decodeAndExecute() {
         }
         case 0b10: {
             const byte& src = b210 == 6 ? bus->read(HL()) : decodeR8(b210);
-            switch (b543) {
+            switch (b543 & 0b111) {
                 case 0: addR8(src); break;
                 case 1: adcR8(src); break;
                 case 2: subR8(src); break;
@@ -369,7 +369,7 @@ uint CPU::decodeAndExecute() {
                 }
             } else if (b210 == 0b110) { // ALU a, u8
                 byte operand = fetchByte();
-                switch (b543) {
+                switch (b543 & 0b111) {
                     case 0: addR8(operand); break;
                     case 1: adcR8(operand); break;
                     case 2: subR8(operand); break;
@@ -401,7 +401,7 @@ uint CPU::decodeAndExecuteExtended() {
     byte b543 = b54 << 1 | bitValue(code, 3);
     byte b210 = code & 0b111;
 
-    switch (b76) {
+    switch (b76 & 0b11) {
         case 0b00: {
             byte& operand = decodeR8(b210);
             switch (b543) {
