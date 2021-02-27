@@ -109,8 +109,6 @@ uint CPU::decodeAndExecute() {
     // clang-format off
     byte code = fetchByte();
 
-    std::cerr << std::hex << (int) code << ", PC: " << (pc - 1) << "\n";
-
     // Extract components of opcode as defined in the reference
     byte b76 = bitValue(code, 7) << 1 | bitValue(code, 6);
     bool b3 = isSet(code, 3);
@@ -301,7 +299,7 @@ uint CPU::decodeAndExecute() {
                         // RETI
                         case 1: IME() = true; PC() = pop(); break;
                         // JP HL
-                        case 2: PC() = HL();
+                        case 2: PC() = HL(); break;
                         // LD SP, HL
                         case 3: SP() = HL(); break;
                         default: break;
@@ -345,7 +343,7 @@ uint CPU::decodeAndExecute() {
                     case 1: branchTakenCycles = decodeAndExecuteExtended(); break;
                     // DI
                     case 6: IME() = false; break;
-                    // EI
+                    // EI - Side effect of EI is delayed by one opcode
                     case 7: branchTakenCycles = decodeAndExecute(); IME() = true; break;
                     default: break; // Illegal opcodes
                 }
@@ -828,13 +826,15 @@ void CPU::push(word value) {
     auto [upper, lower] = decomposeWord(value);
 
     // The GameBoy stack always grows down from the SP
-    bus->write(--SP(), upper);
-    bus->write(--SP(), lower);
+    bus->write(SP() - 1, upper);
+    bus->write(SP() - 2, lower);
+    SP() = SP() - 2;
 }
 
 word CPU::pop() {
-    byte lower = bus->read(SP()++);
-    byte upper = bus->read(SP()++);
+    byte lower = bus->read(SP());
+    byte upper = bus->read(SP() + 1);
+    SP() = SP() + 2;
 
     return composeWord(upper, lower);
 }
