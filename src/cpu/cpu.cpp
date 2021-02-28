@@ -10,6 +10,24 @@
 #include "cpu/opcode_info.h"
 #include "gibi.h"
 
+template <>
+word CPU::readR16<1>(byte code);
+
+template <>
+void CPU::writeR16<1>(byte code, word value);
+
+template <>
+word CPU::readR16<2>(byte code);
+
+template <>
+void CPU::writeR16<2>(byte code, word value);
+
+template <>
+word CPU::readR16<3>(byte code);
+
+template <>
+void CPU::writeR16<3>(byte code, word value);
+
 CPU::CPU(std::shared_ptr<Bus> bus)
     : a{0x01},
       b{0x00},
@@ -398,6 +416,18 @@ uint CPU::decodeAndExecute() {
 
     byte opcode = fetchByte();
 
+    byte b54 = bitValue(opcode, 5) << 1 | bitValue(opcode, 4);
+
+    if (opcode == 0x00) {
+        // NOP
+    } else if (opcode == 0x01 || opcode == 0x11 || opcode == 0x21 || opcode == 0x31) {
+        writeR16<1>(b54, fetchWord());
+    } else if (opcode == 0x02 || opcode == 0x12 || opcode == 0x22 || opcode == 0x32) {
+        bus->write(readR16<2>(b54), A());
+    } else if (opcode == 0x03 || opcode == 0x13 || opcode == 0x23 || opcode == 0x33) {
+        writeR16<1>(b54, readR16<1>(b54) + 1);
+    }
+
     return NON_CB_CLOCK_CYCLES[opcode] + branchTakenCycles;
 }
 
@@ -574,7 +604,7 @@ uint CPU::decodeAndExecuteExtended() {
 
     switch (b76 & 0b11) {
         case 0b00: {
-//            byte& operand = decodeR8(b210);
+            //            byte& operand = decodeR8(b210);
             byte operand = readR8(b210);
             switch (b543) {
                 // RLC
