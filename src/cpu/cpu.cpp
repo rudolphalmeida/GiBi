@@ -469,11 +469,29 @@ uint CPU::decodeAndExecute() {
         state = CPUState::HALTED;
     } else if (opcode >= 0x40 && opcode <= 0x7F) {  // LD r8, r8
         writeR8(b543, readR8(b210));
+    } else if (opcode >= 0x80 && opcode <= 0xBF) {  // ALU A, r8
+        aluR8(b543, readR8(b210));
     } else {
         std::cerr << std::hex << "Illegal opcode: " << (int)opcode << "\n";
     }
 
     return NON_CB_CLOCK_CYCLES[opcode] + branchTakenCycles;
+}
+
+// Based on opcode table group 2 of reference
+void CPU::aluR8(byte code, byte operand) {
+    // clang-format off
+    switch (code & 0b111) {
+        case 0: addR8(operand); break;
+        case 1: adcR8(operand); break;
+        case 2: subR8(operand); break;
+        case 3: sbcR8(operand); break;
+        case 4: andR8(operand); break;
+        case 5: xorR8(operand); break;
+        case 6: orR8(operand); break;
+        case 7: byte value = A(); subR8(A()); A() = value; break;
+    }
+    // clang-format on
 }
 
 // Based on opcode table group 1 of reference

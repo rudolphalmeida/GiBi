@@ -203,6 +203,9 @@ class CPU {
     // Used for CALL opcodes
     void call(word procAddress);
 
+    // Used for ALU A, r8 opcodes
+    void aluR8(byte code, byte operand);
+
     // Used for ADD A, r8 opcodes
     void addR8(byte value);
 
