@@ -456,12 +456,13 @@ uint CPU::decodeAndExecute() {
         writeR16<1>(b54, readR16<1>(b54) - 1);
     } else if (opcode == 0x10) {  // STOP
         state = CPUState::HALTED;
-        fetchByte();
+        fetchByte();              // STOP is 2 bytes for some reason...
     } else if (opcode == 0x18) {  // JR
         jr();
     } else if (opcode == 0x20 || opcode == 0x30 || opcode == 0x28 || opcode == 0x38) {  // JR <cond>
         if (checkCondition(b43)) {
             jr();
+            branchTakenCycles = 4;
         } else {
             fetchByte();
         }
@@ -471,6 +472,41 @@ uint CPU::decodeAndExecute() {
         writeR8(b543, readR8(b210));
     } else if (opcode >= 0x80 && opcode <= 0xBF) {  // ALU A, r8
         aluR8(b543, readR8(b210));
+    } else if (opcode == 0xC0 || opcode == 0xD0 || opcode == 0xC8 ||
+               opcode == 0xD8) {  // RET <cond>
+        if (checkCondition(b43)) {
+            PC() = pop();
+            branchTakenCycles = 12;
+        }
+    } else if (opcode == 0xC1 || opcode == 0xD1 || opcode == 0xE1 || opcode == 0xF1) {  // POP r16
+        writeR16<3>(b54, pop());
+    } else if (opcode == 0xC3) {  // JP u16
+        PC() = fetchWord();
+    } else if (opcode == 0xC4 || opcode == 0xD4 || opcode == 0xCC ||
+               opcode == 0xDC) {  // CALL <cond>, u16
+        if (checkCondition(b43)) {
+            call(fetchWord());
+            branchTakenCycles = 12;
+        } else {
+            fetchWord();
+        }
+    } else if (opcode == 0xC5 || opcode == 0xD5 || opcode == 0xE5 || opcode == 0xF5) {  // PUSH r16
+        push(readR16<3>(b54));
+    } else if (opcode == 0xC6 || opcode == 0xD6 || opcode == 0xE6 || opcode == 0xF6 ||
+               opcode == 0xCE || opcode == 0xDE || opcode == 0xEE || opcode == 0xFE) {  // ALU A, u8
+        aluR8(b543, fetchByte());
+    } else if (opcode == 0xC7 || opcode == 0xD7 || opcode == 0xE7 || opcode == 0xF7 ||
+               opcode == 0xCF || opcode == 0xDF || opcode == 0xEF || opcode == 0xFF) {  // RST
+        call(b543 << 3);
+    } else if (opcode == 0xC9) {  // RET
+        PC() = pop();
+    } else if (opcode == 0xCB) {  // CB <opcode>
+        branchTakenCycles = decodeAndExecuteExtended();
+    } else if (opcode == 0xCD) {  // CALL u16
+        call(fetchWord());
+    } else if (opcode == 0xD9) {  // RETI
+        IME() = true;
+        PC() = pop();
     } else {
         std::cerr << std::hex << "Illegal opcode: " << (int)opcode << "\n";
     }
