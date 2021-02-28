@@ -96,6 +96,16 @@ class CPU {
     // Decode and execute a 0xCB prefixed opcode and return the number of clock cycles it took
     uint decodeAndExecuteExtended();
 
+    byte readR8(byte code);
+    void writeR8(byte code, byte value);
+
+    // group is based on SM83_opcode.pdf grouping codes
+    template <size_t group>
+    word readR16(byte code);
+
+    template <size_t group>
+    void writeR16(byte code, word value);
+
     word& SP() { return sp; }
     [[nodiscard]] const word& SP() const { return sp; }
 
@@ -173,9 +183,6 @@ class CPU {
     // RRA - Rotate Register A Right through Carry
     void rra();
 
-    // Decode r8 register for algorithmic decoding; ignoring (HL)
-    byte& decodeR8(byte y);
-
     // Used for INC r8 opcodes
     void incR8(byte& reg);
 
@@ -250,10 +257,6 @@ class CPU {
 
     // BIT, RES, & SET opcodes
     void bit(byte reg, byte bit);
-
-    void res(byte& reg, byte bit);
-
-    void set(byte& reg, byte bit);
 
    public:
     CPU() : CPU(nullptr) {}
