@@ -420,6 +420,7 @@ uint CPU::decodeAndExecute() {
     byte b54 = bitValue(opcode, 5) << 1 | bitValue(opcode, 4);
     byte b43 = bitValue(opcode, 4) << 1 | bitValue(opcode, 3);
     byte b543 = b54 << 1 | bitValue(opcode, 3);
+    byte b210 = opcode & 0b111;
 
     if (opcode == 0x00) {
         // NOP
@@ -464,6 +465,10 @@ uint CPU::decodeAndExecute() {
         } else {
             fetchByte();
         }
+    } else if (opcode == 0x76) {
+        state = CPUState::HALTED;
+    } else if (opcode >= 0x40 && opcode <= 0x7F) {  // LD r8, r8
+        writeR8(b543, readR8(b210));
     } else {
         std::cerr << std::hex << "Illegal opcode: " << (int)opcode << "\n";
     }
