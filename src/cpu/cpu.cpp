@@ -417,6 +417,8 @@ uint CPU::decodeAndExecute() {
 
     byte opcode = fetchByte();
 
+    std::cerr << std::hex << (int) opcode << ", PC: " << pc - 1 << "\n";
+
     byte b54 = bitValue(opcode, 5) << 1 | bitValue(opcode, 4);
     byte b43 = bitValue(opcode, 4) << 1 | bitValue(opcode, 3);
     byte b543 = b54 << 1 | bitValue(opcode, 3);
@@ -507,6 +509,32 @@ uint CPU::decodeAndExecute() {
     } else if (opcode == 0xD9) {  // RETI
         IME() = true;
         PC() = pop();
+    } else if (opcode == 0xE0) {  // LD (FF00 + u8), A
+        bus->write(0xFF00 + fetchByte(), A());
+    } else if (opcode == 0xF0) {  // LD A, (FF00 + u8)
+        A() = bus->read(0xFF00 + fetchByte());
+    } else if (opcode == 0xE2) {  // LD (FF00 + C), A
+        bus->write(0xFF00 + C(), A());
+    } else if (opcode == 0xF2) {  // LD A, (FF00 + C)
+        A() = bus->read(0xFF00 + C());
+    } else if (opcode == 0xF3) {  // DI
+        IME() = false;
+    } else if (opcode == 0xE8) {  // ADD SP, i8
+        addToSP(static_cast<sbyte>(fetchByte()));
+    } else if (opcode == 0xF8) {  // LD HL, SP + i8
+        ld_hl_sp_i8(static_cast<sbyte>(fetchByte()));
+    } else if (opcode == 0xE9) {  // JP HL
+        PC() = HL();
+    } else if (opcode == 0xF9) {  // LD SP, HL
+        SP() = HL();
+    } else if (opcode == 0xEA) {  // LD (u16), A
+        bus->write(fetchWord(), A());
+    } else if (opcode == 0xFA) {  // LD A, (u16)
+        A() = bus->read(fetchWord());
+    } else if (opcode == 0xFB) {  // EI
+        branchTakenCycles =
+            decodeAndExecute();  // The side-effect of EI is delayed by one instruction
+        IME() = true;
     } else {
         std::cerr << std::hex << "Illegal opcode: " << (int)opcode << "\n";
     }
