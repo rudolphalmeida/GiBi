@@ -171,6 +171,8 @@ class CPU {
     // Relative jump from signed immediate integer
     void jr();
 
+    void accumalatorOpcodes(byte code);
+
     // RLCA - Rotate Register A Left
     void rlca();
 
@@ -184,10 +186,10 @@ class CPU {
     void rra();
 
     // Used for INC r8 opcodes
-    void incR8(byte& reg);
+    byte incR8(byte reg);
 
     // Used for DEC r8 opcodes
-    void decR8(byte& reg);
+    byte decR8(byte reg);
 
     // Used for ADD HL, ** opcodes
     void addToHL(word value);

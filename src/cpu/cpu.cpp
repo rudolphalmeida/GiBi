@@ -4,6 +4,7 @@
  * */
 
 #include <cstring>
+#include <iostream>
 #include <sstream>
 
 #include "cpu/cpu.h"
@@ -417,18 +418,75 @@ uint CPU::decodeAndExecute() {
     byte opcode = fetchByte();
 
     byte b54 = bitValue(opcode, 5) << 1 | bitValue(opcode, 4);
+    byte b43 = bitValue(opcode, 4) << 1 | bitValue(opcode, 3);
+    byte b543 = b54 << 1 | bitValue(opcode, 3);
 
     if (opcode == 0x00) {
         // NOP
-    } else if (opcode == 0x01 || opcode == 0x11 || opcode == 0x21 || opcode == 0x31) {
+    } else if (opcode == 0x01 || opcode == 0x11 || opcode == 0x21 ||
+               opcode == 0x31) {  // LD r16, u16
         writeR16<1>(b54, fetchWord());
-    } else if (opcode == 0x02 || opcode == 0x12 || opcode == 0x22 || opcode == 0x32) {
+    } else if (opcode == 0x02 || opcode == 0x12 || opcode == 0x22 ||
+               opcode == 0x32) {  // LD (r16), A
         bus->write(readR16<2>(b54), A());
-    } else if (opcode == 0x03 || opcode == 0x13 || opcode == 0x23 || opcode == 0x33) {
+    } else if (opcode == 0x03 || opcode == 0x13 || opcode == 0x23 || opcode == 0x33) {  // INC r16
         writeR16<1>(b54, readR16<1>(b54) + 1);
+    } else if (opcode == 0x04 || opcode == 0x14 || opcode == 0x24 || opcode == 0x34 ||
+               opcode == 0x0C || opcode == 0x1C || opcode == 0x2C || opcode == 0x3C) {  // INC r8
+        writeR8(b543, incR8(readR8(b543)));
+    } else if (opcode == 0x05 || opcode == 0x15 || opcode == 0x25 || opcode == 0x35 ||
+               opcode == 0x0D || opcode == 0x1D || opcode == 0x2D || opcode == 0x3D) {  // DEC r8
+        writeR8(b543, decR8(readR8(b543)));
+    } else if (opcode == 0x06 || opcode == 0x16 || opcode == 0x26 || opcode == 0x36 ||
+               opcode == 0x0E || opcode == 0x1E || opcode == 0x2E || opcode == 0x3E) {  // LD r8, u8
+        writeR8(b543, fetchByte());
+    } else if (opcode == 0x07 || opcode == 0x17 || opcode == 0x27 || opcode == 0x37 ||
+               opcode == 0x0F || opcode == 0x1F || opcode == 0x2F || opcode == 0x3F) {
+        accumalatorOpcodes(b543);
+    } else if (opcode == 0x08) {  // LD (u16), SP
+        ld_u16_sp();
+    } else if (opcode == 0x09 || opcode == 0x19 || opcode == 0x29 ||
+               opcode == 0x39) {  // ADD HL, r16
+        addToHL(readR16<1>(b54));
+    } else if (opcode == 0x0A || opcode == 0x1A || opcode == 0x2A ||
+               opcode == 0x3A) {  // LD A, (r16)
+        A() = bus->read(readR16<2>(b54));
+    } else if (opcode == 0x0B || opcode == 0x1B || opcode == 0x2B || opcode == 0x3B) {  // DEC r16
+        writeR16<1>(b54, readR16<1>(b54) - 1);
+    } else if (opcode == 0x10) {  // STOP
+        state = CPUState::HALTED;
+        fetchByte();
+    } else if (opcode == 0x18) {  // JR
+        jr();
+    } else if (opcode == 0x20 || opcode == 0x30 || opcode == 0x28 || opcode == 0x38) {  // JR <cond>
+        if (checkCondition(b43)) {
+            jr();
+        } else {
+            fetchByte();
+        }
+    } else {
+        std::cerr << std::hex << "Illegal opcode: " << (int)opcode << "\n";
     }
 
     return NON_CB_CLOCK_CYCLES[opcode] + branchTakenCycles;
+}
+
+// Based on opcode table group 1 of reference
+void CPU::accumalatorOpcodes(byte code) {
+    // clang-format off
+    switch (code & 0b111) {
+        case 0: rlca(); break;
+        case 1: rrca(); break;
+        case 2: rla(); break;
+        case 3: rra(); break;
+        case 4: daa(); break;
+        case 5: cpl(); break;
+        // SCF
+        case 6: F().cy = true; F().n = false; F().h = false; break;
+        // CCF
+        case 7: F().cy = !F().cy; F().n = false; F().h = false; break;
+    }
+    // clang-format on
 }
 
 byte CPU::readR8(byte code) {
@@ -715,22 +773,26 @@ void CPU::addToHL(word value) {
     HL(static_cast<word>(result));
 }
 
-void CPU::decR8(byte& reg) {
+byte CPU::decR8(byte reg) {
     f.h = willHalfCarry8BitSub(reg, 1u);
     f.n = true;
 
     reg = reg - 1;
 
     f.zf = reg == 0;
+
+    return reg;
 }
 
-void CPU::incR8(byte& reg) {
+byte CPU::incR8(byte reg) {
     f.h = willHalfCarry8BitAdd(reg, 1);
     f.n = false;
 
     reg = reg + 1;
 
     f.zf = reg == 0;
+
+    return reg;
 }
 
 void CPU::rrca() {
