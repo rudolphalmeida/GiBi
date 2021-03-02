@@ -272,6 +272,11 @@ class CPU {
     // Run the next "atomic" action for the CPU. This could be the ISR, a NOP if
     // the CPU is halted, or a single opcode
     uint tick();
+
+    // Used only for debugging
+    word peekStack() {
+        return static_cast<word>(bus->read(SP() + 1)) << 8 | static_cast<word>(bus->read(SP()));
+    }
 };
 
 #endif  // GIBI_INCLUDE_CPU_CPU_H_

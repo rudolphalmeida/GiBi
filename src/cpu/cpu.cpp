@@ -417,8 +417,6 @@ uint CPU::decodeAndExecute() {
 
     byte opcode = fetchByte();
 
-    std::cerr << std::hex << (int) opcode << ", PC: " << pc - 1 << "\n";
-
     byte b54 = bitValue(opcode, 5) << 1 | bitValue(opcode, 4);
     byte b43 = bitValue(opcode, 4) << 1 | bitValue(opcode, 3);
     byte b543 = b54 << 1 | bitValue(opcode, 3);
@@ -482,6 +480,13 @@ uint CPU::decodeAndExecute() {
         }
     } else if (opcode == 0xC1 || opcode == 0xD1 || opcode == 0xE1 || opcode == 0xF1) {  // POP r16
         writeR16<3>(b54, pop());
+    } else if (opcode == 0xC2 || opcode == 0xD2 || opcode == 0xCA || opcode == 0xDA) {  // JP <cond>
+        if (checkCondition(b43)) {
+            PC() = fetchWord();
+            branchTakenCycles = 4;
+        } else {
+            fetchWord();
+        }
     } else if (opcode == 0xC3) {  // JP u16
         PC() = fetchWord();
     } else if (opcode == 0xC4 || opcode == 0xD4 || opcode == 0xCC ||
@@ -624,6 +629,7 @@ void CPU::writeR8(byte code, byte value) {
             break;
         case 7:
             A() = value;
+            break;
     }
 }
 
@@ -729,10 +735,10 @@ void CPU::writeR16<3>(byte code, word value) {
         case 1:
             DE(value);
             break;
-        case 3:
+        case 2:
             HL(value);
             break;
-        case 4:
+        case 3:
             AF(value);
             break;
     }
