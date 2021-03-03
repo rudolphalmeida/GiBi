@@ -262,7 +262,7 @@ void CPU::aluR8(byte code, byte operand) {
         case 4: andR8(operand); break;
         case 5: xorR8(operand); break;
         case 6: orR8(operand); break;
-        case 7: byte value = A(); subR8(A()); A() = value; break;
+        case 7: byte value = A(); subR8(operand); A() = value; break;
     }
     // clang-format on
 }
