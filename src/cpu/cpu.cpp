@@ -116,6 +116,7 @@ uint CPU::handle_interrupts() {
     return ISR_CLOCK_CYCLES;
 }
 
+// This decoding is based on SM83_decoding.pdf
 uint CPU::decodeAndExecute() {
     uint branchTakenCycles{};
 
@@ -286,169 +287,118 @@ void CPU::accumalatorOpcodes(byte code) {
 }
 
 byte CPU::readR8(byte code) {
+    // clang-format off
     switch (code & 0b111) {
-        case 0:
-            return B();
-        case 1:
-            return C();
-        case 2:
-            return D();
-        case 3:
-            return E();
-        case 4:
-            return H();
-        case 5:
-            return L();
-        case 6:
-            return bus->read(HL());
-        case 7:
-            return A();
+        case 0: return B();
+        case 1: return C();
+        case 2: return D();
+        case 3: return E();
+        case 4: return H();
+        case 5: return L();
+        case 6: return bus->read(HL());
+        case 7: return A();
     }
 
     return 0xFF;  // Shouldn't really  be required
+    // clang-format on
 }
 
 void CPU::writeR8(byte code, byte value) {
+    // clang-format off
     switch (code & 0b111) {
-        case 0:
-            B() = value;
-            break;
-        case 1:
-            C() = value;
-            break;
-        case 2:
-            D() = value;
-            break;
-        case 3:
-            E() = value;
-            break;
-        case 4:
-            H() = value;
-            break;
-        case 5:
-            L() = value;
-            break;
-        case 6:
-            bus->write(HL(), value);
-            break;
-        case 7:
-            A() = value;
-            break;
+        case 0: B() = value; break;
+        case 1: C() = value; break;
+        case 2: D() = value; break;
+        case 3: E() = value; break;
+        case 4: H() = value; break;
+        case 5: L() = value; break;
+        case 6: bus->write(HL(), value); break;
+        case 7: A() = value; break;
     }
+    // clang-format on
 }
 
 template <>
 word CPU::readR16<1>(byte code) {
+    // clang-format off
     switch (code & 0b11) {
-        case 0:
-            return BC();
-        case 1:
-            return DE();
-        case 2:
-            return HL();
-        case 3:
-            return SP();
+        case 0: return BC();
+        case 1: return DE();
+        case 2: return HL();
+        case 3: return SP();
     }
 
     return 0xFFFF;
+    // clang-format on
 }
 
 template <>
 void CPU::writeR16<1>(byte code, word value) {
+    // clang-format off
     switch (code & 0b11) {
-        case 0:
-            BC(value);
-            break;
-        case 1:
-            DE(value);
-            break;
-        case 2:
-            HL(value);
-            break;
-        case 3:
-            SP() = value;
-            break;
+        case 0: BC(value); break;
+        case 1: DE(value); break;
+        case 2: HL(value); break;
+        case 3: SP() = value; break;
     }
+    // clang-format on
 }
 
 template <>
 word CPU::readR16<2>(byte code) {
+    // clang-format off
     word value{0xFFFF};
     switch (code & 0b11) {
-        case 0:
-            value = BC();
-            break;
-        case 1:
-            value = DE();
-            break;
-        case 2:
-            value = HL();
-            HL(HL() + 1);
-            break;
-        case 3:
-            value = HL();
-            HL(HL() - 1);
-            break;
+        case 0: value = BC(); break;
+        case 1: value = DE(); break;
+        case 2: value = HL(); HL(HL() + 1); break;
+        case 3: value = HL(); HL(HL() - 1); break;
     }
 
     return value;
+    // clang-format on
 }
 
 template <>
 void CPU::writeR16<2>(byte code, word value) {
+    // clang-format off
     switch (code & 0b11) {
-        case 0:
-            BC(value);
-            break;
-        case 1:
-            DE(value);
-            break;
-        case 2:
-            bus->write(HL(), value);
-            HL(HL() + 1);
-            break;
-        case 3:
-            bus->write(HL(), value);
-            HL(HL() - 1);
-            break;
+        case 0: BC(value); break;
+        case 1: DE(value); break;
+        case 2: bus->write(HL(), value); HL(HL() + 1); break;
+        case 3: bus->write(HL(), value); HL(HL() - 1); break;
     }
+    // clang-format on
 }
 
 template <>
 word CPU::readR16<3>(byte code) {
+    // clang-format off
     switch (code & 0b11) {
-        case 0:
-            return BC();
-        case 1:
-            return DE();
-        case 2:
-            return HL();
-        case 3:
-            return AF();
+        case 0: return BC();
+        case 1: return DE();
+        case 2: return HL();
+        case 3: return AF();
     }
 
     return 0xFFFF;
+    // clang-format on
 }
 
 template <>
 void CPU::writeR16<3>(byte code, word value) {
+    // clang-format off
     switch (code & 0b11) {
-        case 0:
-            BC(value);
-            break;
-        case 1:
-            DE(value);
-            break;
-        case 2:
-            HL(value);
-            break;
-        case 3:
-            AF(value);
-            break;
+        case 0: BC(value); break;
+        case 1: DE(value); break;
+        case 2: HL(value); break;
+        case 3: AF(value); break;
     }
+    // clang-format on
 }
 
 uint CPU::decodeAndExecuteExtended() {
+    // clang-format off
     byte code = fetchByte();
 
     // Extract components of opcode as defined in the reference
@@ -462,52 +412,25 @@ uint CPU::decodeAndExecuteExtended() {
             //            byte& operand = decodeR8(b210);
             byte operand = readR8(b210);
             switch (b543) {
-                // RLC
-                case 0:
-                    writeR8(b210, rlcR8(operand));
-                    break;
-                // RRC
-                case 1:
-                    writeR8(b210, rrcR8(operand));
-                    break;
-                case 2:
-                    writeR8(b210, rlR8(operand));
-                    break;
-                case 3:
-                    writeR8(b210, rrR8(operand));
-                    break;
-                case 4:
-                    writeR8(b210, slaR8(operand));
-                    break;
-                case 5:
-                    writeR8(b210, sraR8(operand));
-                    break;
-                case 6:
-                    writeR8(b210, swapR8(operand));
-                    break;
-                case 7:
-                    writeR8(b210, srlR8(operand));
-                    break;
-                default:
-                    break;
+                case 0: writeR8(b210, rlcR8(operand)); break;
+                case 1: writeR8(b210, rrcR8(operand)); break;
+                case 2: writeR8(b210, rlR8(operand)); break;
+                case 3: writeR8(b210, rrR8(operand)); break;
+                case 4: writeR8(b210, slaR8(operand)); break;
+                case 5: writeR8(b210, sraR8(operand)); break;
+                case 6: writeR8(b210, swapR8(operand)); break;
+                case 7: writeR8(b210, srlR8(operand)); break;
+                default: break;
             }
             break;
         }
-        case 0b01: {
-            bit(readR8(b210), b543);
-            break;
-        }
-        case 0b10: {
-            writeR8(b210, resetBit(readR8(b210), b543));
-            break;
-        }
-        case 0b11: {
-            writeR8(b210, setBit(readR8(b210), b543));
-            break;
-        }
+        case 0b01: bit(readR8(b210), b543); break;
+        case 0b10: writeR8(b210, resetBit(readR8(b210), b543)); break;
+        case 0b11: writeR8(b210, setBit(readR8(b210), b543)); break;
     }
 
     return CB_CLOCK_CYCLES[code];
+    // clang-format on
 }
 
 bool CPU::checkCondition(byte conditionCode) const {
