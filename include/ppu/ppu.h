@@ -15,6 +15,7 @@
 #include "lcdc.h"
 #include "lcdstatus.h"
 #include "mmu/memory.h"
+#include "options.h"
 
 class Bus;
 
@@ -50,6 +51,8 @@ class PPU : public Memory {
 
     uint dots;
 
+    std::shared_ptr<Options> options;
+
     // Draws a single scanline of the background and the window layer
     void drawScanline(byte line);
     void drawBackgroundScanline(byte line);
@@ -59,7 +62,7 @@ class PPU : public Memory {
     void drawSprite(uint sprite);
 
    public:
-    explicit PPU(std::shared_ptr<IntF> intf, std::shared_ptr<Bus> bus);
+    explicit PPU(std::shared_ptr<IntF> intf, std::shared_ptr<Bus> bus, std::shared_ptr<Options> options);
 
     static const uint LCD_WIDTH = 160;
     static const uint LCD_HEIGHT = 144;

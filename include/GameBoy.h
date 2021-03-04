@@ -17,6 +17,7 @@
 #include "gibi.h"
 #include "mmu/bus.h"
 #include "ppu/ppu.h"
+#include "options.h"
 
 class GameBoy {
    private:
@@ -45,6 +46,8 @@ class GameBoy {
 
     SDL_Event event{};
     bool shouldQuit{};
+
+    std::shared_ptr<Options> options;
 
    public:
     GameBoy(int argc, char** argv);

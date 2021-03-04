@@ -9,6 +9,7 @@
 #include <args.hxx>
 
 #include "GameBoy.h"
+#include "options.h"
 #include "ppu/ppu.h"
 
 std::vector<byte> readBinaryToVec(const std::string& filename) {
@@ -29,12 +30,19 @@ std::vector<byte> readBinaryToVec(const std::string& filename) {
     return data;
 }
 
-GameBoy::GameBoy(int argc, char** argv) : pixels(WIDTH * HEIGHT) {
+GameBoy::GameBoy(int argc, char** argv)
+    : pixels(WIDTH * HEIGHT), options{std::make_shared<Options>()} {
     // Command-line argument config
     args::ArgumentParser parser("GiBi is a GameBoy Emulator made for fun and learning");
     args::HelpFlag help(parser, "help", "Display this help menu", {'h', "help"});
     args::Positional<std::string> rom(parser, "rom", "Path to ROM file", args::Options::Required);
     args::Positional<std::string> save(parser, "save", "Optional path to save file");
+    args::Flag disableWindow(parser, "disableWindow", "Disable the window layer",
+                             {'w', "disable-window"});
+    args::Flag disableBackground(parser, "disableBackground", "Disable the background layer",
+                                 {'b', "disable-background"});
+    args::Flag disableSprites(parser, "disableSprites", "Disable the sprite layer",
+                              {'s', "disable-sprites"});
 
     // Handle command line errors
     try {
@@ -60,6 +68,18 @@ GameBoy::GameBoy(int argc, char** argv) : pixels(WIDTH * HEIGHT) {
         savePath = args::get(save);
     }
 
+    if (disableBackground) {
+        options->disableBackground = true;
+    }
+
+    if (disableSprites) {
+        options->disableSprites = true;
+    }
+
+    if (disableWindow) {
+        options->disableWindows = true;
+    }
+
     initComponents();
     initRendering();
 }
@@ -78,7 +98,7 @@ void GameBoy::initComponents() {
     inte = std::make_shared<IntE>();
     intf = std::make_shared<IntF>();
     bus = std::make_shared<Bus>(std::move(cart), intf, inte);
-    ppu = std::make_shared<PPU>(intf, bus);
+    ppu = std::make_shared<PPU>(intf, bus, options);
     bus->connectPPU(ppu);
     cpu = CPU(bus);
 }
@@ -91,7 +111,7 @@ void GameBoy::initRendering() {
     }
 
     window = SDL_CreateWindow("GiBi - GameBoy Emulator", 100, 100, WIDTH * SCALE_FACTOR,
-                              HEIGHT * SCALE_FACTOR, SDL_WINDOW_SHOWN);
+                              HEIGHT * SCALE_FACTOR, SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI);
     if (!window) {
         std::cerr << "SDL_CreateWindow error: " << SDL_GetError() << "\n";
         SDL_Quit();

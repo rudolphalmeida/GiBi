@@ -1,11 +1,13 @@
 #include <memory>
+#include <utility>
 
 #include "cpu/interrupts.h"
 #include "gibi.h"
 #include "mmu/bus.h"
+#include "options.h"
 #include "ppu/ppu.h"
 
-PPU::PPU(std::shared_ptr<IntF> intf, std::shared_ptr<Bus> bus)
+PPU::PPU(std::shared_ptr<IntF> intf, std::shared_ptr<Bus> bus, std::shared_ptr<Options> options)
     : lcdc{},
       stat{},
       scy{0x00},
@@ -22,7 +24,8 @@ PPU::PPU(std::shared_ptr<IntF> intf, std::shared_ptr<Bus> bus)
       intf{std::move(intf)},
       bus{std::move(bus)},
       pixelBuffer(LCD_WIDTH * LCD_HEIGHT),
-      dots{0} {}
+      dots{0},
+      options{std::move(options)} {}
 
 void PPU::tick(uint cycles) {
     if (!lcdc.displayEnabled()) {
@@ -178,11 +181,11 @@ void PPU::drawScanline(byte line) {
         return;
     }
 
-    if (lcdc.bgWindowDisplayPriority()) {
+    if (lcdc.bgWindowDisplayPriority() && !options->disableBackground) {
         drawBackgroundScanline(line);
     }
 
-    if (lcdc.windowEnabled()) {
+    if (lcdc.windowEnabled() && !options->disableWindows) {
         drawWindowScanline(line);
     }
 }
@@ -293,7 +296,7 @@ void PPU::drawWindowScanline(byte line) {
 }
 
 void PPU::drawSprites() {
-    if (!lcdc.objEnabled())
+    if (!lcdc.objEnabled() || options->disableSprites)
         return;
 
     for (uint sprite = 0; sprite < NUM_SPRITES_PER_FRAME; sprite++) {
