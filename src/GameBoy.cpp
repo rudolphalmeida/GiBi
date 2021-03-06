@@ -30,70 +30,22 @@ std::vector<byte> readBinaryToVec(const std::string& filename) {
     return data;
 }
 
-GameBoy::GameBoy(int argc, char** argv)
-    : pixels(WIDTH * HEIGHT), options{std::make_shared<Options>()} {
-    // Command-line argument config
-    args::ArgumentParser parser("GiBi is a GameBoy Emulator made for fun and learning");
-    args::HelpFlag help(parser, "help", "Display this help menu", {'h', "help"});
-    args::Positional<std::string> rom(parser, "rom", "Path to ROM file", args::Options::Required);
-    args::Positional<std::string> save(parser, "save", "Optional path to save file");
-    args::Flag disableWindow(parser, "disableWindow", "Disable the window layer",
-                             {'w', "disable-window"});
-    args::Flag disableBackground(parser, "disableBackground", "Disable the background layer",
-                                 {'b', "disable-background"});
-    args::Flag disableSprites(parser, "disableSprites", "Disable the sprite layer",
-                              {'s', "disable-sprites"});
-
-    // Handle command line errors
-    try {
-        parser.ParseCLI(argc, argv);
-    } catch (args::Help&) {
-        std::cout << parser;
-        std::exit(-1);
-    } catch (args::ParseError& e) {
-        std::cerr << e.what() << std::endl;
-        std::cerr << parser;
-        std::exit(1);
-    } catch (args::ValidationError& e) {
-        std::cerr << e.what() << std::endl;
-        std::cerr << parser;
-        std::exit(1);
-    }
-
-    if (rom) {
-        romPath = args::get(rom);
-    }
-
-    if (save) {
-        savePath = args::get(save);
-    }
-
-    if (disableBackground) {
-        options->disableBackground = true;
-    }
-
-    if (disableSprites) {
-        options->disableSprites = true;
-    }
-
-    if (disableWindow) {
-        options->disableWindows = true;
-    }
-
+GameBoy::GameBoy(int argc, const char** argv)
+    : pixels(WIDTH * HEIGHT), options{parseCommandLine(argc, argv)} {
     initComponents();
     initRendering();
 }
 
 void GameBoy::initComponents() {
     // Read data and create cartridge and insert into bus
-    auto romData = readBinaryToVec(romPath);
+    auto romData = readBinaryToVec(options->romPath);
     std::vector<byte> saveData{};
 
-    if (!savePath.empty()) {
-        saveData = readBinaryToVec(savePath);
+    if (!options->savePath.empty()) {
+        saveData = readBinaryToVec(options->savePath);
     }
 
-    Cartridge cart(romData, !savePath.empty() ? std::optional(saveData) : std::nullopt);
+    Cartridge cart(romData, !options->savePath.empty() ? std::optional(saveData) : std::nullopt);
 
     inte = std::make_shared<IntE>();
     intf = std::make_shared<IntF>();
@@ -110,8 +62,8 @@ void GameBoy::initRendering() {
         std::exit(1);
     }
 
-    window = SDL_CreateWindow("GiBi - GameBoy Emulator", 100, 100, WIDTH * SCALE_FACTOR,
-                              HEIGHT * SCALE_FACTOR, SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI);
+    window = SDL_CreateWindow("GiBi - GameBoy Emulator", 100, 100, WIDTH * options->scaleFactor,
+                              HEIGHT * options->scaleFactor, SDL_WINDOW_SHOWN);
     if (!window) {
         std::cerr << "SDL_CreateWindow error: " << SDL_GetError() << "\n";
         SDL_Quit();
@@ -150,30 +102,53 @@ void GameBoy::gameLoop() {
 
         auto pixelBuffer = ppu->buffer();
         std::transform(pixelBuffer.cbegin(), pixelBuffer.cend(), pixels.begin(),
-                       [](DisplayColor color) {
-                           byte greyValue;
+                       [this](DisplayColor color) {
+                           byte r, g, b;
 
-                           // TODO: Make this mapping user configurable
                            switch (color) {
                                case DisplayColor::White: {
-                                   greyValue = 255;
+                                   if (options->useOriginalColorPalette) {
+                                       r = 255;
+                                       g = 188;
+                                       b = 15;
+                                   } else {
+                                       r = g = b = 255;
+                                   }
                                    break;
                                }
                                case DisplayColor::LightGray: {
-                                   greyValue = 170;
+                                   if (options->useOriginalColorPalette) {
+                                       r = 139;
+                                       g = 172;
+                                       b = 15;
+                                   } else {
+                                       r = g = b = 170;
+                                   }
                                    break;
                                }
                                case DisplayColor::DarkGray: {
-                                   greyValue = 85;
+                                   if (options->useOriginalColorPalette) {
+                                       r = 48;
+                                       g = 98;
+                                       b = 48;
+                                   } else {
+                                       r = g = b = 85;
+                                   }
                                    break;
                                }
                                case DisplayColor::Black: {
-                                   greyValue = 0;
+                                   if (options->useOriginalColorPalette) {
+                                       r = 15;
+                                       g = 56;
+                                       b = 15;
+                                   } else {
+                                       r = g = b = 0;
+                                   }
                                    break;
                                }
                            }
 
-                           return (greyValue << 24) | (greyValue << 16) | (greyValue << 8) | 0xFF;
+                           return (uint(r) << 24) | (uint(g) << 16) | (uint(b) << 8) | 0xFF;
                        });
 
         // Render pixel buffer to texture...
@@ -208,4 +183,70 @@ GameBoy::~GameBoy() {
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
+}
+
+std::shared_ptr<Options> parseCommandLine(int argc, const char** argv) {
+    auto options = std::make_shared<Options>();
+
+    // Command-line argument config
+    args::ArgumentParser parser("GiBi is a GameBoy Emulator made for fun and learning");
+    args::HelpFlag help(parser, "help", "Display this help menu", {'h', "help"});
+    args::Positional<std::string> rom(parser, "rom", "Path to ROM file", args::Options::Required);
+    args::Positional<std::string> save(parser, "save", "Optional path to save file");
+    args::Flag disableWindow(parser, "disableWindow", "Disable the window layer",
+                             {'w', "disable-window"});
+    args::Flag disableBackground(parser, "disableBackground", "Disable the background layer",
+                                 {'b', "disable-background"});
+    args::Flag disableSprites(parser, "disableSprites", "Disable the sprite layer",
+                              {'s', "disable-sprites"});
+    args::Flag useOriginalColorPalette(parser, "originalColorPalette",
+                                       "Use the green color palette", {'c', "green-palette"});
+    args::ValueFlag<int> scaleFactor(parser, "scale", "Scale factor for window",
+                                     {'x', "scale-factor"});
+
+    // Handle command line errors
+    try {
+        parser.ParseCLI(argc, argv);
+    } catch (args::Help&) {
+        std::cout << parser;
+        std::exit(-1);
+    } catch (args::ParseError& e) {
+        std::cerr << e.what() << std::endl;
+        std::cerr << parser;
+        std::exit(1);
+    } catch (args::ValidationError& e) {
+        std::cerr << e.what() << std::endl;
+        std::cerr << parser;
+        std::exit(1);
+    }
+
+    if (rom) {
+        options->romPath = args::get(rom);
+    }
+
+    if (save) {
+        options->savePath = args::get(save);
+    }
+
+    if (disableBackground) {
+        options->disableBackground = true;
+    }
+
+    if (disableSprites) {
+        options->disableSprites = true;
+    }
+
+    if (disableWindow) {
+        options->disableWindows = true;
+    }
+
+    if (useOriginalColorPalette) {
+        options->useOriginalColorPalette = true;
+    }
+
+    if (scaleFactor) {
+        options->scaleFactor = args::get(scaleFactor);
+    }
+
+    return options;
 }

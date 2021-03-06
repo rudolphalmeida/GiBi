@@ -16,14 +16,13 @@
 #include "cpu/interrupts.h"
 #include "gibi.h"
 #include "mmu/bus.h"
-#include "ppu/ppu.h"
 #include "options.h"
+#include "ppu/ppu.h"
+
+std::shared_ptr<Options> parseCommandLine(int argc, const char** argv);
 
 class GameBoy {
    private:
-    std::string romPath{};
-    std::string savePath{};
-
     std::shared_ptr<IntF> intf;
     std::shared_ptr<IntE> inte;
     std::shared_ptr<Bus> bus;
@@ -36,7 +35,6 @@ class GameBoy {
     // Rendering and Event handling stuff
     const int WIDTH = PPU::LCD_WIDTH;
     const int HEIGHT = PPU::LCD_HEIGHT;
-    const int SCALE_FACTOR = 5;  // TODO: Make this configurable by user
 
     SDL_Window* window{};
     SDL_Renderer* renderer{};
@@ -50,7 +48,7 @@ class GameBoy {
     std::shared_ptr<Options> options;
 
    public:
-    GameBoy(int argc, char** argv);
+    GameBoy(int argc, const char** argv);
 
     const uint CYCLES_PER_FRAME = 69905;
 
