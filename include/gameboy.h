@@ -1,5 +1,5 @@
 /*
- * Driver class for the emulator. Runs the emulator by frame-by-frame basis using
+ * Driver class for the emulator. Runs the emulator on a frame-by-frame basis using
  * the CPU timings to drive the other components. Also handles windowing and display.
  *
  * Author: Rudolph Almeida <rudolf1.almeida@gmail.com>
@@ -18,6 +18,7 @@
 #include "mmu/bus.h"
 #include "options.h"
 #include "ppu/ppu.h"
+#include "ui.h"
 
 std::shared_ptr<Options> parseCommandLine(int argc, const char** argv);
 
@@ -30,22 +31,12 @@ class GameBoy {
     CPU cpu;
 
     void initComponents();
-    void initRendering();
-
-    // Rendering and Event handling stuff
-    const int WIDTH = PPU::LCD_WIDTH;
-    const int HEIGHT = PPU::LCD_HEIGHT;
-
-    SDL_Window* window{};
-    SDL_Renderer* renderer{};
-    SDL_Texture* texture{};
-
-    std::vector<uint> pixels;
-
-    SDL_Event event{};
-    bool shouldQuit{};
 
     std::shared_ptr<Options> options;
+
+    bool shouldQuit{};
+
+    UI ui;
 
    public:
     GameBoy(int argc, const char** argv);
@@ -63,8 +54,6 @@ class GameBoy {
 
     // Use the clock cycles used by the CPU to drive the other components
     uint tick();
-
-    ~GameBoy();
 };
 
 #endif  // GIBI_INCLUDE_GAMEBOY_H_

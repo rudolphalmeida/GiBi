@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 set(HEADER_FILES
         include/gibi.h
-        include/GameBoy.h
+        include/gameboy.h
         include/cpu/cpu.h
         include/cpu/opcode_info.h
         include/mmu/memory.h
@@ -17,15 +17,15 @@ set(HEADER_FILES
         include/serial.h
         include/ppu/lcdc.h
         include/ppu/lcdstatus.h
-        include/ppu/ppu.h include/options.h)
+        include/ppu/ppu.h include/options.h include/ui.h)
 set(SRC_FILES
         src/cpu/cpu.cpp
         src/mmu/bus.cpp
         src/mmu/cartridge.cpp
-        src/GameBoy.cpp
+        src/gameboy.cpp
         src/cpu/timer.cpp
         src/joypad.cpp
-        src/ppu/ppu.cpp)
+        src/ppu/ppu.cpp src/ui.cpp)
 
 find_package(args CONFIG REQUIRED)
 find_package(SDL2 CONFIG REQUIRED)

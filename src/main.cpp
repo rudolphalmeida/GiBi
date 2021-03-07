@@ -3,7 +3,7 @@
  * Author: Rudolph Almeida <rudolf1.almeida@gmail.com>
  * */
 
-#include "GameBoy.h"
+#include "gameboy.h"
 
 int main(int argc, const char** argv) {
     GameBoy gameboy(argc, argv);
