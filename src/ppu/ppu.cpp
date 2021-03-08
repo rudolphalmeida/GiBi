@@ -307,8 +307,8 @@ void PPU::drawSprites() {
 void PPU::drawSprite(uint sprite) {
     word offSetInOAM = sprite * SIZEOF_SPRITE_IN_OAM;
     word addressInOAM = OAM_START + offSetInOAM;
-    byte spriteX = bus->read(addressInOAM);
-    byte spriteY = bus->read(addressInOAM + 1);
+    byte spriteY = bus->read(addressInOAM);
+    byte spriteX = bus->read(addressInOAM + 1);
 
     // The maximum dimensions of a tile are 8x16. So the only way to (partially) hide a sprite is by
     // putting it outside the drawn area which is upto 16px around the vertical and 8px horizontal
