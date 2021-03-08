@@ -58,8 +58,8 @@ class PPU : public Memory {
     void drawBackgroundScanline(byte line);
     void drawWindowScanline(byte line);
 
-    void drawSprites();
-    void drawSprite(uint sprite);
+    void drawSprites(byte line);
+    void drawSprite(uint sprite, byte line);
 
    public:
     explicit PPU(std::shared_ptr<IntF> intf, std::shared_ptr<Bus> bus, std::shared_ptr<Options> options);
