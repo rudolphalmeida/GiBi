@@ -63,7 +63,9 @@ class PPU : public Memory {
     bool drawSprite(uint sprite, byte lineY);
 
    public:
-    explicit PPU(std::shared_ptr<IntF> intf, std::shared_ptr<Bus> bus, std::shared_ptr<Options> options);
+    explicit PPU(std::shared_ptr<IntF> intf,
+                 std::shared_ptr<Bus> bus,
+                 std::shared_ptr<Options> options);
 
     static const uint LCD_WIDTH = 160;
     static const uint LCD_HEIGHT = 144;
@@ -97,6 +99,8 @@ class PPU : public Memory {
     void write(word address, byte data) override;
 
     [[nodiscard]] const std::vector<DisplayColor>& buffer() const { return pixelBuffer; }
+
+    void clearBuffer() { std::fill(pixelBuffer.begin(), pixelBuffer.end(), DisplayColor::White); }
 };
 
 // A palette allowed any of the four gray shades to be mapped to any of the "actual" color

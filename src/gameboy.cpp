@@ -71,6 +71,7 @@ void GameBoy::gameLoop() {
 
         auto pixelBuffer = ppu->buffer();
         ui.render(pixelBuffer);
+//        ppu->clearBuffer();
     }
 }
 
