@@ -59,7 +59,8 @@ class PPU : public Memory {
     void drawWindowScanline(byte line);
 
     void drawSprites(byte line);
-    void drawSprite(uint sprite, byte line);
+    // Draw a sprite if it falls on lineY. Return true if so else false
+    bool drawSprite(uint sprite, byte lineY);
 
    public:
     explicit PPU(std::shared_ptr<IntF> intf, std::shared_ptr<Bus> bus, std::shared_ptr<Options> options);
@@ -80,6 +81,7 @@ class PPU : public Memory {
     // Each 8x8 tile has 8 lines where each line is 2 bytes
     static const uint SIZEOF_TILE = 16;
     static const uint NUM_SPRITES_PER_FRAME = 40;
+    static const uint NUM_SPRITES_PER_LINE = 10;
     static const uint SIZEOF_SPRITE_IN_OAM = 4;
     static const word OAM_START = 0xFE00;
 
