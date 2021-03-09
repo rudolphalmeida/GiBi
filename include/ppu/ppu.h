@@ -147,14 +147,13 @@ struct Palette {
 class SpriteTile {
    private:
     std::vector<DisplayColor> spriteData;
-    uint heightOfTile;
 
    public:
     SpriteTile(word startAddress, const std::shared_ptr<Bus>& bus, uint heightOfTile = 8);
 
     // This color represents the color stored in the tile data. It should be mapped through a
     // palette to get the final color as it appears on the screen
-    DisplayColor pixelValue(uint x, uint y) { return spriteData[x + y * heightOfTile]; }
+    DisplayColor pixelValue(uint x, uint y) { return spriteData.at(x + y * PPU::TILE_WIDTH_PX); }
 };
 
 #endif  // GIBI_PPU_H

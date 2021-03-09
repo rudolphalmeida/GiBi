@@ -359,14 +359,14 @@ bool PPU::drawSprite(uint sprite, byte lineY) {
         if (hiddenBehindBG && bgOrWindowColor != DisplayColor::White)
             continue;
 
-        pixelBuffer[lineX + lineY * LCD_WIDTH] = palette.fromColor(colorInTileData);
+        pixelBuffer.at(lineX + lineY * LCD_WIDTH) = palette.fromColor(colorInTileData);
     }
 
     return true;
 }
 
 SpriteTile::SpriteTile(word startAddress, const std::shared_ptr<Bus>& bus, uint heightOfTile)
-    : spriteData(heightOfTile * PPU::TILE_WIDTH_PX), heightOfTile{heightOfTile} {
+    : spriteData(heightOfTile * PPU::TILE_WIDTH_PX) {
     for (uint tileLine = 0; tileLine < heightOfTile; tileLine++) {
         uint lineByteIndexInTile = tileLine * 2;
         word byteAddress = startAddress + lineByteIndexInTile;
@@ -377,7 +377,7 @@ SpriteTile::SpriteTile(word startAddress, const std::shared_ptr<Bus>& bus, uint 
         for (uint x = 0; x < PPU::TILE_WIDTH_PX; x++) {
             byte colorCode =
                 static_cast<byte>((bitValue(pixel2, 7 - x) << 1) | bitValue(pixel1, 7 - x));
-            spriteData[x + tileLine * heightOfTile] = static_cast<DisplayColor>(colorCode);
+            spriteData.at(x + tileLine * PPU::TILE_WIDTH_PX) = static_cast<DisplayColor>(colorCode);
         }
     }
 }
