@@ -187,7 +187,9 @@ void PPU::drawScanline(byte line) {
         drawWindowScanline(line);
     }
 
-    drawSprites(line);
+    if (lcdc.objEnabled() && !options->disableSprites) {
+        drawSprites(line);
+    }
 }
 
 // Based on jgilchrist/gbemu (https://github.com/jgilchrist/gbemu/)
@@ -296,9 +298,6 @@ void PPU::drawWindowScanline(byte line) {
 }
 
 void PPU::drawSprites(byte line) {
-    if (!lcdc.objEnabled() || options->disableSprites)
-        return;
-
     for (uint sprite = 0, spriteCount = 0;
          sprite < NUM_SPRITES_PER_FRAME && spriteCount < NUM_SPRITES_PER_LINE; sprite++) {
         if (drawSprite(sprite, line))
