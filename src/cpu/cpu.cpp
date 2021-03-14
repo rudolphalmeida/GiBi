@@ -127,127 +127,182 @@ uint CPU::decodeAndExecute() {
     byte b543 = b54 << 1 | bitValue(opcode, 3);
     byte b210 = opcode & 0b111;
 
-    if (opcode == 0x00) {
-        // NOP
-    } else if (opcode == 0x01 || opcode == 0x11 || opcode == 0x21 ||
-               opcode == 0x31) {  // LD r16, u16
-        writeR16<1>(b54, fetchWord());
-    } else if (opcode == 0x02 || opcode == 0x12 || opcode == 0x22 ||
-               opcode == 0x32) {  // LD (r16), A
-        bus->write(readR16<2>(b54), A());
-    } else if (opcode == 0x03 || opcode == 0x13 || opcode == 0x23 || opcode == 0x33) {  // INC r16
-        writeR16<1>(b54, readR16<1>(b54) + 1);
-    } else if (opcode == 0x04 || opcode == 0x14 || opcode == 0x24 || opcode == 0x34 ||
-               opcode == 0x0C || opcode == 0x1C || opcode == 0x2C || opcode == 0x3C) {  // INC r8
-        writeR8(b543, incR8(readR8(b543)));
-    } else if (opcode == 0x05 || opcode == 0x15 || opcode == 0x25 || opcode == 0x35 ||
-               opcode == 0x0D || opcode == 0x1D || opcode == 0x2D || opcode == 0x3D) {  // DEC r8
-        writeR8(b543, decR8(readR8(b543)));
-    } else if (opcode == 0x06 || opcode == 0x16 || opcode == 0x26 || opcode == 0x36 ||
-               opcode == 0x0E || opcode == 0x1E || opcode == 0x2E || opcode == 0x3E) {  // LD r8, u8
-        writeR8(b543, fetchByte());
-    } else if (opcode == 0x07 || opcode == 0x17 || opcode == 0x27 || opcode == 0x37 ||
-               opcode == 0x0F || opcode == 0x1F || opcode == 0x2F || opcode == 0x3F) {
-        accumalatorOpcodes(b543);
-    } else if (opcode == 0x08) {  // LD (u16), SP
-        ld_u16_sp();
-    } else if (opcode == 0x09 || opcode == 0x19 || opcode == 0x29 ||
-               opcode == 0x39) {  // ADD HL, r16
-        addToHL(readR16<1>(b54));
-    } else if (opcode == 0x0A || opcode == 0x1A || opcode == 0x2A ||
-               opcode == 0x3A) {  // LD A, (r16)
-        A() = bus->read(readR16<2>(b54));
-    } else if (opcode == 0x0B || opcode == 0x1B || opcode == 0x2B || opcode == 0x3B) {  // DEC r16
-        writeR16<1>(b54, readR16<1>(b54) - 1);
-    } else if (opcode == 0x10) {  // STOP
-        state = CPUState::HALTED;
-        fetchByte();              // STOP is 2 bytes for some reason...
-    } else if (opcode == 0x18) {  // JR
-        jr();
-    } else if (opcode == 0x20 || opcode == 0x30 || opcode == 0x28 || opcode == 0x38) {  // JR <cond>
-        if (checkCondition(b43)) {
+    // clang-format off
+    switch (opcode) {
+        case 0x00:  // NOP
+            break;
+        case 0x01: case 0x11: case 0x21: case 0x31:  // LD r16, u16
+            writeR16<1>(b54, fetchWord());
+            break;
+        case 0x02: case 0x12: case 0x22: case 0x32:  // LD (r16), A
+            bus->write(readR16<2>(b54), A());
+            break;
+        case 0x03: case 0x13: case 0x23: case 0x33:  // INC r16
+            writeR16<1>(b54, readR16<1>(b54) + 1);
+            break;
+        case 0x04: case 0x14: case 0x24: case 0x34:
+        case 0x0C: case 0x1C: case 0x2C: case 0x3C:  // INC r8
+            writeR8(b543, incR8(readR8(b543)));
+            break;
+        case 0x05: case 0x15: case 0x25: case 0x35:
+        case 0x0D: case 0x1D: case 0x2D: case 0x3D:  // DEC r8
+            writeR8(b543, decR8(readR8(b543)));
+            break;
+        case 0x06: case 0x16: case 0x26: case 0x36:
+        case 0x0E: case 0x1E: case 0x2E: case 0x3E:  // LD r8, u8
+            writeR8(b543, fetchByte());
+            break;
+        case 0x07: case 0x17: case 0x27: case 0x37:
+        case 0x0F: case 0x1F: case 0x2F: case 0x3F:  // ALC r8
+            accumalatorOpcodes(b543);
+            break;
+        case 0x08:  // LD (u16), SP
+            ld_u16_sp();
+            break;
+        case 0x09: case 0x19: case 0x29: case 0x39:  // ADD HL, r16
+            addToHL(readR16<1>(b54));
+            break;
+        case 0x0A: case 0x1A: case 0x2A: case 0x3A:  // LD A, (r16)
+            A() = bus->read(readR16<2>(b54));
+            break;
+        case 0x0B: case 0x1B: case 0x2B: case 0x3B:  // DEC r16
+            writeR16<1>(b54, readR16<1>(b54) - 1);
+            break;
+        case 0x10:  // STOP
+            state = CPUState::HALTED;
+            fetchByte();  // STOP is 2 bytes for some reason...
+            break;
+        case 0x18:  // JR
             jr();
-            branchTakenCycles = 4;
-        } else {
-            fetchByte();
-        }
-    } else if (opcode == 0x76) {
-        state = CPUState::HALTED;
-    } else if (opcode >= 0x40 && opcode <= 0x7F) {  // LD r8, r8
-        writeR8(b543, readR8(b210));
-    } else if (opcode >= 0x80 && opcode <= 0xBF) {  // ALU A, r8
-        aluR8(b543, readR8(b210));
-    } else if (opcode == 0xC0 || opcode == 0xD0 || opcode == 0xC8 ||
-               opcode == 0xD8) {  // RET <cond>
-        if (checkCondition(b43)) {
-            PC() = pop();
-            branchTakenCycles = 12;
-        }
-    } else if (opcode == 0xC1 || opcode == 0xD1 || opcode == 0xE1 || opcode == 0xF1) {  // POP r16
-        writeR16<3>(b54, pop());
-    } else if (opcode == 0xC2 || opcode == 0xD2 || opcode == 0xCA || opcode == 0xDA) {  // JP <cond>
-        if (checkCondition(b43)) {
+            break;
+        case 0x20: case 0x30: case 0x28: case 0x38:  // JR <cond>
+            if (checkCondition(b43)) {
+                jr();
+                branchTakenCycles = 4;
+            } else {
+                fetchByte();
+            }
+            break;
+        case 0x76:  // HALT
+            state = CPUState::HALTED;
+            break;
+        case 0x40: case 0x41: case 0x42: case 0x43: case 0x44: case 0x45: case 0x46: case 0x47:
+        case 0x48: case 0x49: case 0x4A: case 0x4B: case 0x4C: case 0x4D: case 0x4E: case 0x4F:
+        case 0x50: case 0x51: case 0x52: case 0x53: case 0x54: case 0x55: case 0x56: case 0x57:
+        case 0x58: case 0x59: case 0x5A: case 0x5B: case 0x5C: case 0x5D: case 0x5E: case 0x5F:
+        case 0x60: case 0x61: case 0x62: case 0x63: case 0x64: case 0x65: case 0x66: case 0x67:
+        case 0x68: case 0x69: case 0x6A: case 0x6B: case 0x6C: case 0x6D: case 0x6E: case 0x6F:
+        case 0x70: case 0x71: case 0x72: case 0x73: case 0x74: case 0x75:            case 0x77:
+        case 0x78: case 0x79: case 0x7A: case 0x7B: case 0x7C: case 0x7D: case 0x7E: case 0x7F:
+            // LD r8, r8
+            writeR8(b543, readR8(b210));
+            break;
+        case 0x80: case 0x81: case 0x82: case 0x83: case 0x84: case 0x85: case 0x86: case 0x87:
+        case 0x88: case 0x89: case 0x8A: case 0x8B: case 0x8C: case 0x8D: case 0x8E: case 0x8F:
+        case 0x90: case 0x91: case 0x92: case 0x93: case 0x94: case 0x95: case 0x96: case 0x97:
+        case 0x98: case 0x99: case 0x9A: case 0x9B: case 0x9C: case 0x9D: case 0x9E: case 0x9F:
+        case 0xA0: case 0xA1: case 0xA2: case 0xA3: case 0xA4: case 0xA5: case 0xA6: case 0xA7:
+        case 0xA8: case 0xA9: case 0xAA: case 0xAB: case 0xAC: case 0xAD: case 0xAE: case 0xAF:
+        case 0xB0: case 0xB1: case 0xB2: case 0xB3: case 0xB4: case 0xB5: case 0xB6: case 0xB7:
+        case 0xB8: case 0xB9: case 0xBA: case 0xBB: case 0xBC: case 0xBD: case 0xBE: case 0xBF:
+            // ALU A, r8
+            aluR8(b543, readR8(b210));
+            break;
+        case 0xC0: case 0xD0: case 0xC8: case 0xD8:  // RET <cond>
+            if (checkCondition(b43)) {
+                PC() = pop();
+                branchTakenCycles = 12;
+            }
+            break;
+        case 0xC1: case 0xD1: case 0xE1: case 0xF1:  // POP r16
+            writeR16<3>(b54, pop());
+            break;
+        case 0xC2: case 0xD2: case 0xCA: case 0xDA:  // JP <cond>
+            if (checkCondition(b43)) {
+                PC() = fetchWord();
+                branchTakenCycles = 4;
+            } else {
+                fetchWord();
+            }
+            break;
+        case 0xC3:  // JP u16
             PC() = fetchWord();
-            branchTakenCycles = 4;
-        } else {
-            fetchWord();
-        }
-    } else if (opcode == 0xC3) {  // JP u16
-        PC() = fetchWord();
-    } else if (opcode == 0xC4 || opcode == 0xD4 || opcode == 0xCC ||
-               opcode == 0xDC) {  // CALL <cond>, u16
-        if (checkCondition(b43)) {
+            break;
+        case 0xC4: case 0xD4: case 0xCC: case 0xDC:  // CALL <cond>, u16
+            if (checkCondition(b43)) {
+                call(fetchWord());
+                branchTakenCycles = 12;
+            } else {
+                fetchWord();
+            }
+            break;
+        case 0xC5: case 0xD5: case 0xE5: case 0xF5:  // PUSH r16
+            push(readR16<3>(b54));
+            break;
+        case 0xC6: case 0xD6: case 0xE6: case 0xF6:
+        case 0xCE: case 0xDE: case 0xEE: case 0xFE:  // ALU A, u8
+            aluR8(b543, fetchByte());
+            break;
+        case 0xC7: case 0xD7: case 0xE7: case 0xF7:
+        case 0xCF: case 0xDF: case 0xEF: case 0xFF:  // RST
+            call(b543 << 3);
+            break;
+        case 0xC9:  // RET
+            PC() = pop();
+            break;
+        case 0xCB:  // CB <opcode>
+            branchTakenCycles = decodeAndExecuteExtended();
+            break;
+        case 0xCD:  // CALL u16
             call(fetchWord());
-            branchTakenCycles = 12;
-        } else {
-            fetchWord();
-        }
-    } else if (opcode == 0xC5 || opcode == 0xD5 || opcode == 0xE5 || opcode == 0xF5) {  // PUSH r16
-        push(readR16<3>(b54));
-    } else if (opcode == 0xC6 || opcode == 0xD6 || opcode == 0xE6 || opcode == 0xF6 ||
-               opcode == 0xCE || opcode == 0xDE || opcode == 0xEE || opcode == 0xFE) {  // ALU A, u8
-        aluR8(b543, fetchByte());
-    } else if (opcode == 0xC7 || opcode == 0xD7 || opcode == 0xE7 || opcode == 0xF7 ||
-               opcode == 0xCF || opcode == 0xDF || opcode == 0xEF || opcode == 0xFF) {  // RST
-        call(b543 << 3);
-    } else if (opcode == 0xC9) {  // RET
-        PC() = pop();
-    } else if (opcode == 0xCB) {  // CB <opcode>
-        branchTakenCycles = decodeAndExecuteExtended();
-    } else if (opcode == 0xCD) {  // CALL u16
-        call(fetchWord());
-    } else if (opcode == 0xD9) {  // RETI
-        IME() = true;
-        PC() = pop();
-    } else if (opcode == 0xE0) {  // LD (FF00 + u8), A
-        bus->write(0xFF00 + fetchByte(), A());
-    } else if (opcode == 0xF0) {  // LD A, (FF00 + u8)
-        A() = bus->read(0xFF00 + fetchByte());
-    } else if (opcode == 0xE2) {  // LD (FF00 + C), A
-        bus->write(0xFF00 + C(), A());
-    } else if (opcode == 0xF2) {  // LD A, (FF00 + C)
-        A() = bus->read(0xFF00 + C());
-    } else if (opcode == 0xF3) {  // DI
-        IME() = false;
-    } else if (opcode == 0xE8) {  // ADD SP, i8
-        addToSP(static_cast<sbyte>(fetchByte()));
-    } else if (opcode == 0xF8) {  // LD HL, SP + i8
-        ld_hl_sp_i8(static_cast<sbyte>(fetchByte()));
-    } else if (opcode == 0xE9) {  // JP HL
-        PC() = HL();
-    } else if (opcode == 0xF9) {  // LD SP, HL
-        SP() = HL();
-    } else if (opcode == 0xEA) {  // LD (u16), A
-        bus->write(fetchWord(), A());
-    } else if (opcode == 0xFA) {  // LD A, (u16)
-        A() = bus->read(fetchWord());
-    } else if (opcode == 0xFB) {  // EI
-        branchTakenCycles =
-            decodeAndExecute();  // The side-effect of EI is delayed by one instruction
-        IME() = true;
-    } else {
-        std::cerr << std::hex << "Illegal opcode: " << (int)opcode << "\n";
+            break;
+        case 0xD9:  // RETI
+            IME() = true;
+            PC() = pop();
+            break;
+        case 0xE0:  // LD (FF00 + u8), A
+            bus->write(0xFF00 + fetchByte(), A());
+            break;
+        case 0xF0:  // LD A, (FF00 + u8)
+            A() = bus->read(0xFF00 + fetchByte());
+            break;
+        case 0xE2:  // LD (FF00 + C), A
+            bus->write(0xFF00 + C(), A());
+            break;
+        case 0xF2:  // LD A, (FF00 + C)
+            A() = bus->read(0xFF00 + C());
+            break;
+        case 0xF3:  // DI
+            IME() = false;
+            break;
+        case 0xE8:  // ADD SP, i8
+            addToSP(static_cast<sbyte>(fetchByte()));
+            break;
+        case 0xF8:  // LD HL, SP + i8
+            ld_hl_sp_i8(static_cast<sbyte>(fetchByte()));
+            break;
+        case 0xE9:  // JP HL
+            PC() = HL();
+            break;
+        case 0xF9:  // LD SP, HL
+            SP() = HL();
+            break;
+        case 0xEA:  // LD (u16), A
+            bus->write(fetchWord(), A());
+            break;
+        case 0xFA:  // LD A, (u16)
+            A() = bus->read(fetchWord());
+            break;
+        case 0xFB:  // EI
+            branchTakenCycles =
+                decodeAndExecute();  // The side-effect of EI is delayed by one instruction
+            IME() = true;
+            break;
+        default:
+            std::cerr << std::hex << "Illegal opcode: " << (int)opcode << "\n";
+            break;
     }
+    // clang-format on
 
     return NON_CB_CLOCK_CYCLES[opcode] + branchTakenCycles;
 }
@@ -300,7 +355,7 @@ byte CPU::readR8(byte code) {
     }
 
     return 0xFF;  // Shouldn't really  be required
-    // clang-format on
+                  // clang-format on
 }
 
 void CPU::writeR8(byte code, byte value) {

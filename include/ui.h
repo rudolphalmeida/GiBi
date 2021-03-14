@@ -12,12 +12,14 @@
 
 #include <SDL.h>
 
+#include "mmu/bus.h"
 #include "options.h"
 #include "ppu/ppu.h"
 
 class UI {
    private:
     std::shared_ptr<Options> options;
+    std::shared_ptr<Bus> bus;
 
     const int WIDTH = PPU::LCD_WIDTH;
     const int HEIGHT = PPU::LCD_HEIGHT;
@@ -28,6 +30,7 @@ class UI {
 
     std::vector<uint> pixels;
 
+    bool shouldQuit{};
     SDL_Event event{};
 
     // Map the vector of GameBoy colors to on-screen colors
@@ -35,11 +38,15 @@ class UI {
     void toActualColor(const std::vector<DisplayColor>& pixelBuffer);
 
    public:
-    explicit UI(std::shared_ptr<Options> ops);
+    UI(std::shared_ptr<Options> ops, std::shared_ptr<Bus> bus = nullptr);
 
-    bool checkShouldQuit();
+    void handleEvents();
 
     void render(const std::vector<DisplayColor>& pixelBuffer);
+
+    [[nodiscard]] bool quit() const { return shouldQuit; }
+
+    void connectBus(std::shared_ptr<Bus> b) { this->bus = std::move(b); }
 
     ~UI();
 };

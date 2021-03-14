@@ -30,8 +30,10 @@ std::vector<byte> readBinaryToVec(const std::string& filename) {
     return data;
 }
 
-GameBoy::GameBoy(int argc, const char** argv) : options{parseCommandLine(argc, argv)}, ui(options) {
+GameBoy::GameBoy(int argc, const char** argv)
+    : options{parseCommandLine(argc, argv)}, ui(options) {
     initComponents();
+    ui.connectBus(bus);
 }
 
 void GameBoy::initComponents() {
@@ -61,9 +63,9 @@ int GameBoy::run() {
 
 void GameBoy::gameLoop() {
     while (!shouldQuit) {
-        if (ui.checkShouldQuit()) {
-            shouldQuit = true;
-            continue;
+        ui.handleEvents();
+        if (ui.quit()) {
+            break;
         }
 
         // Run the components for one frame
@@ -71,7 +73,7 @@ void GameBoy::gameLoop() {
 
         auto pixelBuffer = ppu->buffer();
         ui.render(pixelBuffer);
-//        ppu->clearBuffer();
+        //        ppu->clearBuffer();
     }
 }
 

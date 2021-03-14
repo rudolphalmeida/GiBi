@@ -1,8 +1,10 @@
 #include <iostream>
+#include <utility>
 
 #include "ui.h"
 
-UI::UI(std::shared_ptr<Options> ops) : options{std::move(ops)}, pixels(WIDTH * HEIGHT) {
+UI::UI(std::shared_ptr<Options> ops, std::shared_ptr<Bus> bus)
+    : options{std::move(ops)}, bus{std::move(bus)}, pixels(WIDTH * HEIGHT) {
     // Graphics init
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
         std::cerr << "SDL_Init error: " << SDL_GetError() << "\n";
@@ -29,14 +31,70 @@ UI::UI(std::shared_ptr<Options> ops) : options{std::move(ops)}, pixels(WIDTH * H
                                 HEIGHT);
 }
 
-bool UI::checkShouldQuit() {
+void UI::handleEvents() {
     if (SDL_PollEvent(&event) == 1) {
-        if (event.type == SDL_QUIT) {
-            return true;
+        switch (event.type) {
+            case SDL_QUIT:
+                shouldQuit = true;
+                break;
+            case SDL_KEYDOWN:
+                switch (event.key.keysym.sym) {
+                    case SDLK_LEFT:
+                        bus->getJoyPad().keydown(JoypadKeys::Left);
+                        break;
+                    case SDLK_RIGHT:
+                        bus->getJoyPad().keydown(JoypadKeys::Right);
+                        break;
+                    case SDLK_UP:
+                        bus->getJoyPad().keydown(JoypadKeys::Up);
+                        break;
+                    case SDLK_DOWN:
+                        bus->getJoyPad().keydown(JoypadKeys::Down);
+                        break;
+                    case SDLK_z:
+                        bus->getJoyPad().keydown(JoypadKeys::B);
+                        break;
+                    case SDLK_a:
+                        bus->getJoyPad().keydown(JoypadKeys::A);
+                        break;
+                    case SDLK_n:
+                        bus->getJoyPad().keydown(JoypadKeys::Select);
+                        break;
+                    case SDLK_m:
+                        bus->getJoyPad().keydown(JoypadKeys::Start);
+                        break;
+                }
+                break;
+            case SDL_KEYUP:
+                switch (event.key.keysym.sym) {
+                    case SDLK_LEFT:
+                        bus->getJoyPad().keyup(JoypadKeys::Left);
+                        break;
+                    case SDLK_RIGHT:
+                        bus->getJoyPad().keyup(JoypadKeys::Right);
+                        break;
+                    case SDLK_UP:
+                        bus->getJoyPad().keyup(JoypadKeys::Up);
+                        break;
+                    case SDLK_DOWN:
+                        bus->getJoyPad().keyup(JoypadKeys::Down);
+                        break;
+                    case SDLK_z:
+                        bus->getJoyPad().keyup(JoypadKeys::B);
+                        break;
+                    case SDLK_a:
+                        bus->getJoyPad().keyup(JoypadKeys::A);
+                        break;
+                    case SDLK_n:
+                        bus->getJoyPad().keyup(JoypadKeys::Select);
+                        break;
+                    case SDLK_m:
+                        bus->getJoyPad().keyup(JoypadKeys::Start);
+                        break;
+                }
+                break;
         }
     }
-
-    return false;
 }
 
 void UI::toActualColor(const std::vector<DisplayColor>& pixelBuffer) {

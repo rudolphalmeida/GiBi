@@ -183,7 +183,7 @@ void PPU::drawScanline(byte line) {
         drawBackgroundScanline(line);
     }
 
-    if (lcdc.windowEnabled() && !options->disableWindows) {
+    if (lcdc.bgWindowDisplayPriority() && lcdc.windowEnabled() && !options->disableWindows) {
         drawWindowScanline(line);
     }
 
@@ -259,7 +259,7 @@ void PPU::drawWindowScanline(byte line) {
     word tileMapAddress = static_cast<word>(lcdc.windowTileMap());
 
     uint screenY = line;
-    uint scrolledY = screenY - wy;
+    uint scrolledY = screenY + wy;
 
     if (scrolledY >= LCD_HEIGHT)
         return;

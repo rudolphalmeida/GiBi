@@ -17,11 +17,11 @@ void JoyPad::keyup(JoypadKeys key) {
 
 byte JoyPad::read(word address) const {
     if (address == 0xFF00) {
-        if ((data & 0x10) == 0) {
+        if (isSet(data, 4)) {
             return data | (keys & 0xF);  // Direction Keys
         }
 
-        if ((data & 0x20) == 0) {
+        if (isSet(data, 5)) {
             return data | (keys >> 4u);  // Button Keys
         }
 
@@ -33,6 +33,8 @@ byte JoyPad::read(word address) const {
 
 void JoyPad::write(word address, byte tdata) {
     if (address == 0xFF00) {
-        this->data = tdata;
+        // Only bits 5 and 4 of the register are R/W. Bits 7 and 6 are unused and bits 3-0 are R
+        // only
+        this->data = tdata & 0b00110000;
     }
 }
