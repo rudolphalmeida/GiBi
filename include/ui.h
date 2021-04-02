@@ -33,9 +33,20 @@ class UI {
     bool shouldQuit{};
     SDL_Event event{};
 
+    enum class ColorShade : uint {
+        Black = 0x000000FF,
+        DarkGray = 0x555555FF,
+        LightGray = 0xAAAAAAFF,
+        White = 0xFFFFFFFF,
+        GreenBlack = 0x0F380FFF,
+        GreenDark = 0x306230FF,
+        GreenLight = 0x8BAC0FFF,
+        GreenWhite = 0xFFBC0FFF
+    };
+
     // Map the vector of GameBoy colors to on-screen colors
     // FIXME: The background whites are mapped to a yellowish-green color
-    void toActualColor(const std::vector<DisplayColor>& pixelBuffer);
+    void toActualColorPixels(const std::vector<DisplayColor>& pixelBuffer);
 
    public:
     UI(std::shared_ptr<Options> ops, std::shared_ptr<Bus> bus = nullptr);

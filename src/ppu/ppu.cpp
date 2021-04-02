@@ -192,7 +192,6 @@ void PPU::drawScanline(byte line) {
     }
 }
 
-// Based on jgilchrist/gbemu (https://github.com/jgilchrist/gbemu/)
 void PPU::drawBackgroundScanline(byte line) {
     Palette palette{bgp};
 

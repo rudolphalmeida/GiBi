@@ -97,60 +97,44 @@ void UI::handleEvents() {
     }
 }
 
-void UI::toActualColor(const std::vector<DisplayColor>& pixelBuffer) {
+void UI::toActualColorPixels(const std::vector<DisplayColor>& pixelBuffer) {
     std::transform(pixelBuffer.cbegin(), pixelBuffer.cend(), pixels.begin(),
                    [this](DisplayColor color) {
-                       byte r, g, b;
-
                        switch (color) {
                            case DisplayColor::White: {
                                if (options->useOriginalColorPalette) {
-                                   r = 255;
-                                   g = 188;
-                                   b = 15;
+                                   return static_cast<uint>(ColorShade::GreenWhite);
                                } else {
-                                   r = g = b = 255;
+                                   return static_cast<uint>(ColorShade::White);
                                }
-                               break;
                            }
                            case DisplayColor::LightGray: {
                                if (options->useOriginalColorPalette) {
-                                   r = 139;
-                                   g = 172;
-                                   b = 15;
+                                   return static_cast<uint>(ColorShade::GreenLight);
                                } else {
-                                   r = g = b = 170;
+                                   return static_cast<uint>(ColorShade::LightGray);
                                }
-                               break;
                            }
                            case DisplayColor::DarkGray: {
                                if (options->useOriginalColorPalette) {
-                                   r = 48;
-                                   g = 98;
-                                   b = 48;
+                                   return static_cast<uint>(ColorShade::GreenDark);
                                } else {
-                                   r = g = b = 85;
+                                   return static_cast<uint>(ColorShade::DarkGray);
                                }
-                               break;
                            }
                            case DisplayColor::Black: {
                                if (options->useOriginalColorPalette) {
-                                   r = 15;
-                                   g = 56;
-                                   b = 15;
+                                   return static_cast<uint>(ColorShade::GreenBlack);
                                } else {
-                                   r = g = b = 0;
+                                   return static_cast<uint>(ColorShade::Black);
                                }
-                               break;
                            }
                        }
-
-                       return (uint(r) << 24) | (uint(g) << 16) | (uint(b) << 8) | 0xFF;
                    });
 }
 
 void UI::render(const std::vector<DisplayColor>& pixelBuffer) {
-    toActualColor(pixelBuffer);
+    toActualColorPixels(pixelBuffer);
 
     // Render pixel buffer to texture...
     SDL_UpdateTexture(texture, nullptr, pixels.data(), WIDTH * sizeof(uint));
