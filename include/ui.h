@@ -48,6 +48,8 @@ class UI {
     // FIXME: The background whites are mapped to a yellowish-green color
     void toActualColorPixels(const std::vector<DisplayColor>& pixelBuffer);
 
+    [[nodiscard]] uint displayColorToColorShade(const DisplayColor& color) const;
+
    public:
     explicit UI(std::shared_ptr<Options> ops, std::shared_ptr<Bus> bus = nullptr);
 

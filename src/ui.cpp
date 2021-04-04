@@ -100,40 +100,42 @@ void UI::handleEvents() {
 
 void UI::toActualColorPixels(const std::vector<DisplayColor>& pixelBuffer) {
     std::transform(pixelBuffer.cbegin(), pixelBuffer.cend(), pixels.begin(),
-                   [this](DisplayColor color) {
-                       switch (color) {
-                           case DisplayColor::White: {
-                               if (options->useOriginalColorPalette) {
-                                   return static_cast<uint>(ColorShade::GreenWhite);
-                               } else {
-                                   return static_cast<uint>(ColorShade::White);
-                               }
-                           }
-                           case DisplayColor::LightGray: {
-                               if (options->useOriginalColorPalette) {
-                                   return static_cast<uint>(ColorShade::GreenLight);
-                               } else {
-                                   return static_cast<uint>(ColorShade::LightGray);
-                               }
-                           }
-                           case DisplayColor::DarkGray: {
-                               if (options->useOriginalColorPalette) {
-                                   return static_cast<uint>(ColorShade::GreenDark);
-                               } else {
-                                   return static_cast<uint>(ColorShade::DarkGray);
-                               }
-                           }
-                           case DisplayColor::Black: {
-                               if (options->useOriginalColorPalette) {
-                                   return static_cast<uint>(ColorShade::GreenBlack);
-                               } else {
-                                   return static_cast<uint>(ColorShade::Black);
-                               }
-                           }
-                       }
+                   [this](DisplayColor color) { return displayColorToColorShade(color); });
+}
 
-                       return static_cast<uint>(ColorShade::White);  // Not needed
-                   });
+uint UI::displayColorToColorShade(const DisplayColor& color) const {
+    switch (color) {
+        case DisplayColor::White: {
+            if (options->useOriginalColorPalette) {
+                return static_cast<uint>(ColorShade::GreenWhite);
+            } else {
+                return static_cast<uint>(ColorShade::White);
+            }
+        }
+        case DisplayColor::LightGray: {
+            if (options->useOriginalColorPalette) {
+                return static_cast<uint>(ColorShade::GreenLight);
+            } else {
+                return static_cast<uint>(ColorShade::LightGray);
+            }
+        }
+        case DisplayColor::DarkGray: {
+            if (options->useOriginalColorPalette) {
+                return static_cast<uint>(ColorShade::GreenDark);
+            } else {
+                return static_cast<uint>(ColorShade::DarkGray);
+            }
+        }
+        case DisplayColor::Black: {
+            if (options->useOriginalColorPalette) {
+                return static_cast<uint>(ColorShade::GreenBlack);
+            } else {
+                return static_cast<uint>(ColorShade::Black);
+            }
+        }
+    }
+
+    return static_cast<uint>(ColorShade::White);  // Not needed
 }
 
 void UI::render(const std::vector<DisplayColor>& pixelBuffer) {
