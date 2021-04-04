@@ -17,7 +17,9 @@ set(HEADER_FILES
         include/serial.h
         include/ppu/lcdc.h
         include/ppu/lcdstatus.h
-        include/ppu/ppu.h include/options.h include/ui.h)
+        include/ppu/ppu.h
+        include/options.h
+        include/ui.h)
 set(SRC_FILES
         src/cpu/cpu.cpp
         src/mmu/bus.cpp

@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <iostream>
 #include <utility>
 
@@ -130,6 +131,8 @@ void UI::toActualColorPixels(const std::vector<DisplayColor>& pixelBuffer) {
                                }
                            }
                        }
+
+                       return static_cast<uint>(ColorShade::White);  // Not needed
                    });
 }
 

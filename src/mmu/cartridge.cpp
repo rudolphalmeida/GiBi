@@ -172,6 +172,8 @@ uint MBC1::romBank() const {
         case BankMode::RAM:
             return bank & 0x1F;
     }
+
+    return 0;  // This should'nt be needed
 }
 
 uint MBC1::ramBank() const {
@@ -181,6 +183,8 @@ uint MBC1::ramBank() const {
         case BankMode::RAM:
             return (bank & 0x60) >> 5;
     }
+
+    return 0;  // This should'nt be needed
 }
 
 byte MBC1::read(word address) const {

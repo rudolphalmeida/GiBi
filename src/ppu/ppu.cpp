@@ -181,6 +181,13 @@ void PPU::drawScanline(byte line) {
 
     if (lcdc.bgWindowDisplayPriority() && !options->disableBackground) {
         drawBackgroundScanline(line);
+    } else if (!lcdc.bgWindowDisplayPriority()) {
+        // If LCDC.0 is reset then color 0 from BGP is to be drawn
+        Palette palette{bgp};
+        for (uint screenX = 0; screenX < LCD_WIDTH; screenX++) {
+            DisplayColor actualColor = palette.color0;
+            pixelBuffer[screenX + line * LCD_WIDTH] = actualColor;
+        }
     }
 
     if (lcdc.bgWindowDisplayPriority() && lcdc.windowEnabled() && !options->disableWindows) {

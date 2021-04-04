@@ -140,6 +140,8 @@ struct Palette {
             case DisplayColor::Black:
                 return color3;
         }
+
+        return color0;  // This should'nt be needed
     }
 };
 

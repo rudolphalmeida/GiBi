@@ -49,7 +49,7 @@ class UI {
     void toActualColorPixels(const std::vector<DisplayColor>& pixelBuffer);
 
    public:
-    UI(std::shared_ptr<Options> ops, std::shared_ptr<Bus> bus = nullptr);
+    explicit UI(std::shared_ptr<Options> ops, std::shared_ptr<Bus> bus = nullptr);
 
     void handleEvents();
 
