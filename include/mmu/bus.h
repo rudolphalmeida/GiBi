@@ -38,7 +38,7 @@ class Bus : public Memory {
 
     std::shared_ptr<PPU> ppu;
 
-//    PPU ppu;
+    //    PPU ppu;
 
    public:
     // Bus needs to have ownership the Cartridge
@@ -53,9 +53,7 @@ class Bus : public Memory {
           serial{},
           ppu{nullptr} {}
 
-    void connectPPU(std::shared_ptr<PPU> ppu1) {
-        ppu = std::move(ppu1);
-    }
+    void connectPPU(std::shared_ptr<PPU> ppu1) { ppu = std::move(ppu1); }
 
     void tick(uint cycles);
 

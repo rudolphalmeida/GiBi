@@ -29,6 +29,21 @@ word CPU::readR16<3>(byte code);
 template <>
 void CPU::writeR16<3>(byte code, word value);
 
+byte leastSignificantBit(byte value) {
+    byte mask{0b1};
+    byte bitIndex = 0;
+
+    while (mask) {
+        if (value & mask) {
+            return bitIndex;
+        }
+        bitIndex++;
+        mask <<= 1;
+    }
+
+    return bitIndex;
+}
+
 CPU::CPU(std::shared_ptr<Bus> bus)
     : a{0x01},
       b{0x00},
@@ -39,7 +54,7 @@ CPU::CPU(std::shared_ptr<Bus> bus)
       l{0x4D},
       f{0xB0},
       sp{0xFFFE},
-      pc{0x100},  // This should start at 0x100 for emulation tests
+      pc{0x00},  // This should start at 0x100 for emulation tests
       interrupt_master{false},
       bus{std::move(bus)},
       state{CPUState::EXECUTING} {}
@@ -83,8 +98,7 @@ uint CPU::handle_interrupts() {
 
     // Find the interrupt with the highest priority. The priority goes from right to left, i.e the
     // interrupt with lower bit index has the higher priority
-    // `ffs` indexes start from 1 so we decrement it
-    auto n = ffs(ii) - 1;
+    auto n = leastSignificantBit(ii);
     intf = resetBit(intf, n);  // Mark the interrupt as serviced
     bus->write(0xFF0F, intf);
 

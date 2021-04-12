@@ -32,83 +32,85 @@ void PPU::tick(uint cycles) {
         return;
     }
 
-    dots += cycles;
+    for (uint i = 0; i < cycles; i++) {
+        dots++;
 
-    switch (stat.mode()) {
-        case LCDMode::AccessingOAM: {
-            if (dots >= ACCESSING_OAM_CLOCKS) {
-                dots %= ACCESSING_OAM_CLOCKS;
-                stat.setMode(LCDMode::AccessingVRAM);
-            }
-            break;
-        }
-        case LCDMode::AccessingVRAM: {
-            if (dots >= ACCESSING_VRAM_CLOCKS) {
-                dots %= ACCESSING_VRAM_CLOCKS;
-
-                if (stat.mode0HBlankInterruptEnabled()) {
-                    intf->request(Interrupts::LCDStat);
+        switch (stat.mode()) {
+            case LCDMode::AccessingOAM: {
+                if (dots >= ACCESSING_OAM_CLOCKS) {
+                    dots %= ACCESSING_OAM_CLOCKS;
+                    stat.setMode(LCDMode::AccessingVRAM);
                 }
-
-                stat.setMode(LCDMode::HBlank);
+                break;
             }
-            break;
-        }
-        case LCDMode::HBlank: {
-            if (dots >= HBLANK_CLOCKS) {
-                dots %= HBLANK_CLOCKS;
+            case LCDMode::AccessingVRAM: {
+                if (dots >= ACCESSING_VRAM_CLOCKS) {
+                    dots %= ACCESSING_VRAM_CLOCKS;
 
-                drawScanline(ly);
-                ly += 1;
-
-                if (ly >= LCD_HEIGHT) {  // Going into VBlank
-                    if (stat.mode1VBlankInterruptEnabled()) {
+                    if (stat.mode0HBlankInterruptEnabled()) {
                         intf->request(Interrupts::LCDStat);
                     }
 
-                    intf->request(Interrupts::VBlank);
-                    stat.setMode(LCDMode::VBlank);
-                } else {  // Going into OAM Search
-                    // Even if both conditions are met, only one interrupt fires
-                    // From PanDocs:
-                    // The interrupt is triggered when transitioning from "No conditions met" to
-                    // "Any condition met", which can cause the interrupt to not fire.
-                    // Example : the Mode 0 and LY=LYC interrupts are enabled ; since the latter
-                    // triggers during Mode 2 (right after Mode 0), the interrupt will trigger
-                    // for Mode 0 but fail to for LY=LYC.
-                    if (stat.mode2OAMInterruptEnabled() ||
-                        (stat.coincidenceInterruptEnabled() && ly == lyc)) {
-                        intf->request(Interrupts::LCDStat);
-                    }
-
-                    if (ly == lyc) {
-                        stat.setData(setBit(stat.getData(), 2));
-                    } else {
-                        stat.setData(resetBit(stat.getData(), 2));
-                    }
-
-                    stat.setMode(LCDMode::AccessingOAM);
+                    stat.setMode(LCDMode::HBlank);
                 }
+                break;
             }
+            case LCDMode::HBlank: {
+                if (dots >= HBLANK_CLOCKS) {
+                    dots %= HBLANK_CLOCKS;
 
-            break;
-        }
-        case LCDMode::VBlank: {
-            if (dots >= CLOCKS_PER_SCANLINE) {
-                dots %= CLOCKS_PER_SCANLINE;
-                ly += 1;
+                    drawScanline(ly);
+                    ly += 1;
 
-                if (ly >= TOTAL_SCANLINES) {  // Starting new frame. Going into OAM Search
-                    if (stat.mode2OAMInterruptEnabled()) {
-                        intf->request(Interrupts::LCDStat);
+                    if (ly >= LCD_HEIGHT) {  // Going into VBlank
+                        if (stat.mode1VBlankInterruptEnabled()) {
+                            intf->request(Interrupts::LCDStat);
+                        }
+
+                        intf->request(Interrupts::VBlank);
+                        stat.setMode(LCDMode::VBlank);
+                    } else {  // Going into OAM Search
+                        // Even if both conditions are met, only one interrupt fires
+                        // From PanDocs:
+                        // The interrupt is triggered when transitioning from "No conditions met" to
+                        // "Any condition met", which can cause the interrupt to not fire.
+                        // Example : the Mode 0 and LY=LYC interrupts are enabled ; since the latter
+                        // triggers during Mode 2 (right after Mode 0), the interrupt will trigger
+                        // for Mode 0 but fail to for LY=LYC.
+                        if (stat.mode2OAMInterruptEnabled() ||
+                            (stat.coincidenceInterruptEnabled() && ly == lyc)) {
+                            intf->request(Interrupts::LCDStat);
+                        }
+
+                        if (ly == lyc) {
+                            stat.setData(setBit(stat.getData(), 2));
+                        } else {
+                            stat.setData(resetBit(stat.getData(), 2));
+                        }
+
+                        stat.setMode(LCDMode::AccessingOAM);
                     }
-
-                    ly = 0;
-                    stat.setMode(LCDMode::AccessingOAM);
                 }
-            }
 
-            break;
+                break;
+            }
+            case LCDMode::VBlank: {
+                if (dots >= CLOCKS_PER_SCANLINE) {
+                    dots %= CLOCKS_PER_SCANLINE;
+                    ly += 1;
+
+                    if (ly >= TOTAL_SCANLINES) {  // Starting new frame. Going into OAM Search
+                        if (stat.mode2OAMInterruptEnabled()) {
+                            intf->request(Interrupts::LCDStat);
+                        }
+
+                        ly = 0;
+                        stat.setMode(LCDMode::AccessingOAM);
+                    }
+                }
+
+                break;
+            }
         }
     }
 }

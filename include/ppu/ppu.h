@@ -141,7 +141,7 @@ struct Palette {
                 return color3;
         }
 
-        return color0;  // This should'nt be needed
+        return color0;  // This shouldn't be needed
     }
 };
 

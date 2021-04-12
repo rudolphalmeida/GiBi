@@ -82,55 +82,37 @@ std::pair<CartType, bool> determineMBCType(byte code) {
 }
 
 uint determineROMBanks(byte code) {
+    // clang-format off
     switch (code) {
-        case 0x00:
-            return 2;
-        case 0x01:
-            return 4;
-        case 0x02:
-            return 8;
-        case 0x03:
-            return 16;
-        case 0x04:
-            return 32;
-        case 0x05:
-            return 64;
-        case 0x06:
-            return 128;
-        case 0x07:
-            return 256;
-        case 0x08:
-            return 512;
-        case 0x52:
-            return 72;
-        case 0x53:
-            return 80;
-        case 0x54:
-            return 96;
-        default: {
-            std::exit(-1);
-        }
+        case 0x00: return 2;
+        case 0x01: return 4;
+        case 0x02: return 8;
+        case 0x03: return 16;
+        case 0x04: return 32;
+        case 0x05: return 64;
+        case 0x06: return 128;
+        case 0x07: return 256;
+        case 0x08: return 512;
+        case 0x52: return 72;
+        case 0x53: return 80;
+        case 0x54: return 96;
+        default: std::exit(-1);
     }
+    // clang-format on
 }
 
 uint determineRAMSize(byte code) {
+    // clang-format off
     switch (code) {
-        case 0x00:
-            return 0;
-        case 0x01:
-            return 2;
-        case 0x02:
-            return 8;
-        case 0x03:
-            return 32;
-        case 0x04:
-            return 128;
-        case 0x05:
-            return 64;
-        default: {
-            std::exit(-1);
-        }
+        case 0x00: return 0;
+        case 0x01: return 2;
+        case 0x02: return 8;
+        case 0x03: return 32;
+        case 0x04: return 128;
+        case 0x05: return 64;
+        default: std::exit(-1);
     }
+    // clang-format on
 }
 
 std::unique_ptr<Memory> initMBC(CartType type,

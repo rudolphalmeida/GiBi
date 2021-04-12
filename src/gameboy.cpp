@@ -30,8 +30,7 @@ std::vector<byte> readBinaryToVec(const std::string& filename) {
     return data;
 }
 
-GameBoy::GameBoy(int argc, const char** argv)
-    : options{parseCommandLine(argc, argv)}, ui(options) {
+GameBoy::GameBoy(int argc, const char** argv) : options{parseCommandLine(argc, argv)}, ui(options) {
     initComponents();
     ui.connectBus(bus);
 }
