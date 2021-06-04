@@ -35,6 +35,6 @@ void JoyPad::write(word address, byte tdata) {
     if (address == 0xFF00) {
         // Only bits 5 and 4 of the register are R/W. Bits 7 and 6 are unused and bits 3-0 are R
         // only
-        this->data = tdata & 0b00110000;
+        data = (data & 0b11001111) | (tdata & 0b00110000);
     }
 }

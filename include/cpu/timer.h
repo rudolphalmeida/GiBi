@@ -17,8 +17,9 @@
 
 /*
  * Implements the internal timer found in the GameBoy CPU. The timer is controlled by a few
- * registers: 0xFF04 - DIV: Increments at a rate of 16384Hz. Resets when written to. 0xFF05 - TIMA:
- * Increments at the rate specified by TAC. When it overflows, it will be reset to value in TMA
+ * registers: 0xFF04 - DIV: Increments at a rate of 16384Hz. Resets when written to
+ * 0xFF05 - TIMA: Increments at the rate specified by TAC. When it overflows, it will be reset
+ *                to value in TMA
  * 0xFF06 - TMA: When TIMA overflows, it is reset to this value
  * 0xFF07 - TAC: Timer control. Specifies frequency of TIMA and enables or disables timer
  * */
