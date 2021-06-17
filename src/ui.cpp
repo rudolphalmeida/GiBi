@@ -55,7 +55,7 @@ void UI::handleEvents() {
                     case SDLK_z:
                         bus->getJoyPad().keydown(JoypadKeys::B);
                         break;
-                    case SDLK_a:
+                    case SDLK_x:
                         bus->getJoyPad().keydown(JoypadKeys::A);
                         break;
                     case SDLK_n:

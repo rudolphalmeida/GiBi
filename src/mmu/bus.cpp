@@ -2,8 +2,10 @@
  * Author: Rudolph Almeida <rudolf1.almeida@gmail.com>
  * */
 
-#include "mmu/bus.h"
+#include <iostream>
+
 #include "gibi.h"
+#include "mmu/bus.h"
 
 byte Bus::read(word address) const {
     if (inRange(address, 0x0000, 0x7FFF)) {
@@ -82,4 +84,5 @@ void Bus::write(word address, byte data) {
 
 void Bus::tick(uint cycles) {
     timer.tick(cycles);
+    joyPad.tick(cycles);
 }

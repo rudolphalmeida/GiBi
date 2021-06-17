@@ -26,16 +26,23 @@ enum class JoypadKeys : byte {
 
 class JoyPad : public Memory {
    private:
-    byte keys;  // The matrix of keys. Bit is reset when pressed
-    byte data;  // 0xFF00 register
+    byte keys{0xFF};  // The matrix of keys. Bit is reset when pressed
+    byte data{0xFF};  // 0xFF00 register
+
+    uint joypadClkCycles{0x00};
 
     std::shared_ptr<IntF> intf;
+
+    const uint JOYPAD_CLK_CYLES = 65536;  // 64 Hz
 
    public:
     explicit JoyPad(std::shared_ptr<IntF> intf);
 
     void keydown(JoypadKeys key);
     void keyup(JoypadKeys key);
+
+    void tick(uint cycles);
+    void update();
 
     [[nodiscard]] byte read(word address) const override;
     void write(word address, byte data) override;
