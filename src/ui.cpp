@@ -2,12 +2,14 @@
 #include <iostream>
 #include <utility>
 
+#include <SDL_gamecontroller.h>
+
 #include "ui.h"
 
 UI::UI(std::shared_ptr<Options> ops, std::shared_ptr<Bus> bus)
     : options{std::move(ops)}, bus{std::move(bus)}, pixels(WIDTH * HEIGHT) {
     // Graphics init
-    if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) != 0) {
         std::cerr << "SDL_Init error: " << SDL_GetError() << "\n";
         std::exit(1);
     }
@@ -30,6 +32,21 @@ UI::UI(std::shared_ptr<Options> ops, std::shared_ptr<Bus> bus)
 
     texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STATIC, WIDTH,
                                 HEIGHT);
+
+    // Check for any connected joysticks
+    if (SDL_NumJoysticks() < 1) {
+        std::cerr << "Warning: No joysticks connected...\n";
+    } else {
+        usingJoystick = true;
+        gameController = SDL_GameControllerOpen(0);  // Open the first connected joystick
+
+        if (SDL_GameControllerGetAttached(gameController) != 1) {
+            SDL_GameControllerClose(gameController);
+            std::cerr << "Error: Failed to open joystick! SDL Error: " << SDL_GetError() << "\n";
+            gameController = nullptr;
+            usingJoystick = false;
+        }
+    }
 }
 
 void UI::handleEvents() {
@@ -39,62 +56,151 @@ void UI::handleEvents() {
                 shouldQuit = true;
                 break;
             case SDL_KEYDOWN:
-                switch (event.key.keysym.sym) {
-                    case SDLK_LEFT:
-                        bus->getJoyPad().keydown(JoypadKeys::Left);
-                        break;
-                    case SDLK_RIGHT:
-                        bus->getJoyPad().keydown(JoypadKeys::Right);
-                        break;
-                    case SDLK_UP:
-                        bus->getJoyPad().keydown(JoypadKeys::Up);
-                        break;
-                    case SDLK_DOWN:
-                        bus->getJoyPad().keydown(JoypadKeys::Down);
-                        break;
-                    case SDLK_z:
-                        bus->getJoyPad().keydown(JoypadKeys::B);
-                        break;
-                    case SDLK_x:
-                        bus->getJoyPad().keydown(JoypadKeys::A);
-                        break;
-                    case SDLK_n:
-                        bus->getJoyPad().keydown(JoypadKeys::Select);
-                        break;
-                    case SDLK_m:
-                        bus->getJoyPad().keydown(JoypadKeys::Start);
-                        break;
-                }
+                keyboardButtonDown(event.key.keysym.sym);
                 break;
             case SDL_KEYUP:
-                switch (event.key.keysym.sym) {
-                    case SDLK_LEFT:
-                        bus->getJoyPad().keyup(JoypadKeys::Left);
-                        break;
-                    case SDLK_RIGHT:
-                        bus->getJoyPad().keyup(JoypadKeys::Right);
-                        break;
-                    case SDLK_UP:
-                        bus->getJoyPad().keyup(JoypadKeys::Up);
-                        break;
-                    case SDLK_DOWN:
-                        bus->getJoyPad().keyup(JoypadKeys::Down);
-                        break;
-                    case SDLK_z:
-                        bus->getJoyPad().keyup(JoypadKeys::B);
-                        break;
-                    case SDLK_a:
-                        bus->getJoyPad().keyup(JoypadKeys::A);
-                        break;
-                    case SDLK_n:
-                        bus->getJoyPad().keyup(JoypadKeys::Select);
-                        break;
-                    case SDLK_m:
-                        bus->getJoyPad().keyup(JoypadKeys::Start);
-                        break;
+                keyboardButtonUp(event.key.keysym.sym);
+                break;
+            case SDL_CONTROLLERBUTTONDOWN:
+                // Check if we are using a joystick and the press came from the connected one
+                if (usingJoystick &&
+                    event.cbutton.which ==
+                        SDL_JoystickInstanceID(SDL_GameControllerGetJoystick(gameController))) {
+                    joystickButtonDown(event.cbutton.button);
+                }
+                break;
+            case SDL_CONTROLLERBUTTONUP:
+                if (usingJoystick &&
+                    event.cbutton.which ==
+                        SDL_JoystickInstanceID(SDL_GameControllerGetJoystick(gameController))) {
+                    joystickButtonUp(event.cbutton.button);
                 }
                 break;
         }
+    }
+}
+
+void UI::keyboardButtonDown(SDL_Keycode sym) {
+    switch (sym) {
+        case SDLK_LEFT:
+            bus->getJoyPad().keydown(JoypadKeys::Left);
+            break;
+        case SDLK_RIGHT:
+            bus->getJoyPad().keydown(JoypadKeys::Right);
+            break;
+        case SDLK_UP:
+            bus->getJoyPad().keydown(JoypadKeys::Up);
+            break;
+        case SDLK_DOWN:
+            bus->getJoyPad().keydown(JoypadKeys::Down);
+            break;
+        case SDLK_z:
+            bus->getJoyPad().keydown(JoypadKeys::B);
+            break;
+        case SDLK_x:
+            bus->getJoyPad().keydown(JoypadKeys::A);
+            break;
+        case SDLK_n:
+            bus->getJoyPad().keydown(JoypadKeys::Select);
+            break;
+        case SDLK_m:
+            bus->getJoyPad().keydown(JoypadKeys::Start);
+            break;
+        default:
+            break;
+    }
+}
+
+void UI::joystickButtonDown(Uint8 button) {
+    switch (button) {
+        case SDL_CONTROLLER_BUTTON_DPAD_LEFT:
+            bus->getJoyPad().keydown(JoypadKeys::Left);
+            break;
+        case SDL_CONTROLLER_BUTTON_DPAD_RIGHT:
+            bus->getJoyPad().keydown(JoypadKeys::Right);
+            break;
+        case SDL_CONTROLLER_BUTTON_DPAD_UP:
+            bus->getJoyPad().keydown(JoypadKeys::Up);
+            break;
+        case SDL_CONTROLLER_BUTTON_DPAD_DOWN:
+            bus->getJoyPad().keydown(JoypadKeys::Down);
+            break;
+        case SDL_CONTROLLER_BUTTON_B:
+            bus->getJoyPad().keydown(JoypadKeys::B);
+            break;
+        case SDL_CONTROLLER_BUTTON_A:
+            bus->getJoyPad().keydown(JoypadKeys::A);
+            break;
+        case SDL_CONTROLLER_BUTTON_BACK:
+            bus->getJoyPad().keydown(JoypadKeys::Select);
+            break;
+        case SDL_CONTROLLER_BUTTON_START:
+            bus->getJoyPad().keydown(JoypadKeys::Start);
+            break;
+        default:
+            break;
+    }
+}
+
+void UI::keyboardButtonUp(SDL_Keycode sym) {
+    switch (sym) {
+        case SDLK_LEFT:
+            bus->getJoyPad().keyup(JoypadKeys::Left);
+            break;
+        case SDLK_RIGHT:
+            bus->getJoyPad().keyup(JoypadKeys::Right);
+            break;
+        case SDLK_UP:
+            bus->getJoyPad().keyup(JoypadKeys::Up);
+            break;
+        case SDLK_DOWN:
+            bus->getJoyPad().keyup(JoypadKeys::Down);
+            break;
+        case SDLK_z:
+            bus->getJoyPad().keyup(JoypadKeys::B);
+            break;
+        case SDLK_a:
+            bus->getJoyPad().keyup(JoypadKeys::A);
+            break;
+        case SDLK_n:
+            bus->getJoyPad().keyup(JoypadKeys::Select);
+            break;
+        case SDLK_m:
+            bus->getJoyPad().keyup(JoypadKeys::Start);
+            break;
+        default:
+            break;
+    }
+}
+
+void UI::joystickButtonUp(Uint8 button) {
+    switch (button) {
+        case SDL_CONTROLLER_BUTTON_DPAD_LEFT:
+            bus->getJoyPad().keyup(JoypadKeys::Left);
+            break;
+        case SDL_CONTROLLER_BUTTON_DPAD_RIGHT:
+            bus->getJoyPad().keyup(JoypadKeys::Right);
+            break;
+        case SDL_CONTROLLER_BUTTON_DPAD_UP:
+            bus->getJoyPad().keyup(JoypadKeys::Up);
+            break;
+        case SDL_CONTROLLER_BUTTON_DPAD_DOWN:
+            bus->getJoyPad().keyup(JoypadKeys::Down);
+            break;
+        case SDL_CONTROLLER_BUTTON_B:
+            bus->getJoyPad().keyup(JoypadKeys::B);
+            break;
+        case SDL_CONTROLLER_BUTTON_A:
+            bus->getJoyPad().keyup(JoypadKeys::A);
+            break;
+        case SDL_CONTROLLER_BUTTON_BACK:
+            bus->getJoyPad().keyup(JoypadKeys::Select);
+            break;
+        case SDL_CONTROLLER_BUTTON_START:
+            bus->getJoyPad().keyup(JoypadKeys::Start);
+            break;
+        default:
+            break;
     }
 }
 
@@ -151,6 +257,11 @@ void UI::render(const std::vector<DisplayColor>& pixelBuffer) {
 }
 
 UI::~UI() {
+    // Close connected controllers
+    SDL_GameControllerClose(gameController);
+    gameController = nullptr;
+
+    // Close graphics subsystem
     SDL_DestroyTexture(texture);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);

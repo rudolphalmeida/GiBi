@@ -24,7 +24,7 @@ void JoyPad::tick(uint cycles) {
 }
 
 void JoyPad::update() {
-    byte current = data & 0xF0;
+    byte current = joyp & 0xF0;
 
     switch (current & 0x30) {
         case 0x10: {
@@ -43,25 +43,25 @@ void JoyPad::update() {
         }
     }
 
-    if ((data & ~current & 0x0F) != 0)
+    if ((joyp & ~current & 0x0F) != 0)
         intf->request(Interrupts::JoyPad);
 
-    data = current;
+    joyp = current;
 }
 
 byte JoyPad::read(word address) const {
     if (address == 0xFF00) {
-        return data;
+        return joyp;
     }
 
     return 0xFF;
 }
 
-void JoyPad::write(word address, byte tdata) {
+void JoyPad::write(word address, byte data) {
     if (address == 0xFF00) {
         // Only bits 5 and 4 of the register are R/W. Bits 7 and 6 are unused and bits 3-0 are R
         // only
-        data = (data & 0xCF) | (tdata & 0x30);
+        joyp = (joyp & 0xCF) | (data & 0x30);
         update();
     }
 }

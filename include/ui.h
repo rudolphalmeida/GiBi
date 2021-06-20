@@ -28,6 +28,9 @@ class UI {
     SDL_Renderer* renderer{};
     SDL_Texture* texture{};
 
+    bool usingJoystick{false};
+    SDL_GameController* gameController{};
+
     std::vector<uint> pixels;
 
     bool shouldQuit{};
@@ -54,6 +57,10 @@ class UI {
     explicit UI(std::shared_ptr<Options> ops, std::shared_ptr<Bus> bus = nullptr);
 
     void handleEvents();
+    void keyboardButtonDown(SDL_Keycode);
+    void keyboardButtonUp(SDL_Keycode);
+    void joystickButtonDown(Uint8);
+    void joystickButtonUp(Uint8);
 
     void render(const std::vector<DisplayColor>& pixelBuffer);
 
