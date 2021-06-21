@@ -9,6 +9,7 @@
 UI::UI(std::shared_ptr<Options> ops, std::shared_ptr<Bus> bus)
     : options{std::move(ops)}, bus{std::move(bus)}, pixels(WIDTH * HEIGHT) {
     // Graphics init
+    SDL_SetMainReady();
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) != 0) {
         std::cerr << "SDL_Init error: " << SDL_GetError() << "\n";
         std::exit(1);

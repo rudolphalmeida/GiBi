@@ -10,8 +10,6 @@
 
 #include <memory>
 
-#include <SDL.h>
-
 #include "cpu/cpu.h"
 #include "cpu/interrupts.h"
 #include "gibi.h"

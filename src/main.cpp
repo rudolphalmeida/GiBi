@@ -5,7 +5,7 @@
 
 #include "gameboy.h"
 
-int main(int argc, const char** argv) {
+int main(int argc, const char* argv[]) {
     GameBoy gameboy(argc, argv);
     return gameboy.run();
 }

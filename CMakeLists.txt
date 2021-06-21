@@ -31,13 +31,12 @@ set(SRC_FILES
 
 find_package(args CONFIG REQUIRED)
 find_package(SDL2 CONFIG REQUIRED)
-find_package(spdlog CONFIG REQUIRED)
 
 add_executable(GiBi src/main.cpp ${HEADER_FILES} ${SRC_FILES})
 target_include_directories(GiBi PRIVATE include)
-target_link_libraries(GiBi PRIVATE taywee::args SDL2::SDL2main SDL2::SDL2-static spdlog::spdlog spdlog::spdlog_header_only)
+target_link_libraries(GiBi PRIVATE taywee::args SDL2::SDL2main SDL2::SDL2-static)
 target_compile_options(GiBi PRIVATE
         $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
         -Wall -Wextra -Werror -Wpedantic>
         $<$<CXX_COMPILER_ID:MSVC>:
-        /W4 /WX>)
+        >)

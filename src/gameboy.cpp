@@ -5,7 +5,6 @@
 #include <iostream>
 #include <string>
 
-#include <SDL.h>
 #include <args.hxx>
 
 #include "gameboy.h"
