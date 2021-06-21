@@ -5,12 +5,13 @@
 #include <SDL_gamecontroller.h>
 
 #include "ui.h"
+#include <cassert>
 
 UI::UI(std::shared_ptr<Options> ops, std::shared_ptr<Bus> bus)
     : options{std::move(ops)}, bus{std::move(bus)}, pixels(WIDTH * HEIGHT) {
     // Graphics init
     SDL_SetMainReady();
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) != 0) {
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER) != 0) {
         std::cerr << "SDL_Init error: " << SDL_GetError() << "\n";
         std::exit(1);
     }
@@ -47,13 +48,32 @@ UI::UI(std::shared_ptr<Options> ops, std::shared_ptr<Bus> bus)
             gameController = nullptr;
             usingJoystick = false;
         } else {
-            std::cerr << "Connect to joystick...\n";
+            // Create mapping for my Kiwitata SNES controller (RetroLink SNES Controller)
+            std::cerr << "Connected to joystick\n";
+            std::cerr << "Name: " << SDL_GameControllerNameForIndex(0) << "\n";
+
+            char* guid = new char[20];  // FIXME: Not sure if 20 is enough for GUIDs
+            SDL_JoystickGetGUIDString(SDL_JoystickGetDeviceGUID(0), guid, 20);
+            std::cerr << "GUID: " << guid << "\n";
+            SDL_free(guid);
+
+            char* mapping = SDL_GameControllerMapping(0);
+            if (mapping) {
+                std::cerr << "Controller has mapping: " << mapping << "\n";
+                SDL_free(mapping);
+            } else {
+                std::cerr << "No mapping for controller\n";
+                SDL_GameControllerAddMapping(
+                    "03000000bd12000015d0000000000000,Nintendo Retrolink USB Super SNES Classic "
+                    "Controller,a:b2,b:b1,back:b8,leftshoulder:b4,leftx:a0,lefty:a1,rightshoulder:"
+                    "b5,start:b9,x:b3,y:b0,platform:Windows,");
+            }
         }
     }
 }
 
 void UI::handleEvents() {
-    if (SDL_PollEvent(&event) == 1) {
+    if (SDL_PollEvent(&event) != 0) {
         switch (event.type) {
             case SDL_QUIT:
                 shouldQuit = true;
@@ -65,6 +85,7 @@ void UI::handleEvents() {
                 keyboardButtonUp(event.key.keysym.sym);
                 break;
             case SDL_CONTROLLERBUTTONDOWN:
+                std::cerr << "Button Pressed...!\n";
                 // Check if we are using a joystick and the press came from the connected one
                 if (usingJoystick &&
                     event.cbutton.which ==
@@ -73,7 +94,7 @@ void UI::handleEvents() {
                 }
                 break;
             case SDL_CONTROLLERBUTTONUP:
-                std::cerr << "Here!\n";
+                std::cerr << "Button Released...!\n";
                 if (usingJoystick &&
                     event.cbutton.which ==
                         SDL_JoystickInstanceID(SDL_GameControllerGetJoystick(gameController))) {
