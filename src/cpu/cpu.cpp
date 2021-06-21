@@ -3,10 +3,6 @@
  * Author: Rudolph Almeida <rudolf1.almeida@gmail.com>
  * */
 
-#include <cstring>
-#include <iostream>
-#include <sstream>
-
 #include "cpu/cpu.h"
 #include "cpu/opcode_info.h"
 #include "gibi.h"
@@ -81,6 +77,7 @@ uint CPU::handle_interrupts() {
     // Set only *enabled* and *requested* interrupts
     byte ii = intf & inte;
     if (!ii) {  // No pending interrupts
+
         return 0;
     }
 
@@ -191,13 +188,16 @@ uint CPU::decodeAndExecute() {
             break;
         case 0x20: case 0x30: case 0x28: case 0x38:  // JR <cond>
             if (checkCondition(b43)) {
+                
                 jr();
                 branchTakenCycles = 4;
             } else {
+                
                 fetchByte();
             }
             break;
         case 0x76:  // HALT
+            
             state = CPUState::HALTED;
             break;
         case 0x40: case 0x41: case 0x42: case 0x43: case 0x44: case 0x45: case 0x46: case 0x47:
@@ -224,8 +224,11 @@ uint CPU::decodeAndExecute() {
             break;
         case 0xC0: case 0xD0: case 0xC8: case 0xD8:  // RET <cond>
             if (checkCondition(b43)) {
+                
                 PC() = pop();
                 branchTakenCycles = 12;
+            } else {
+                
             }
             break;
         case 0xC1: case 0xD1: case 0xE1: case 0xF1:  // POP r16
@@ -233,9 +236,11 @@ uint CPU::decodeAndExecute() {
             break;
         case 0xC2: case 0xD2: case 0xCA: case 0xDA:  // JP <cond>
             if (checkCondition(b43)) {
+                
                 PC() = fetchWord();
                 branchTakenCycles = 4;
             } else {
+                
                 fetchWord();
             }
             break;
@@ -244,9 +249,11 @@ uint CPU::decodeAndExecute() {
             break;
         case 0xC4: case 0xD4: case 0xCC: case 0xDC:  // CALL <cond>, u16
             if (checkCondition(b43)) {
+                
                 call(fetchWord());
                 branchTakenCycles = 12;
             } else {
+                
                 fetchWord();
             }
             break;
@@ -271,6 +278,7 @@ uint CPU::decodeAndExecute() {
             call(fetchWord());
             break;
         case 0xD9:  // RETI
+            
             IME() = true;
             PC() = pop();
             break;
@@ -287,6 +295,7 @@ uint CPU::decodeAndExecute() {
             A() = bus->read(0xFF00 + C());
             break;
         case 0xF3:  // DI
+            
             IME() = false;
             break;
         case 0xE8:  // ADD SP, i8
@@ -310,10 +319,11 @@ uint CPU::decodeAndExecute() {
         case 0xFB:  // EI
             branchTakenCycles =
                 decodeAndExecute();  // The side-effect of EI is delayed by one instruction
+            
             IME() = true;
             break;
         default:
-            std::cerr << std::hex << "Illegal opcode: " << (int)opcode << "\n";
+            
             break;
     }
     // clang-format on
@@ -470,6 +480,8 @@ uint CPU::decodeAndExecuteExtended() {
     // clang-format off
     byte code = fetchByte();
 
+    
+
     // Extract components of opcode as defined in the reference
     byte b76 = bitValue(code, 7) << 1 | bitValue(code, 6);
     byte b54 = bitValue(code, 5) << 1 | bitValue(code, 4);
@@ -542,14 +554,18 @@ void CPU::HL(word hl) {
 }
 
 byte CPU::fetchByte() {
-    return bus->read(pc++);
+    byte value = bus->read(pc++);
+
+    return value;
 }
 
 word CPU::fetchWord() {
     byte lsb = fetchByte();
     byte msb = fetchByte();
 
-    return composeWord(msb, lsb);
+    word value = composeWord(msb, lsb);
+
+    return value;
 }
 
 void CPU::addToHL(word value) {
@@ -867,7 +883,9 @@ word CPU::pop() {
     byte upper = bus->read(SP() + 1);
     SP() = SP() + 2;
 
-    return composeWord(upper, lower);
+    word value = composeWord(upper, lower);
+
+    return value;
 }
 
 void CPU::ld_u16_sp() {

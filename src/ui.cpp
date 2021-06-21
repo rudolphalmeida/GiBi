@@ -40,11 +40,13 @@ UI::UI(std::shared_ptr<Options> ops, std::shared_ptr<Bus> bus)
         usingJoystick = true;
         gameController = SDL_GameControllerOpen(0);  // Open the first connected joystick
 
-        if (SDL_GameControllerGetAttached(gameController) != 1) {
+        if (SDL_GameControllerGetAttached(gameController) == SDL_FALSE) {
             SDL_GameControllerClose(gameController);
             std::cerr << "Error: Failed to open joystick! SDL Error: " << SDL_GetError() << "\n";
             gameController = nullptr;
             usingJoystick = false;
+        } else {
+            std::cerr << "Connect to joystick...\n";
         }
     }
 }
@@ -70,11 +72,18 @@ void UI::handleEvents() {
                 }
                 break;
             case SDL_CONTROLLERBUTTONUP:
+                std::cerr << "Here!\n";
                 if (usingJoystick &&
                     event.cbutton.which ==
                         SDL_JoystickInstanceID(SDL_GameControllerGetJoystick(gameController))) {
                     joystickButtonUp(event.cbutton.button);
                 }
+                break;
+            case SDL_CONTROLLERDEVICEREMOVED:
+                std::cerr << "Controller removed...\n";
+                SDL_GameControllerClose(gameController);
+                gameController = nullptr;
+                usingJoystick = false;
                 break;
         }
     }
