@@ -4,8 +4,8 @@
 
 #include <SDL_gamecontroller.h>
 
-#include "ui.h"
 #include <cassert>
+#include "ui.h"
 
 UI::UI(std::shared_ptr<Options> ops, std::shared_ptr<Bus> bus)
     : options{std::move(ops)}, bus{std::move(bus)}, pixels(WIDTH * HEIGHT) {
@@ -62,11 +62,8 @@ UI::UI(std::shared_ptr<Options> ops, std::shared_ptr<Bus> bus)
                 std::cerr << "Controller has mapping: " << mapping << "\n";
                 SDL_free(mapping);
             } else {
-                std::cerr << "No mapping for controller\n";
-                SDL_GameControllerAddMapping(
-                    "03000000bd12000015d0000000000000,Nintendo Retrolink USB Super SNES Classic "
-                    "Controller,a:b2,b:b1,back:b8,leftshoulder:b4,leftx:a0,lefty:a1,rightshoulder:"
-                    "b5,start:b9,x:b3,y:b0,platform:Windows,");
+                std::cerr << "No mapping for controller. Loading from gamecontrollerdb.txt...\n";
+                SDL_GameControllerAddMappingsFromFile("gmaecontrollerdb.txt");
             }
         }
     }
@@ -85,7 +82,6 @@ void UI::handleEvents() {
                 keyboardButtonUp(event.key.keysym.sym);
                 break;
             case SDL_CONTROLLERBUTTONDOWN:
-                std::cerr << "Button Pressed...!\n";
                 // Check if we are using a joystick and the press came from the connected one
                 if (usingJoystick &&
                     event.cbutton.which ==
@@ -94,7 +90,6 @@ void UI::handleEvents() {
                 }
                 break;
             case SDL_CONTROLLERBUTTONUP:
-                std::cerr << "Button Released...!\n";
                 if (usingJoystick &&
                     event.cbutton.which ==
                         SDL_JoystickInstanceID(SDL_GameControllerGetJoystick(gameController))) {
