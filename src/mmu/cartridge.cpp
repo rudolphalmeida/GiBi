@@ -2,6 +2,8 @@
  * Author: Rudolph Almeida <rudolf1.almeida@gmail.com>
  * */
 
+#include <iostream>
+
 #include "mmu/cartridge.h"
 
 #include <utility>
@@ -19,7 +21,7 @@ byte NoMBC::read(word address) const {
 
 void NoMBC::write(word address, byte data) {
     if (inRange(address, 0x0000, 0x7FFF)) {
-        rom[address] = data;
+        std::cerr << "Write to ROM attempted in NoMBC\n";
     } else if (inRange(address, 0xA000, 0xBFFF) && ram) {
         ram.value()[address] = data;
     }
