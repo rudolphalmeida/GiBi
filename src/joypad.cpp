@@ -7,11 +7,11 @@
 JoyPad::JoyPad(std::shared_ptr<IntF> intf) : intf{std::move(intf)} {}
 
 void JoyPad::keydown(JoypadKeys key) {
-    keys = setBit(keys, static_cast<byte>(key));
+    keys = resetBit(keys, static_cast<byte>(key));
 }
 
 void JoyPad::keyup(JoypadKeys key) {
-    keys = resetBit(keys, static_cast<byte>(key));
+    keys = setBit(keys, static_cast<byte>(key));
 }
 
 void JoyPad::tick(uint cycles) {
