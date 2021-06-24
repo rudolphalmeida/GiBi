@@ -295,7 +295,6 @@ uint CPU::decodeAndExecute() {
             A() = bus->read(0xFF00 + C());
             break;
         case 0xF3:  // DI
-            
             IME() = false;
             break;
         case 0xE8:  // ADD SP, i8
@@ -317,10 +316,11 @@ uint CPU::decodeAndExecute() {
             A() = bus->read(fetchWord());
             break;
         case 0xFB:  // EI
-            branchTakenCycles =
-                decodeAndExecute();  // The side-effect of EI is delayed by one instruction
-            
             IME() = true;
+            // EI schedules interrupt handling to be enabled after the
+            // next machine cycle. To prevent any interrupts to be ran
+            // after enabling IME, we execute an opcode here itself
+            branchTakenCycles = decodeAndExecute();
             break;
         default:
             
